@@ -56,7 +56,13 @@
           "imageWidth": 160
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Votre position sert uniquement à trouver la maternité la plus proche ; elle n'est ni envoyée ni conservée."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

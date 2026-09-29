@@ -124,7 +124,7 @@ export default function Moi() {
         <Titre>{T.aPropos}</Titre>
         <Text style={styles.aide}>{T.aProposTxt}</Text>
         <Ligne titre={T.siteWeb} sf="safari" onPress={() => Linking.openURL(SITE + page('accueil', langue).u)} />
-        <Ligne titre={T.newsletter} sf="envelope.fill" onPress={() => ouvrirCle(router, 'newsletter', langue)} />
+        <Ligne titre={T.newsletter} sf="envelope.fill" onPress={() => router.push('/newsletter')} />
         <Ligne titre={T.confidentialite} sf="lock.fill" onPress={() => ouvrirCle(router, 'confidentialite', langue)} />
         <Ligne titre={page('apropos', langue).t} sf="info.circle.fill" onPress={() => ouvrirCle(router, 'apropos', langue)} />
 

@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Carte, Ligne, Titre } from '@/components/carte';
 import { TEXTES } from '@/i18n';
+import { questionDuJour, sondageDuJour } from '@/moteur/qdj';
 import { ouvrirCle } from '@/nav';
 import { useProfil } from '@/profil';
 import { page, type Cle } from '@/site';
@@ -26,6 +27,7 @@ export default function Jeux() {
   const T = TEXTES[langue];
   const router = useRouter();
   const go = (cle: Cle) => () => ouvrirCle(router, cle, langue);
+  const sondage = sondageDuJour(langue);
   return (
     <SafeAreaView style={styles.fond} edges={['top']}>
       <ScrollView contentContainerStyle={styles.contenu}>
@@ -33,8 +35,8 @@ export default function Jeux() {
         <Text style={styles.intro}>{T.jeuxIntro}</Text>
         <View style={styles.grille}>
           <Carte large titre={page('jeu2', langue).t} texte={T.jeu2Txt} couleur={DEGRADES.jeux[0]} sf="person.2.fill" onPress={() => router.push('/jeu2')} />
-          <Carte titre={page('qdj', langue).t} texte={T.questionDuJourTxt} couleur={DEGRADES.compat[0]} sf="bubble.left.and.bubble.right.fill" onPress={() => router.push('/qdj')} />
-          <Carte titre={page('sondages', langue).t} texte={T.sondagesTxt} couleur={DEGRADES.sexualite[0]} sf="chart.bar.fill" onPress={() => router.push('/sondages')} />
+          <Carte titre={page('qdj', langue).t} texte={questionDuJour(langue)} couleur={DEGRADES.compat[0]} sf="bubble.left.and.bubble.right.fill" onPress={() => router.push('/qdj')} />
+          <Carte titre={page('sondages', langue).t} texte={sondage ? sondage.q[langue] || sondage.q.fr : T.sondagesTxt} couleur={DEGRADES.sexualite[0]} sf="chart.bar.fill" onPress={() => router.push('/sondages')} />
         </View>
         <Titre>{page('quiz', langue).t}</Titre>
         {AUTRES.map(({ cle, sf }) => {

@@ -18,7 +18,15 @@ const RUBRIQUES: { cle: Cle; sf: string }[] = [
   { cle: 'sexualite', sf: 'flame.fill' },
   { cle: 'astrologie', sf: 'moon.stars.fill' },
   { cle: 'pays', sf: 'globe.europe.africa.fill' },
-  { cle: 'ovulation', sf: 'calendar.badge.clock' },
+];
+// les outils pratiques, en natif (article du site pour « distance et différences », dont les textes n'existent qu'en fr/en/de)
+const OUTILS: { cle: Cle; sf: string; route?: string }[] = [
+  { cle: 'ovulation', sf: 'calendar.badge.clock', route: '/ovulation' },
+  { cle: 'maternite', sf: 'cross.case.fill', route: '/maternite' },
+  { cle: 'compteur', sf: 'heart.circle.fill', route: '/compteur' },
+  { cle: 'epoux', sf: 'textformat.abc', route: '/epoux' },
+  { cle: 'garde', sf: 'calendar', route: '/garde' },
+  { cle: 'distance', sf: 'globe' },
 ];
 
 export default function Infos() {
@@ -67,7 +75,14 @@ export default function Infos() {
       {!enRecherche
         ? RUBRIQUES.map(({ cle, sf }) => {
             const p = page(cle, langue);
-            const aller = cle === 'ovulation' ? () => router.push('/ovulation') : () => router.push({ pathname: '/article', params: { u: p.u } });
+            return <Ligne key={cle} titre={p.t} texte={p.d} sf={sf} onPress={() => router.push({ pathname: '/article', params: { u: p.u } })} />;
+          })
+        : null}
+      {!enRecherche ? <Titre>{T.vosOutils}</Titre> : null}
+      {!enRecherche
+        ? OUTILS.map(({ cle, sf, route }) => {
+            const p = page(cle, langue);
+            const aller = route ? () => router.push(route as never) : () => router.push({ pathname: '/article', params: { u: p.u } });
             return <Ligne key={cle} titre={p.t} texte={p.d} sf={sf} onPress={aller} />;
           })
         : null}

@@ -35,7 +35,7 @@ export default function Accueil() {
 
         <Titre>{T.vosOutils}</Titre>
         <View style={styles.grille}>
-          <Carte titre={page('compat', langue).t} texte={T.compatTxt} couleur={DEGRADES.compat[0]} sf="heart.fill" onPress={go('compat')} />
+          <Carte titre={page('compat', langue).t} texte={T.compatTxt} couleur={DEGRADES.compat[0]} sf="heart.fill" onPress={() => router.push('/compat')} />
           <Carte titre={page('jeu2', langue).t} texte={T.jeu2Txt} couleur={DEGRADES.jeux[0]} sf="person.2.fill" onPress={() => router.push('/jeu2')} />
           <Carte titre={page('themeAstral', langue).t} texte={T.themeTxt} couleur={DEGRADES.astro[0]} sf="moon.stars.fill" onPress={() => router.push('/theme')} />
           <Carte titre={page('biorythme', langue).t} texte={T.bioTxt} couleur={DEGRADES.sante[0]} sf="waveform.path.ecg" onPress={() => router.push('/biorythme')} />

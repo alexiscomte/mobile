@@ -35,6 +35,13 @@ function Pile() {
       <Stack.Screen name="lune" options={{ title: '' }} />
       <Stack.Screen name="ovulation" options={{ title: '' }} />
       <Stack.Screen name="compteur" options={{ title: '' }} />
+      <Stack.Screen name="compat" options={{ title: '' }} />
+      <Stack.Screen name="signes" options={{ title: '' }} />
+      <Stack.Screen name="autres" options={{ title: '' }} />
+      <Stack.Screen name="epoux" options={{ title: '' }} />
+      <Stack.Screen name="garde" options={{ title: '' }} />
+      <Stack.Screen name="maternite" options={{ title: '' }} />
+      <Stack.Screen name="newsletter" options={{ title: T.newsletter }} />
     </Stack>
   );
 }
