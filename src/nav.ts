@@ -1,8 +1,10 @@
 // Ouvrir une page du site (vue web) par-dessus les onglets.
-import type { Router } from 'expo-router';
+import type { useRouter } from 'expo-router';
 
 import type { Langue } from './i18n';
 import { page, urlPage, type Cle } from './site';
+
+type Router = ReturnType<typeof useRouter>;
 
 export function ouvrir(router: Router, url: string, titre: string, apres?: string) {
   router.push({ pathname: '/page', params: { url, titre, ...(apres ? { apres } : {}) } });

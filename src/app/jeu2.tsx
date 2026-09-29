@@ -12,7 +12,7 @@ import { page, SITE } from '@/site';
 import { COULEURS } from '@/theme';
 
 type Q = [string, string[]];
-const D = jeu2 as { nom: Record<string, string>; questions: Record<string, Q>[] };
+const D = jeu2 as unknown as { nom: Record<string, string>; questions: Record<string, Q>[] };
 const UI = (ui as { jeu2: Record<string, Record<string, string>>; jeu2Page: Record<string, { h1: string; etapes: string[]; prive: string }> });
 const CLE = 'ap.jeu2';
 const fmt = (s: string, ...v: (string | number)[]) => { let i = 0; return s.replace(/%[sd]/g, () => String(v[i++] ?? '')); };
@@ -216,7 +216,7 @@ function Questionnaire({ Q, N, t, autre, suite }: { Q: Q[]; N: number; t: Record
   };
   return (
     <>
-      <View style={styles.prog}><View style={[styles.progFond, { width: Math.round(100 * k / (2 * N)) + '%' }]} /></View>
+      <View style={styles.prog}><View style={[styles.progFond, { width: `${Math.round(100 * k / (2 * N))}%` as const }]} /></View>
       <Text style={styles.muet}>{surMoi ? t.sur_moi : fmt(t.sur_autre, autre || t.partenaire)} · {i + 1}/{N}</Text>
       <Text style={styles.question}>{q[0]}</Text>
       {q[1].map((o, c) => (

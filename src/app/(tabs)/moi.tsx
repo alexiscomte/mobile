@@ -81,7 +81,7 @@ export default function Moi() {
           </View>
         </View>
         {heureConnue ? (natif ? (
-          <DateTimePicker value={heureDe(heure)} mode="time" display="compact" locale={langue} is24Hour
+          <DateTimePicker value={heureDe(heure)} mode="time" display="compact" locale={langue}
             onChange={(_e: DateTimePickerEvent, d?: Date) => { if (d) setHeure(isoHeure(d)); }} style={styles.picker} />
         ) : (
           <TextInput style={styles.entree} value={heure} onChangeText={setHeure} placeholder="HH:MM" placeholderTextColor={COULEURS.texteMuet} />

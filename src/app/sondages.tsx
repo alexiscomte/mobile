@@ -38,7 +38,7 @@ function Barres({ opts, n, mien }: { opts: string[]; n: number[]; mien: number }
         return (
           <View key={i}>
             <View style={styles.barreLigne}><Text style={[styles.lib, i === mien && styles.gras]}>{o}</Text><Text style={styles.pc}>{pc} %</Text></View>
-            <View style={styles.barre}><View style={[styles.barreFond, { width: pc + '%', backgroundColor: i === mien ? COULEURS.primaire : COULEURS.secondaire }]} /></View>
+            <View style={styles.barre}><View style={[styles.barreFond, { width: `${pc}%` as const, backgroundColor: i === mien ? COULEURS.primaire : COULEURS.secondaire }]} /></View>
           </View>
         );
       })}

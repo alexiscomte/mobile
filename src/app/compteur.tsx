@@ -10,7 +10,7 @@ import { page, SITE } from '@/site';
 import { COULEURS } from '@/theme';
 
 type T = Record<string, string> & { noces_liste: Record<string, string> };
-const TXT = (outils as { compteur: Record<string, T> }).compteur;
+const TXT = (outils as unknown as { compteur: Record<string, T> }).compteur;
 const pad = (n: number) => (n < 10 ? '0' : '') + n;
 const iso = (d: Date) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 const fmt = (s: string, ...v: (string | number)[]) => { let i = 0; return s.replace(/%s/g, () => String(v[i++] ?? '')); };
