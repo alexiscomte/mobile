@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Carte, Titre } from '@/components/carte';
 import { ResumeSignes } from '@/components/resume-signes';
 import { fmt, TEXTES } from '@/i18n';
+import { questionDuJour, sondageDuJour } from '@/moteur/qdj';
 import { ouvrirCle } from '@/nav';
 import { useProfil } from '@/profil';
 import { page } from '@/site';
@@ -17,6 +18,7 @@ export default function Accueil() {
   const T = TEXTES[langue];
   const router = useRouter();
   const date = new Date().toLocaleDateString(langue, { weekday: 'long', day: 'numeric', month: 'long' });
+  const sondage = sondageDuJour(langue);
   const go = (cle: Parameters<typeof page>[0], ancre?: string) => () => ouvrirCle(router, cle, langue, ancre);
   return (
     <SafeAreaView style={styles.fond} edges={['top']}>
@@ -27,7 +29,8 @@ export default function Accueil() {
 
         <View style={styles.grille}>
           <Carte large titre={T.horoscopeDuJour} texte={T.horoscopeDuJourTxt} couleur={DEGRADES.astro[0]} sf="sparkles" onPress={() => router.push('/horoscope')} />
-          <Carte large titre={T.questionDuJour} texte={T.questionDuJourTxt} couleur={DEGRADES.jeux[0]} sf="bubble.left.and.bubble.right.fill" onPress={() => router.push('/qdj')} />
+          <Carte large titre={T.questionDuJour} texte={questionDuJour(langue)} couleur={DEGRADES.jeux[0]} sf="bubble.left.and.bubble.right.fill" onPress={() => router.push('/qdj')} />
+          {sondage ? <Carte large titre={page('sondages', langue).t} texte={sondage.q[langue] || sondage.q.fr} couleur={DEGRADES.sexualite[0]} sf="chart.bar.fill" onPress={() => router.push('/sondages')} /> : null}
         </View>
 
         <Titre>{T.vosOutils}</Titre>
@@ -36,7 +39,7 @@ export default function Accueil() {
           <Carte titre={page('jeu2', langue).t} texte={T.jeu2Txt} couleur={DEGRADES.jeux[0]} sf="person.2.fill" onPress={() => router.push('/jeu2')} />
           <Carte titre={page('themeAstral', langue).t} texte={T.themeTxt} couleur={DEGRADES.astro[0]} sf="moon.stars.fill" onPress={() => router.push('/theme')} />
           <Carte titre={page('biorythme', langue).t} texte={T.bioTxt} couleur={DEGRADES.sante[0]} sf="waveform.path.ecg" onPress={() => router.push('/biorythme')} />
-          <Carte titre={page('sondages', langue).t} texte={T.sondagesTxt} couleur={DEGRADES.sexualite[0]} sf="chart.bar.fill" onPress={() => router.push('/sondages')} />
+          <Carte titre={page('jeux', langue).t} texte={T.jeuxIntro} couleur={DEGRADES.sexualite[0]} sf="gamecontroller.fill" onPress={() => router.push('/(tabs)/jeux')} />
           <Carte titre={page('quiz', langue).t} texte={T.quizTxt} couleur={DEGRADES.conseils[0]} sf="questionmark.circle.fill" onPress={go('quiz')} />
         </View>
 
