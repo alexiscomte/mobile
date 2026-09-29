@@ -1,0 +1,56 @@
+// Accueil : bonjour, la date, les outils du jour.
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { Carte, Titre } from '@/components/carte';
+import { fmt, TEXTES } from '@/i18n';
+import { ouvrirCle } from '@/nav';
+import { useProfil } from '@/profil';
+import { page } from '@/site';
+import { COULEURS, DEGRADES } from '@/theme';
+
+export default function Accueil() {
+  const { langue, profil } = useProfil();
+  const T = TEXTES[langue];
+  const router = useRouter();
+  const date = new Date().toLocaleDateString(langue, { weekday: 'long', day: 'numeric', month: 'long' });
+  const go = (cle: Parameters<typeof page>[0], ancre?: string) => () => ouvrirCle(router, cle, langue, ancre);
+  return (
+    <SafeAreaView style={styles.fond} edges={['top']}>
+      <ScrollView contentContainerStyle={styles.contenu}>
+        <Text style={styles.bonjour}>{profil.prenom ? fmt(T.bonjourPrenom, profil.prenom) : T.bonjour}</Text>
+        <Text style={styles.date}>{date}</Text>
+
+        <View style={styles.grille}>
+          <Carte large titre={T.horoscopeDuJour} texte={T.horoscopeDuJourTxt} couleur={DEGRADES.astro[0]} sf="sparkles" onPress={() => router.push('/horoscope')} />
+          <Carte large titre={T.questionDuJour} texte={T.questionDuJourTxt} couleur={DEGRADES.jeux[0]} sf="bubble.left.and.bubble.right.fill" onPress={() => router.push('/qdj')} />
+        </View>
+
+        <Titre>{T.vosOutils}</Titre>
+        <View style={styles.grille}>
+          <Carte titre={page('compat', langue).t} texte={T.compatTxt} couleur={DEGRADES.compat[0]} sf="heart.fill" onPress={go('compat')} />
+          <Carte titre={page('jeu2', langue).t} texte={T.jeu2Txt} couleur={DEGRADES.jeux[0]} sf="person.2.fill" onPress={() => router.push('/jeu2')} />
+          <Carte titre={page('themeAstral', langue).t} texte={T.themeTxt} couleur={DEGRADES.astro[0]} sf="moon.stars.fill" onPress={() => router.push('/theme')} />
+          <Carte titre={page('biorythme', langue).t} texte={T.bioTxt} couleur={DEGRADES.sante[0]} sf="waveform.path.ecg" onPress={() => router.push('/biorythme')} />
+          <Carte titre={page('sondages', langue).t} texte={T.sondagesTxt} couleur={DEGRADES.sexualite[0]} sf="chart.bar.fill" onPress={() => router.push('/sondages')} />
+          <Carte titre={page('quiz', langue).t} texte={T.quizTxt} couleur={DEGRADES.conseils[0]} sf="questionmark.circle.fill" onPress={go('quiz')} />
+        </View>
+
+        <Titre>{T.commencerIci}</Titre>
+        <View style={styles.grille}>
+          <Carte large titre={page('maSituation', langue).t} texte={T.commencerIciTxt} couleur={COULEURS.primaire} sf="signpost.right.fill" onPress={go('maSituation')} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  fond: { flex: 1, backgroundColor: COULEURS.fond },
+  contenu: { padding: 16, paddingBottom: 110 },
+  bonjour: { fontSize: 28, fontWeight: '800', color: COULEURS.primaire },
+  date: { fontSize: 15, color: COULEURS.texteMuet, textTransform: 'capitalize', marginBottom: 14 },
+  grille: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },
+});

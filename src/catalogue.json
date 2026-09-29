@@ -1,0 +1,1473 @@
+{
+ "langues": [
+  "fr",
+  "en",
+  "de",
+  "es",
+  "it",
+  "pt",
+  "nl",
+  "pl",
+  "tr"
+ ],
+ "site": "https://affectionplus.com/",
+ "pages": {
+  "accueil": {
+   "fr": {
+    "u": "fr/index.html",
+    "t": "Bienvenue sur AffectionPlus",
+    "d": "AffectionPlus suit la vie de couple étape par étape : se rencontrer, vivre à deux, se marier, fonder une famille, se séparer."
+   },
+   "en": {
+    "u": "en/index.html",
+    "t": "Welcome to AffectionPlus",
+    "d": "AffectionPlus follows a life as a couple stage by stage: meeting, living together, marrying, starting a family, separating"
+   },
+   "de": {
+    "u": "de/index.html",
+    "t": "Willkommen bei AffectionPlus",
+    "d": "AffectionPlus begleitet das Leben zu zweit Schritt für Schritt: kennenlernen, zusammenleben, heiraten, eine Familie gründen, sich trennen"
+   },
+   "es": {
+    "u": "es/index.html",
+    "t": "Bienvenido a AffectionPlus",
+    "d": "La vida en pareja explicada paso a paso, en español y para todos los países hispanohablantes: conocerse, vivir juntos, casarse, formar una familia, separarse — con la salud, la sexualidad, el derecho "
+   },
+   "it": {
+    "u": "it/index.html",
+    "t": "Benvenuti su AffectionPlus",
+    "d": "La vita di coppia spiegata tappa per tappa, in italiano e per l'Italia, la Svizzera italiana, San Marino e i paesi dell'emigrazione italiana: incontrarsi, vivere insieme, sposarsi, formare una famigli"
+   },
+   "pt": {
+    "u": "pt/index.html",
+    "t": "Bem-vindo ao AffectionPlus",
+    "d": "A vida a dois explicada etapa a etapa, em português e para Portugal, o Brasil, Angola, Moçambique, Cabo Verde, a Guiné-Bissau, São Tomé e Príncipe, Timor-Leste e Macau: conhecer alguém, viver juntos, "
+   },
+   "nl": {
+    "u": "nl/index.html",
+    "t": "Welkom bij AffectionPlus",
+    "d": "Het leven met zijn tweeën etappe per etappe uitgelegd, in het Nederlands en voor Nederland, Vlaanderen, Suriname en de Caribische landen van het Koninkrijk: iemand ontmoeten, samenleven, trouwen, een "
+   },
+   "pl": {
+    "u": "pl/index.html",
+    "t": "Witamy w AffectionPlus",
+    "d": "Życie we dwoje wyjaśnione etap po etapie, po polsku i dla Polski oraz krajów, w których mieszkają Polacy: poznać kogoś, żyć razem, wziąć ślub, założyć rodzinę, rozstać się — ze zdrowiem, seksualnością"
+   },
+   "tr": {
+    "u": "tr/index.html",
+    "t": "AffectionPlus'a hoş geldiniz",
+    "d": "İki kişilik hayat evre evre anlatılıyor, Türkçe ve Türkiye ile Türklerin yaşadığı ülkeler için: biriyle tanışmak, birlikte yaşamak, evlenmek, aile kurmak, ayrılmak — sağlıkla, cinsellikle, her ülkenin"
+   }
+  },
+  "maSituation": {
+   "fr": {
+    "u": "fr/ma-situation.html",
+    "t": "Ma situation",
+    "d": "Une vingtaine de situations concrètes — de la première inscription sur une application au décès d'un conjoint"
+   },
+   "en": {
+    "u": "en/my-situation.html",
+    "t": "My situation",
+    "d": "Around twenty concrete situations — from signing up to an app for the first time to the death of a partner — and, for each, the pages that answer them."
+   },
+   "de": {
+    "u": "de/meine-lage.html",
+    "t": "Meine Lage",
+    "d": "Rund zwanzig konkrete Lagen — von der ersten Anmeldung bei einer App bis zum Tod der Partnerin — und zu jeder die Seiten, die antworten."
+   },
+   "es": {
+    "u": "es/mi-situacion.html",
+    "t": "Mi situación",
+    "d": "Una veintena de situaciones concretas — desde la primera inscripción en una aplicación hasta la separación — y, para cada una, las páginas del sitio que responden."
+   },
+   "it": {
+    "u": "it/la-mia-situazione.html",
+    "t": "La mia situazione",
+    "d": "Una ventina di situazioni concrete — dalla prima iscrizione a un’app alla separazione — e, per ciascuna, le pagine del sito che rispondono."
+   },
+   "pt": {
+    "u": "pt/a-minha-situacao.html",
+    "t": "A minha situação",
+    "d": "Uma vintena de situações concretas — desde a primeira inscrição numa aplicação até à separação — e, para cada uma, as páginas do site que respondem."
+   },
+   "nl": {
+    "u": "nl/mijn-situatie.html",
+    "t": "Mijn situatie",
+    "d": "Een twintigtal concrete situaties — van de eerste inschrijving op een app tot de scheiding — en voor elke situatie de pagina's van de site die antwoorden."
+   },
+   "pl": {
+    "u": "pl/moja-sytuacja.html",
+    "t": "Moja sytuacja",
+    "d": "Około dwudziestu konkretnych sytuacji — od pierwszej rejestracji w aplikacji po rozwód — i dla każdej strony serwisu, które odpowiadają."
+   },
+   "tr": {
+    "u": "tr/durumum.html",
+    "t": "Durumum",
+    "d": "Yirmi kadar somut durum — bir uygulamaya ilk kayıttan boşanmaya — ve her biri için yanıt veren sitenin sayfaları."
+   }
+  },
+  "horoscope": {
+   "fr": {
+    "u": "fr/astrologie/horoscope-du-jour.html",
+    "t": "Mon horoscope du jour (zodiaque et signe chinois)",
+    "d": "Horoscope du jour gratuit pour les 12 signes, calculé chaque jour à partir des positions réelles de la Lune et des planètes : amour, échanges, énergie, conseil du jour. Avec l’horoscope chinois du jou"
+   },
+   "en": {
+    "u": "en/astrology/daily-horoscope.html",
+    "t": "My daily horoscope (zodiac and Chinese sign)",
+    "d": "Free daily horoscope for the 12 signs, calculated every day from the real positions of the Moon and planets: love, exchanges, energy, advice of the day. With today’s Chinese horoscope for the 12 anima"
+   },
+   "de": {
+    "u": "de/astrologie/tageshoroskop.html",
+    "t": "Mein Tageshoroskop (Tierkreis und chinesisches Zeichen)",
+    "d": "Kostenloses Tageshoroskop für die zwölf Zeichen, täglich aus den tatsächlichen Positionen von Mond und Planeten berechnet: Liebe, Austausch, Energie, Rat des Tages. Mit dem chinesischen Tageshoroskop "
+   },
+   "es": {
+    "u": "es/astrologia/horoscopo-del-dia.html",
+    "t": "Mi horóscopo del día (zodiaco y signo chino)",
+    "d": "Horóscopo del día gratuito para los 12 signos, calculado cada día a partir de las posiciones reales de la Luna y los planetas: amor, intercambios, energía, consejo del día. Con el horóscopo chino del "
+   },
+   "it": {
+    "u": "it/astrologia/oroscopo-del-giorno.html",
+    "t": "Il mio oroscopo del giorno (zodiaco e segno cinese)",
+    "d": "Oroscopo del giorno gratuito per i 12 segni, calcolato ogni giorno dalle posizioni reali della Luna e dei pianeti: amore, scambi, energia, consiglio del giorno. Con l’oroscopo cinese del giorno per i "
+   },
+   "pt": {
+    "u": "pt/astrologia/horoscopo-do-dia.html",
+    "t": "O meu horóscopo do dia (zodíaco e signo chinês)",
+    "d": "Horóscopo do dia gratuito para os 12 signos, calculado todos os dias a partir das posições reais da Lua e dos planetas: amor, trocas, energia, conselho do dia. Com o horóscopo chinês do dia para os 12"
+   },
+   "nl": {
+    "u": "nl/astrologie/daghoroscoop.html",
+    "t": "Mijn daghoroscoop (dierenriem en Chinees teken)",
+    "d": "Gratis daghoroscoop voor de 12 tekens, elke dag berekend uit de werkelijke posities van de Maan en de planeten: liefde, contacten, energie, raad van de dag. Met de Chinese daghoroscoop voor de 12 dier"
+   },
+   "pl": {
+    "u": "pl/astrologia/horoskop-dnia.html",
+    "t": "Mój horoskop dnia (zodiak i znak chiński)",
+    "d": "Darmowy horoskop dnia dla 12 znaków, obliczany codziennie z rzeczywistych położeń Księżyca i planet: miłość, relacje, energia, rada dnia. Z chińskim horoskopem dnia dla 12 zwierząt."
+   },
+   "tr": {
+    "u": "tr/astroloji/gunluk-burc-yorumu.html",
+    "t": "Günlük burç yorumum (zodyak ve Çin burcu)",
+    "d": "12 burç için ücretsiz günlük burç yorumu, her gün Ay'ın ve gezegenlerin gerçek konumlarından hesaplanır: aşk, ilişkiler, enerji, günün tavsiyesi. 12 hayvan için günlük Çin burcu yorumuyla."
+   }
+  },
+  "themeAstral": {
+   "fr": {
+    "u": "fr/astrologie/theme-astral.html",
+    "t": "Lire un thème astral",
+    "d": "Planètes, signes, maisons et aspects : comprendre la structure d'une carte du ciel."
+   },
+   "en": {
+    "u": "en/astrology/birth-chart.html",
+    "t": "Reading a birth chart",
+    "d": "Planets, signs, houses and aspects: how an astrological birth chart is structured."
+   },
+   "de": {
+    "u": "de/astrologie/geburtshoroskop.html",
+    "t": "Das Geburtshoroskop",
+    "d": "Häuser, Planeten und Aspekte: wie ein Radix aufgebaut ist — Der Bauplan der Astrologie, Schritt für Schritt erklärt."
+   },
+   "es": {
+    "u": "es/astrologia/tema-natal.html",
+    "t": "La carta natal y el ascendente",
+    "d": "Qué es la carta natal, qué representa el ascendente y por qué la tradición le da tanto peso, las doce casas, los planetas y sus significados, y cómo calcular la propia carta con la hora y el lugar de "
+   },
+   "it": {
+    "u": "it/astrologia/tema-natale.html",
+    "t": "Il tema natale",
+    "d": "Cos'è un tema natale, l'ascendente e perché conta quanto il segno, i pianeti e quello che la tradizione attribuisce loro, le dodici case, e come calcolare il proprio tema con data, ora e luogo di nasc"
+   },
+   "pt": {
+    "u": "pt/astrologia/mapa-astral.html",
+    "t": "O mapa astral",
+    "d": "O que é um mapa astral, o ascendente e porque conta tanto como o signo, os planetas e o que a tradição lhes atribui, as doze casas, e como calcular o seu mapa com a data, a hora e o lugar de nasciment"
+   },
+   "nl": {
+    "u": "nl/astrologie/geboortehoroscoop.html",
+    "t": "De geboortehoroscoop",
+    "d": "Wat een geboortehoroscoop is, de ascendant en waarom hij evenveel telt als het teken, de planeten en wat de traditie eraan toeschrijft, de twaalf huizen, en hoe u uw horoscoop berekent met de datum, h"
+   },
+   "pl": {
+    "u": "pl/astrologia/horoskop-urodzeniowy.html",
+    "t": "Horoskop urodzeniowy",
+    "d": "Czym jest horoskop urodzeniowy, ascendent i dlaczego liczy się tak samo jak znak, planety i to, co przypisuje im tradycja, dwanaście domów i jak obliczyć swój horoskop z datą, godziną i miejscem urodz"
+   },
+   "tr": {
+    "u": "tr/astroloji/dogum-haritasi.html",
+    "t": "Doğum haritası",
+    "d": "Doğum haritası nedir, yükselen ve neden burç kadar önemlidir, gezegenler ve geleneğin onlara yüklediği anlamlar, on iki ev ve doğum tarihi, saati ve yeriyle haritanızı nasıl hesaplarsınız."
+   }
+  },
+  "compat": {
+   "fr": {
+    "u": "fr/conseils/compatibilite-amoureuse.html",
+    "t": "Compatibilité amoureuse : le test complet",
+    "d": "Test de compatibilité amoureuse gratuit : entrez deux prénoms et deux dates de naissance pour obtenir la compatibilité par signes du zodiaque, signes chinois, biorythmes, numérologie et chemin de vie,"
+   },
+   "en": {
+    "u": "en/advice/love-compatibility.html",
+    "t": "Love compatibility: the full test",
+    "d": "Free love compatibility test: enter two first names and two dates of birth to get compatibility by zodiac sign, Chinese sign, biorhythms, numerology and life path, with the detail of each reading."
+   },
+   "de": {
+    "u": "de/ratgeber/liebeskompatibilitaet.html",
+    "t": "Liebeskompatibilität: der große Test",
+    "d": "Kostenloser Liebeskompatibilitäts-Test: Geben Sie zwei Vornamen und zwei Geburtsdaten ein und erhalten Sie die Verträglichkeit nach Tierkreis, chinesischem Zeichen, Biorhythmus, Numerologie und Lebens"
+   },
+   "es": {
+    "u": "es/consejos/compatibilidad-amorosa.html",
+    "t": "Compatibilidad amorosa",
+    "d": "Test de compatibilidad amorosa gratuito: introduzca dos nombres y dos fechas de nacimiento para obtener la compatibilidad por signos del zodiaco, signos chinos, biorritmos, numerología y camino de vid"
+   },
+   "it": {
+    "u": "it/consigli/compatibilita-amorosa.html",
+    "t": "Compatibilità amorosa",
+    "d": "Test di compatibilità amorosa gratuito: inserite due nomi e due date di nascita per ottenere la compatibilità per segni zodiacali, segni cinesi, bioritmi, numerologia e cammino di vita, con il dettagl"
+   },
+   "pt": {
+    "u": "pt/conselhos/compatibilidade-amorosa.html",
+    "t": "Compatibilidade amorosa",
+    "d": "Teste de compatibilidade amorosa gratuito: introduza dois nomes e duas datas de nascimento para obter a compatibilidade por signos do zodíaco, signos chineses, biorritmos, numerologia e caminho de vid"
+   },
+   "nl": {
+    "u": "nl/advies/liefdescompatibiliteit.html",
+    "t": "Liefdescompatibiliteit",
+    "d": "Gratis liefdescompatibiliteitstest: voer twee voornamen en twee geboortedata in en krijg de compatibiliteit volgens sterrenbeeld, Chinees teken, bioritmen, numerologie en levenspad, met het detail van"
+   },
+   "pl": {
+    "u": "pl/porady/zgodnosc-milosna.html",
+    "t": "Zgodność miłosna",
+    "d": "Darmowy test zgodności miłosnej: wpisz dwa imiona i dwie daty urodzenia i poznaj zgodność według znaku zodiaku, znaku chińskiego, biorytmów, numerologii i drogi życia, ze szczegółem każdego odczytu."
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/ask-uyumu.html",
+    "t": "Aşk uyumu",
+    "d": "Ücretsiz aşk uyumu testi: iki ad ve iki doğum tarihi girin; burca, Çin burcuna, bioritimlere, numerolojiye ve yaşam yoluna göre uyumu her okumanın ayrıntısıyla öğrenin."
+   }
+  },
+  "biorythme": {
+   "fr": {
+    "u": "fr/astrologie/biorythme.html",
+    "t": "Les biorythmes",
+    "d": "Le principe des cycles physique, émotif et intellectuel des biorythmes, et ce qu'en dit la recherche scientifique."
+   },
+   "en": {
+    "u": "en/astrology/biorhythms.html",
+    "t": "Biorhythms",
+    "d": "Physical, emotional and intellectual cycles — and what the research found."
+   },
+   "de": {
+    "u": "de/astrologie/biorhythmus.html",
+    "t": "Biorhythmus",
+    "d": "Die Theorie der drei Zyklen und was die Forschung dazu sagt — Eine Theorie aus dem 19. Jahrhundert, sauber geprüft und verworfen."
+   },
+   "es": {
+    "u": "es/astrologia/biorritmo.html",
+    "t": "Los biorritmos",
+    "d": "La teoría de los tres ciclos — físico, emocional, intelectual — que arrancarían en el nacimiento, cómo se calculan, la compatibilidad biorrítmica entre dos personas, y por qué la investigación no ha e"
+   },
+   "it": {
+    "u": "it/astrologia/bioritmo.html",
+    "t": "I bioritmi",
+    "d": "La teoria dei bioritmi — tre cicli fisico, emotivo e intellettuale a partire dalla nascita —, come si calcolano, e quello che gli studi ne hanno trovato: niente."
+   },
+   "pt": {
+    "u": "pt/astrologia/biorritmo.html",
+    "t": "Os biorritmos",
+    "d": "A teoria dos biorritmos — três ciclos físico, emocional e intelectual a partir do nascimento —, como se calculam, e o que os estudos encontraram: nada."
+   },
+   "nl": {
+    "u": "nl/astrologie/bioritme.html",
+    "t": "De bioritmen",
+    "d": "De theorie van de bioritmen — drie cycli, fysiek, emotioneel en intellectueel, vanaf de geboorte —, hoe men ze berekent, en wat de studies gevonden hebben: niets."
+   },
+   "pl": {
+    "u": "pl/astrologia/biorytm.html",
+    "t": "Biorytmy",
+    "d": "Teoria biorytmów — trzy cykle, fizyczny, emocjonalny i intelektualny, od urodzenia — jak się je oblicza i co znalazły badania: nic."
+   },
+   "tr": {
+    "u": "tr/astroloji/bioritim.html",
+    "t": "Bioritimler",
+    "d": "Bioritim kuramı — doğumdan başlayan üç döngü: fiziksel, duygusal ve zihinsel —, nasıl hesaplandıkları ve çalışmaların bulduğu: hiçbir şey."
+   }
+  },
+  "signeChinois": {
+   "fr": {
+    "u": "fr/astrologie/signe-chinois.html",
+    "t": "L'astrologie chinoise",
+    "d": "Signe chinois : trouver son animal selon l’année de naissance, les cinq éléments, et ce que l’horoscope chinois prête à chaque signe en amour."
+   },
+   "en": {
+    "u": "en/astrology/chinese-zodiac.html",
+    "t": "Chinese astrology",
+    "d": "The twelve animal signs of the Chinese zodiac and the five elements — Unlike the Western zodiac, which is based on the month of birth"
+   },
+   "de": {
+    "u": "de/astrologie/chinesisches-horoskop.html",
+    "t": "Chinesisches Horoskop",
+    "d": "Die zwölf Tiere, die fünf Elemente und der Mondkalender — Ein anderes System, eine andere Logik — und ein anderer Jahresbeginn."
+   },
+   "es": {
+    "u": "es/astrologia/horoscopo-chino.html",
+    "t": "El horóscopo chino",
+    "d": "Los doce animales del zodiaco chino y sus años, los cinco elementos que los matizan, el retrato tradicional de cada animal en el amor, las afinidades y los conflictos, y cómo calcular el suyo teniendo"
+   },
+   "it": {
+    "u": "it/astrologia/oroscopo-cinese.html",
+    "t": "L'oroscopo cinese",
+    "d": "I dodici animali dell'oroscopo cinese e i loro anni, i cinque elementi che li colorano, le affinità — i trigoni e gli amici segreti — e i conflitti, secondo la tradizione."
+   },
+   "pt": {
+    "u": "pt/astrologia/horoscopo-chines.html",
+    "t": "O horóscopo chinês",
+    "d": "Os doze animais do horóscopo chinês e os seus anos, os cinco elementos que os colorem, as afinidades — os trígonos e os amigos secretos — e os conflitos, segundo a tradição — com um lugar especial em "
+   },
+   "nl": {
+    "u": "nl/astrologie/chinese-horoscoop.html",
+    "t": "De Chinese horoscoop",
+    "d": "De twaalf dieren van de Chinese horoscoop en hun jaren, de vijf elementen die ze kleuren, de affiniteiten — de driehoeken en de geheime vrienden — en de conflicten, volgens de traditie."
+   },
+   "pl": {
+    "u": "pl/astrologia/horoskop-chinski.html",
+    "t": "Horoskop chiński",
+    "d": "Dwanaście zwierząt horoskopu chińskiego i ich lata, pięć żywiołów, które je zabarwiają, powinowactwa — trójkąty i tajemni przyjaciele — oraz konflikty, według tradycji."
+   },
+   "tr": {
+    "u": "tr/astroloji/cin-burclari.html",
+    "t": "Çin burçları",
+    "d": "Çin burçlarının on iki hayvanı ve yılları, onları renklendiren beş element, yakınlıklar — üçgenler ve gizli dostlar — ve geleneğe göre çatışmalar."
+   }
+  },
+  "amourSignes": {
+   "fr": {
+    "u": "fr/astrologie/amour-signe-par-signe.html",
+    "t": "L'amour signe par signe",
+    "d": "L'amour selon les douze signes du zodiaque : attentes, points de friction, séduction et ruptures, dans la tradition astrologique."
+   },
+   "en": {
+    "u": "en/astrology/love-sign-by-sign.html",
+    "t": "Love, sign by sign",
+    "d": "Love according to the twelve signs of the zodiac: expectations, friction points, seduction and break-ups, in the astrological tradition."
+   },
+   "de": {
+    "u": "de/astrologie/liebe-nach-sternzeichen.html",
+    "t": "Liebe nach Sternzeichen",
+    "d": "Liebe nach den zwölf Tierkreiszeichen: Erwartungen, Reibungspunkte, Verführung und Trennungen in der astrologischen Überlieferung."
+   },
+   "es": {
+    "u": "es/astrologia/amor-signo-por-signo.html",
+    "t": "El amor signo por signo",
+    "d": "El retrato amoroso tradicional de cada uno de los doce signos: cómo seduce, qué busca, qué teme, y con quién se le empareja en la tradición astrológica."
+   },
+   "it": {
+    "u": "it/astrologia/amore-segno-per-segno.html",
+    "t": "L'amore segno per segno",
+    "d": "Come la tradizione astrologica descrive il modo di amare di ciascuno dei dodici segni, elemento per elemento: fuoco, terra, aria, acqua."
+   },
+   "pt": {
+    "u": "pt/astrologia/amor-signo-a-signo.html",
+    "t": "O amor signo a signo",
+    "d": "Como a tradição astrológica descreve a maneira de amar de cada um dos doze signos, elemento a elemento: fogo, terra, ar, água."
+   },
+   "nl": {
+    "u": "nl/astrologie/liefde-per-sterrenbeeld.html",
+    "t": "De liefde per sterrenbeeld",
+    "d": "Hoe de astrologische traditie de manier van liefhebben van elk van de twaalf tekens beschrijft, element per element: vuur, aarde, lucht, water."
+   },
+   "pl": {
+    "u": "pl/astrologia/milosc-wedlug-znaku.html",
+    "t": "Miłość według znaku zodiaku",
+    "d": "Jak tradycja astrologiczna opisuje sposób kochania każdego z dwunastu znaków, żywioł po żywiole: ogień, ziemia, powietrze, woda."
+   },
+   "tr": {
+    "u": "tr/astroloji/burca-gore-ask.html",
+    "t": "Burca göre aşk",
+    "d": "Astroloji geleneğinin on iki burcun her birinin sevme biçimini nasıl anlattığı, element element: ateş, toprak, hava, su."
+   }
+  },
+  "lune": {
+   "fr": {
+    "u": "fr/astrologie/lune.html",
+    "t": "Les cycles de la Lune",
+    "d": "Phases lunaires, symbolique traditionnelle, Lune noire — et ce que la science a réellement mesuré."
+   },
+   "en": {
+    "u": "en/astrology/moon-cycles.html",
+    "t": "Moon cycles",
+    "d": "Lunar phases, traditional symbolism, and what science has actually measured."
+   },
+   "de": {
+    "u": "de/astrologie/mondphasen.html",
+    "t": "Mondphasen",
+    "d": "Was der Mond beeinflusst — und was nicht — Zwischen Gezeiten und Mondkalender liegt ein weiter Weg."
+   },
+   "es": {
+    "u": "es/astrologia/ciclos-de-la-luna.html",
+    "t": "Los ciclos de la Luna",
+    "d": "Fases lunares, simbolismo tradicional, Luna negra — y lo que la ciencia ha medido realmente. Con la fase de hoy, calculada en su navegador."
+   },
+   "it": {
+    "u": "it/astrologia/cicli-della-luna.html",
+    "t": "I cicli della Luna",
+    "d": "Fasi lunari, simbolismo tradizionale, Luna nera — e ciò che la scienza ha davvero misurato. Con la fase di oggi, calcolata nel vostro browser."
+   },
+   "pt": {
+    "u": "pt/astrologia/ciclos-da-lua.html",
+    "t": "Os ciclos da Lua",
+    "d": "Fases lunares, simbolismo tradicional, Lua negra — e o que a ciência realmente mediu. Com a fase de hoje, calculada no seu navegador."
+   },
+   "nl": {
+    "u": "nl/astrologie/maancycli.html",
+    "t": "De cycli van de Maan",
+    "d": "Maanfasen, traditionele symboliek, Zwarte Maan — en wat de wetenschap werkelijk heeft gemeten. Met de fase van vandaag, berekend in uw browser."
+   },
+   "pl": {
+    "u": "pl/astrologia/cykle-ksiezyca.html",
+    "t": "Cykle Księżyca",
+    "d": "Fazy Księżyca, tradycyjna symbolika, Czarny Księżyc — i co nauka naprawdę zmierzyła. Z dzisiejszą fazą, obliczoną w twojej przeglądarce."
+   },
+   "tr": {
+    "u": "tr/astroloji/ay-donguleri.html",
+    "t": "Ay'ın döngüleri",
+    "d": "Ay evreleri, geleneksel simgesellik, Kara Ay — ve bilimin gerçekten ölçtüğü. Tarayıcınızda hesaplanan bugünkü evreyle."
+   }
+  },
+  "tarot": {
+   "fr": {
+    "u": "fr/astrologie/tarot.html",
+    "t": "Le tarot",
+    "d": "Origines, arcanes majeurs et grands principes du tirage de tarot — Le tarot de Marseille, le plus utilisé en France pour la divination"
+   },
+   "en": {
+    "u": "en/astrology/tarot.html",
+    "t": "Tarot",
+    "d": "Origins of tarot, major and minor arcana, and how readings are structured."
+   },
+   "de": {
+    "u": "de/astrologie/tarot.html",
+    "t": "Tarot",
+    "d": "Große und kleine Arkana, Legesysteme und die Geschichte der Karten — Ursprünglich ein Kartenspiel, später ein Deutungssystem."
+   },
+   "es": {
+    "u": "es/astrologia/tarot.html",
+    "t": "El tarot y el amor",
+    "d": "Los veintidós arcanos mayores y su sentido tradicional en una pregunta amorosa, las tiradas más usadas, la historia del tarot, y cómo usarlo como herramienta de reflexión y no como predicción."
+   },
+   "it": {
+    "u": "it/astrologia/tarocchi.html",
+    "t": "I tarocchi",
+    "d": "Da dove vengono i tarocchi — un gioco di carte italiano del Quattrocento —, cosa dicono i ventidue arcani maggiori in una domanda amorosa, le stese più semplici, e come usarli come uno specchio senza "
+   },
+   "pt": {
+    "u": "pt/astrologia/tarot.html",
+    "t": "O tarot",
+    "d": "De onde vem o tarot — um jogo de cartas italiano do século XV —, o que dizem os vinte e dois arcanos maiores numa pergunta amorosa, as tiragens mais simples, e como o usar como um espelho sem acredita"
+   },
+   "nl": {
+    "u": "nl/astrologie/tarot.html",
+    "t": "De tarot",
+    "d": "Waar de tarot vandaan komt — een Italiaans kaartspel uit de vijftiende eeuw —, wat de tweeëntwintig grote arcana zeggen bij een liefdesvraag, de eenvoudigste leggingen, en hoe u hem gebruikt als een s"
+   },
+   "pl": {
+    "u": "pl/astrologia/tarot.html",
+    "t": "Tarot",
+    "d": "Skąd wziął się tarot — włoska gra karciana z XV wieku — co mówią dwadzieścia dwa wielkie arkana przy pytaniu o miłość, najprostsze rozkłady i jak używać go jak lustra, nie wierząc, że przepowiada."
+   },
+   "tr": {
+    "u": "tr/astroloji/tarot.html",
+    "t": "Tarot",
+    "d": "Tarot nereden gelir — on beşinci yüzyıldan bir İtalyan kart oyunu —, bir aşk sorusunda yirmi iki büyük arkana ne söyler, en basit açılımlar ve öngördüğüne inanmadan onu bir ayna gibi nasıl kullanırsın"
+   }
+  },
+  "astrologie": {
+   "fr": {
+    "u": "fr/astrologie/index.html",
+    "t": "Astrologie",
+    "d": "Horoscope et astrologie : les 12 signes, l’ascendant, le thème astral, la compatibilité amoureuse, le signe chinois, le tarot et la numérologie."
+   },
+   "en": {
+    "u": "en/astrology/index.html",
+    "t": "Astrology",
+    "d": "Zodiac signs, rising sign, love compatibility, tarot, numerology and birth charts."
+   },
+   "de": {
+    "u": "de/astrologie/index.html",
+    "t": "Astrologie",
+    "d": "Sternzeichen, Aszendent, Geburtshoroskop, Partnerhoroskop, Tarot, Numerologie und Mondphasen."
+   },
+   "es": {
+    "u": "es/astrologia/index.html",
+    "t": "Astrología",
+    "d": "Los doce signos, la compatibilidad entre signos, la carta natal, la Luna y Venus en el amor, el horóscopo chino, el tarot y los biorritmos: la astrología como tradición y como lenguaje de la pareja, s"
+   },
+   "it": {
+    "u": "it/astrologia/index.html",
+    "t": "Astrologia",
+    "d": "I dodici segni e le loro date, la compatibilità tra segni, l'amore segno per segno, il tema natale e l'ascendente, la Luna e Venere, l'oroscopo cinese, i tarocchi e i bioritmi — presentati come una tr"
+   },
+   "pt": {
+    "u": "pt/astrologia/index.html",
+    "t": "Astrologia",
+    "d": "Os doze signos e as suas datas, a compatibilidade entre signos, o amor signo a signo, o mapa astral e o ascendente, a Lua e Vénus, o horóscopo chinês, o tarot e os biorritmos — apresentados como uma t"
+   },
+   "nl": {
+    "u": "nl/astrologie/index.html",
+    "t": "Astrologie",
+    "d": "De twaalf sterrenbeelden en hun data, de compatibiliteit tussen sterrenbeelden, de liefde per sterrenbeeld, de geboortehoroscoop en de ascendant, de Maan en Venus, de Chinese horoscoop, de tarot en de"
+   },
+   "pl": {
+    "u": "pl/astrologia/index.html",
+    "t": "Astrologia",
+    "d": "Dwanaście znaków zodiaku i ich daty, zgodność między znakami, miłość według znaku, horoskop urodzeniowy i ascendent, Księżyc i Wenus, horoskop chiński, tarot i biorytmy — przedstawione jako tradycja, "
+   },
+   "tr": {
+    "u": "tr/astroloji/index.html",
+    "t": "Astroloji",
+    "d": "On iki burç ve tarihleri, burçlar arası uyum, burca göre aşk, doğum haritası ve yükselen, Ay ve Venüs, Çin burçları, tarot ve bioritimler — bir bilim olarak değil, bir gelenek olarak sunulmuştur."
+   }
+  },
+  "jeux": {
+   "fr": {
+    "u": "fr/jeux/index.html",
+    "t": "Jeux",
+    "d": "Les jeux d’AffectionPlus : jouer à deux (Nous connaissons-nous ?), la question du jour à se poser en couple, les sondages des lecteurs, les quiz et tests. Gratuit, sans inscription."
+   },
+   "en": {
+    "u": "en/games/index.html",
+    "t": "Games",
+    "d": "AffectionPlus games: play together (How well do we know each other?), the question of the day for couples, readers’ polls, quizzes and tests. Free, no sign-up."
+   },
+   "de": {
+    "u": "de/spiele/index.html",
+    "t": "Spiele",
+    "d": "Die Spiele von AffectionPlus: zu zweit spielen (Wie gut kennen wir uns?), die Frage des Tages für Paare, Leserumfragen, Quiz und Tests. Kostenlos, ohne Anmeldung."
+   },
+   "es": {
+    "u": "es/juegos/index.html",
+    "t": "Juegos",
+    "d": "Los juegos de AffectionPlus: jugar en pareja (¿Cuánto nos conocemos?), la pregunta del día, las encuestas de los lectores, quiz y tests. Gratis y sin registro."
+   },
+   "it": {
+    "u": "it/giochi/index.html",
+    "t": "Giochi",
+    "d": "I giochi di AffectionPlus: giocare in due (Quanto ci conosciamo?), la domanda del giorno per la coppia, i sondaggi dei lettori, quiz e test. Gratis, senza registrazione."
+   },
+   "pt": {
+    "u": "pt/jogos/index.html",
+    "t": "Jogos",
+    "d": "Os jogos do AffectionPlus: jogar a dois (Quanto nos conhecemos?), a pergunta do dia para o casal, as sondagens dos leitores, quiz e testes. Grátis e sem registo."
+   },
+   "nl": {
+    "u": "nl/spellen/index.html",
+    "t": "Spellen",
+    "d": "De spellen van AffectionPlus: samen spelen (Hoe goed kennen we elkaar?), de vraag van de dag voor koppels, lezerspeilingen, quizzen en tests. Gratis, zonder registratie."
+   },
+   "pl": {
+    "u": "pl/gry/index.html",
+    "t": "Gry",
+    "d": "Gry AffectionPlus: grajcie we dwoje (Jak dobrze się znamy?), pytanie dnia dla par, ankiety czytelników, quizy i testy. Za darmo, bez rejestracji."
+   },
+   "tr": {
+    "u": "tr/oyunlar/index.html",
+    "t": "Oyunlar",
+    "d": "AffectionPlus oyunları: birlikte oynayın (Birbirimizi ne kadar tanıyoruz?), çiftler için günün sorusu, okur anketleri, testler. Ücretsiz, üyeliksiz."
+   }
+  },
+  "jeu2": {
+   "fr": {
+    "u": "fr/jeux/nous-connaissons-nous.html",
+    "t": "Nous connaissons-nous ?",
+    "d": "Jeu à deux gratuit et sans inscription : quinze questions sur vous, puis devinez les réponses de votre partenaire. Envoyez-lui le lien et comparez vos résultats."
+   },
+   "en": {
+    "u": "en/games/how-well-do-we-know-each-other.html",
+    "t": "How well do we know each other?",
+    "d": "A free two-player game with no sign-up: fifteen questions about you, then guess your partner’s answers. Send them the link and compare your results."
+   },
+   "de": {
+    "u": "de/spiele/wie-gut-kennen-wir-uns.html",
+    "t": "Wie gut kennen wir uns?",
+    "d": "Kostenloses Spiel zu zweit ohne Anmeldung: fünfzehn Fragen über Sie, dann erraten Sie die Antworten Ihres Partners. Link schicken und Ergebnisse vergleichen."
+   },
+   "es": {
+    "u": "es/juegos/cuanto-nos-conocemos.html",
+    "t": "¿Cuánto nos conocemos?",
+    "d": "Juego para dos gratuito y sin registro: quince preguntas sobre usted y luego adivine las respuestas de su pareja. Envíele el enlace y comparen resultados."
+   },
+   "it": {
+    "u": "it/giochi/quanto-ci-conosciamo.html",
+    "t": "Quanto ci conosciamo?",
+    "d": "Gioco a due gratuito e senza registrazione: quindici domande su di voi, poi indovinate le risposte del partner. Mandategli il link e confrontate i risultati."
+   },
+   "pt": {
+    "u": "pt/jogos/quanto-nos-conhecemos.html",
+    "t": "Quanto nos conhecemos?",
+    "d": "Jogo a dois gratuito e sem registo: quinze perguntas sobre si e depois adivinhe as respostas do seu parceiro. Envie-lhe a ligação e comparem os resultados."
+   },
+   "nl": {
+    "u": "nl/spellen/hoe-goed-kennen-we-elkaar.html",
+    "t": "Hoe goed kennen we elkaar?",
+    "d": "Gratis spel voor twee zonder registratie: vijftien vragen over uzelf, raad dan de antwoorden van uw partner. Stuur de link en vergelijk de resultaten."
+   },
+   "pl": {
+    "u": "pl/gry/jak-dobrze-sie-znamy.html",
+    "t": "Jak dobrze się znamy?",
+    "d": "Darmowa gra dla dwojga bez rejestracji: piętnaście pytań o ciebie, a potem zgadnij odpowiedzi partnera. Wyślij mu link i porównajcie wyniki."
+   },
+   "tr": {
+    "u": "tr/oyunlar/birbirimizi-ne-kadar-taniyoruz.html",
+    "t": "Birbirimizi ne kadar tanıyoruz?",
+    "d": "Ücretsiz, üyeliksiz iki kişilik oyun: sizinle ilgili on beş soru, ardından partnerinizin cevaplarını tahmin edin. Bağlantıyı gönderin ve sonuçları karşılaştırın."
+   }
+  },
+  "qdj": {
+   "fr": {
+    "u": "fr/jeux/question-du-jour.html",
+    "t": "La question du jour à deux",
+    "d": "Chaque jour, une nouvelle question à se poser en couple et un petit défi à relever à deux. Gratuit, sans inscription ; votre série de jours reste sur votre appareil."
+   },
+   "en": {
+    "u": "en/games/question-of-the-day.html",
+    "t": "The question of the day for couples",
+    "d": "Every day, a new question to ask each other and a small challenge to do together. Free, no sign-up; your streak stays on your device."
+   },
+   "de": {
+    "u": "de/spiele/frage-des-tages.html",
+    "t": "Die Frage des Tages für Paare",
+    "d": "Jeden Tag eine neue Frage für Paare und eine kleine Aufgabe zu zweit. Kostenlos, ohne Anmeldung; Ihre Serie bleibt auf Ihrem Gerät."
+   },
+   "es": {
+    "u": "es/juegos/pregunta-del-dia.html",
+    "t": "La pregunta del día en pareja",
+    "d": "Cada día, una nueva pregunta para hacerse en pareja y un pequeño reto para los dos. Gratis y sin registro; su racha se queda en su dispositivo."
+   },
+   "it": {
+    "u": "it/giochi/domanda-del-giorno.html",
+    "t": "La domanda del giorno per la coppia",
+    "d": "Ogni giorno una nuova domanda da farsi in coppia e una piccola sfida da fare insieme. Gratis, senza registrazione; la vostra serie resta sul vostro dispositivo."
+   },
+   "pt": {
+    "u": "pt/jogos/pergunta-do-dia.html",
+    "t": "A pergunta do dia a dois",
+    "d": "Todos os dias, uma nova pergunta para fazerem um ao outro e um pequeno desafio a dois. Grátis e sem registo; a sua série fica no seu dispositivo."
+   },
+   "nl": {
+    "u": "nl/spellen/vraag-van-de-dag.html",
+    "t": "De vraag van de dag voor koppels",
+    "d": "Elke dag een nieuwe vraag om elkaar te stellen en een kleine uitdaging voor jullie tweeën. Gratis, zonder registratie; uw reeks blijft op uw toestel."
+   },
+   "pl": {
+    "u": "pl/gry/pytanie-dnia.html",
+    "t": "Pytanie dnia dla par",
+    "d": "Codziennie nowe pytanie do zadania sobie w parze i małe wyzwanie we dwoje. Za darmo, bez rejestracji; twoja seria zostaje na twoim urządzeniu."
+   },
+   "tr": {
+    "u": "tr/oyunlar/gunun-sorusu.html",
+    "t": "Çiftler için günün sorusu",
+    "d": "Her gün birbirinize soracağınız yeni bir soru ve birlikte yapacağınız küçük bir görev. Ücretsiz, üyeliksiz; seriniz cihazınızda kalır."
+   }
+  },
+  "sondages": {
+   "fr": {
+    "u": "fr/jeux/sondages.html",
+    "t": "Les sondages",
+    "d": "Tous les sondages « Et vous ? » d’AffectionPlus et leurs résultats en direct : jalousie, argent, infidélité, rencontre en ligne, désir, vie à deux — pour tous les lecteurs et selon la langue du site."
+   },
+   "en": {
+    "u": "en/games/polls.html",
+    "t": "The polls",
+    "d": "All the AffectionPlus “What about you?” polls and their live results: jealousy, money, cheating, online dating, desire, living together — for all readers and by site language."
+   },
+   "de": {
+    "u": "de/spiele/umfragen.html",
+    "t": "Die Umfragen",
+    "d": "Alle AffectionPlus-Umfragen „Und Sie?“ und ihre Live-Ergebnisse: Eifersucht, Geld, Untreue, Online-Dating, Lust, Zusammenleben — für alle Leser und nach Sprache der Seite."
+   },
+   "es": {
+    "u": "es/juegos/encuestas.html",
+    "t": "Las encuestas",
+    "d": "Todas las encuestas «¿Y usted?» de AffectionPlus y sus resultados en directo: celos, dinero, infidelidad, citas por internet, deseo, vida en pareja — para todos los lectores y según el idioma del siti"
+   },
+   "it": {
+    "u": "it/giochi/sondaggi.html",
+    "t": "I sondaggi",
+    "d": "Tutti i sondaggi «E voi?» di AffectionPlus e i loro risultati in diretta: gelosia, soldi, infedeltà, incontri online, desiderio, vita a due — per tutti i lettori e secondo la lingua del sito."
+   },
+   "pt": {
+    "u": "pt/jogos/sondagens.html",
+    "t": "As sondagens",
+    "d": "Todas as sondagens «E você?» do AffectionPlus e os resultados em direto: ciúmes, dinheiro, infidelidade, encontros online, desejo, vida a dois — para todos os leitores e segundo a língua do site."
+   },
+   "nl": {
+    "u": "nl/spellen/peilingen.html",
+    "t": "De peilingen",
+    "d": "Alle AffectionPlus-peilingen „En u?” en hun live resultaten: jaloezie, geld, ontrouw, online daten, verlangen, samenleven — voor alle lezers en volgens de taal van de site."
+   },
+   "pl": {
+    "u": "pl/gry/ankiety.html",
+    "t": "Ankiety",
+    "d": "Wszystkie ankiety „A ty?” AffectionPlus i ich wyniki na żywo: zazdrość, pieniądze, zdrada, randki w sieci, pożądanie, życie we dwoje — dla wszystkich czytelników i według języka strony."
+   },
+   "tr": {
+    "u": "tr/oyunlar/anketler.html",
+    "t": "Anketler",
+    "d": "AffectionPlus “Ya siz?” anketlerinin tamamı ve canlı sonuçları: kıskançlık, para, aldatma, internetten tanışma, arzu, birlikte yaşam — tüm okurlar için ve sitenin diline göre."
+   }
+  },
+  "quiz": {
+   "fr": {
+    "u": "fr/conseils/quiz-et-outils.html",
+    "t": "Quiz, tests et outils",
+    "d": "Tous les quiz, tests et outils d’AffectionPlus : quiz de connaissances, mes scores, compatibilité amoureuse, style d’attachement, couple solide, estimateur d’ovulation, calendrier de garde, compteur d"
+   },
+   "en": {
+    "u": "en/advice/quizzes-and-tools.html",
+    "t": "Quizzes, tests and tools",
+    "d": "All the AffectionPlus quizzes, tests and tools: knowledge quizzes, my scores, love compatibility, attachment style, solid couple, ovulation calculator, custody calendar, relationship counter, country "
+   },
+   "de": {
+    "u": "de/ratgeber/quiz-und-werkzeuge.html",
+    "t": "Quiz, Tests und Werkzeuge",
+    "d": "Alle Quiz, Tests und Werkzeuge von AffectionPlus: Wissensquiz, meine Punkte, Liebeskompatibilität, Bindungsstil, stabile Beziehung, Eisprungrechner, Betreuungskalender, Beziehungszähler, Länderverglei"
+   },
+   "es": {
+    "u": "es/consejos/quiz-y-herramientas.html",
+    "t": "Quiz, tests y herramientas",
+    "d": "Todos los quiz, tests y herramientas de AffectionPlus: quiz de conocimientos, mis puntuaciones, compatibilidad amorosa, estilo de apego, pareja sólida, horóscopo del día, carta natal, biorritmos, dist"
+   },
+   "it": {
+    "u": "it/consigli/quiz-e-strumenti.html",
+    "t": "Quiz, test e strumenti",
+    "d": "Tutti i quiz, i test e gli strumenti di AffectionPlus: quiz di conoscenza, i miei punteggi, compatibilità amorosa, stile di attaccamento, coppia solida, oroscopo del giorno, tema natale, bioritmi, dis"
+   },
+   "pt": {
+    "u": "pt/conselhos/quiz-e-ferramentas.html",
+    "t": "Quiz, testes e ferramentas",
+    "d": "Todos os quiz, testes e ferramentas da AffectionPlus: quiz de conhecimentos, as minhas pontuações, compatibilidade amorosa, estilo de vinculação, casal sólido, horóscopo do dia, mapa astral, biorritmo"
+   },
+   "nl": {
+    "u": "nl/advies/quiz-en-hulpmiddelen.html",
+    "t": "Quizzen, tests en hulpmiddelen",
+    "d": "Alle quizzen, tests en hulpmiddelen van AffectionPlus: kennisquizzen, mijn scores, liefdescompatibiliteit, hechtingsstijl, stevige relatie, daghoroscoop, geboortehoroscoop, bioritmen, afstand tussen t"
+   },
+   "pl": {
+    "u": "pl/porady/quiz-i-narzedzia.html",
+    "t": "Quizy, testy i narzędzia",
+    "d": "Wszystkie quizy, testy i narzędzia AffectionPlus: quizy wiedzy, moje wyniki, zgodność miłosna, styl przywiązania, trwały związek, horoskop dnia, horoskop urodzeniowy, biorytmy, odległość między dwoma "
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/testler-ve-araclar.html",
+    "t": "Testler ve araçlar",
+    "d": "AffectionPlus'ın bütün testleri ve araçları: bilgi testleri, puanlarım, aşk uyumu, bağlanma stili, sağlam ilişki, günlük burç yorumu, doğum haritası, bioritimler, iki şehir arası uzaklık."
+   }
+  },
+  "tests": {
+   "fr": {
+    "u": "fr/conseils/tester-vos-connaissances.html",
+    "t": "Tester vos connaissances",
+    "d": "Les QCM et les questionnaires d'AffectionPlus : droits du couple d'un pays à l'autre, infections sexuellement transmissibles, contraception, dépistage, divorce."
+   },
+   "en": {
+    "u": "en/advice/test-your-knowledge.html",
+    "t": "Test your knowledge",
+    "d": "The quizzes and questionnaires on AffectionPlus: couple law across countries, sexually transmitted infections, contraception, testing, divorce."
+   },
+   "de": {
+    "u": "de/ratgeber/wissen-testen.html",
+    "t": "Wissen testen",
+    "d": "Die Quiz und Fragebögen von AffectionPlus: Paarrecht von Land zu Land, sexuell übertragbare Infektionen, Verhütung, Tests, Scheidung."
+   },
+   "es": {
+    "u": "es/consejos/pon-a-prueba-tus-conocimientos.html",
+    "t": "Ponga a prueba sus conocimientos",
+    "d": "Los quiz y cuestionarios de AffectionPlus: cinco grandes quiz sobre el encuentro, la vida en pareja, la familia, la salud y la sexualidad, verdadero o falso sobre las ITS, y los cuestionarios que no p"
+   },
+   "it": {
+    "u": "it/consigli/metti-alla-prova-le-tue-conoscenze.html",
+    "t": "Mettete alla prova le vostre conoscenze",
+    "d": "I quiz e i questionari di AffectionPlus: cinque grandi quiz su incontro, vita di coppia, famiglia, salute e sessualità, vero o falso sulle IST, e i questionari che non danno voti ma vi portano alla pa"
+   },
+   "pt": {
+    "u": "pt/conselhos/teste-os-seus-conhecimentos.html",
+    "t": "Teste os seus conhecimentos",
+    "d": "Os quiz e questionários da AffectionPlus: cinco grandes quiz sobre o encontro, a vida a dois, a família, a saúde e a sexualidade, verdadeiro ou falso sobre as IST, e os questionários que não pontuam n"
+   },
+   "nl": {
+    "u": "nl/advies/test-je-kennis.html",
+    "t": "Test je kennis",
+    "d": "De quizzen en vragenlijsten van AffectionPlus: vijf grote quizzen over ontmoeting, samenleven, gezin, gezondheid en seksualiteit, waar of niet waar over soa's, en de vragenlijsten die geen punten geve"
+   },
+   "pl": {
+    "u": "pl/porady/sprawdz-swoja-wiedze.html",
+    "t": "Sprawdź swoją wiedzę",
+    "d": "Quizy i kwestionariusze AffectionPlus: pięć dużych quizów o poznawaniu, życiu razem, rodzinie, zdrowiu i seksualności, prawda czy fałsz o zakażeniach przenoszonych drogą płciową oraz kwestionariusze, "
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/bilginizi-test-edin.html",
+    "t": "Bilginizi test edin",
+    "d": "AffectionPlus'ın testleri ve anketleri: tanışma, birlikte yaşam, aile, sağlık ve cinsellik üzerine beş büyük test, cinsel yolla bulaşan enfeksiyonlar hakkında doğru mu yanlış mı, ve puan vermeyen ama "
+   }
+  },
+  "scores": {
+   "fr": {
+    "u": "fr/conseils/tester-vos-connaissances/mes-scores.html",
+    "t": "Mes scores aux quiz",
+    "d": "Vos scores aux quiz d’AffectionPlus : les cinq grands quiz, les QCM thématiques et les mini-tests, avec partage du résultat. Les scores restent dans votre navigateur."
+   },
+   "en": {
+    "u": "en/advice/test-your-knowledge/my-scores.html",
+    "t": "My quiz scores",
+    "d": "Your scores on the AffectionPlus quizzes: the five big quizzes, the thematic tests and the mini-tests, with result sharing. Scores stay in your browser."
+   },
+   "de": {
+    "u": "de/ratgeber/wissen-testen/meine-punkte.html",
+    "t": "Meine Quiz-Punkte",
+    "d": "Ihre Punkte in den Quiz von AffectionPlus: die fünf großen Quiz, die Themen-Tests und die Mini-Tests, mit Teilen des Ergebnisses. Die Punkte bleiben in Ihrem Browser."
+   },
+   "es": {
+    "u": "es/consejos/pon-a-prueba-tus-conocimientos/mis-puntuaciones.html",
+    "t": "Mis puntuaciones en los quiz",
+    "d": "Sus puntuaciones en los quiz de AffectionPlus: los cinco grandes quiz y el verdadero o falso, con la posibilidad de compartir el resultado. Las puntuaciones se quedan en su navegador."
+   },
+   "it": {
+    "u": "it/consigli/metti-alla-prova-le-tue-conoscenze/i-miei-punteggi.html",
+    "t": "I miei punteggi ai quiz",
+    "d": "I vostri punteggi ai quiz di AffectionPlus: i cinque grandi quiz e il vero o falso, con la possibilità di condividere il risultato. I punteggi restano nel vostro browser."
+   },
+   "pt": {
+    "u": "pt/conselhos/teste-os-seus-conhecimentos/as-minhas-pontuacoes.html",
+    "t": "As minhas pontuações nos quiz",
+    "d": "As suas pontuações nos quiz da AffectionPlus: os cinco grandes quiz e o verdadeiro ou falso, com partilha do resultado. As pontuações ficam no seu navegador."
+   },
+   "nl": {
+    "u": "nl/advies/test-je-kennis/mijn-scores.html",
+    "t": "Mijn quizscores",
+    "d": "Uw scores op de quizzen van AffectionPlus: de vijf grote quizzen en de waar-of-niet-waar, met de mogelijkheid het resultaat te delen. De scores blijven in uw browser."
+   },
+   "pl": {
+    "u": "pl/porady/sprawdz-swoja-wiedze/moje-wyniki.html",
+    "t": "Moje wyniki quizów",
+    "d": "Twoje wyniki w quizach AffectionPlus: pięć dużych quizów i prawda czy fałsz, z możliwością udostępnienia wyniku. Wyniki zostają w twojej przeglądarce."
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/bilginizi-test-edin/puanlarim.html",
+    "t": "Test puanlarım",
+    "d": "AffectionPlus testlerindeki puanlarınız: beş büyük test ve doğru-yanlış, sonucu paylaşma olanağıyla. Puanlar tarayıcınızda kalır."
+   }
+  },
+  "attachement": {
+   "fr": {
+    "u": "fr/conseils/style-d-attachement.html",
+    "t": "Quel est votre style d’attachement ?",
+    "d": "Test : quel est votre style d’attachement en amour — sécurisant, anxieux, évitant ou craintif ? Douze questions, un résultat expliqué, et ce qui aide pour chaque profil."
+   },
+   "en": {
+    "u": "en/advice/attachment-style.html",
+    "t": "What is your attachment style?",
+    "d": "Test: what is your attachment style in love — secure, anxious, avoidant or fearful? Twelve questions, an explained result, and what helps for each profile."
+   },
+   "de": {
+    "u": "de/ratgeber/bindungsstil.html",
+    "t": "Welcher Bindungsstil ist Ihrer?",
+    "d": "Test: Welcher Bindungsstil in der Liebe ist Ihrer — sicher, ängstlich, vermeidend oder ängstlich-vermeidend? Zwölf Fragen, ein erklärtes Ergebnis, und was jedem Profil hilft."
+   },
+   "es": {
+    "u": "es/consejos/estilo-de-apego.html",
+    "t": "¿Cuál es su estilo de apego?",
+    "d": "Test: ¿cuál es su estilo de apego en el amor — seguro, ansioso, evitativo o temeroso? Doce preguntas, un resultado explicado, y lo que ayuda para cada perfil."
+   },
+   "it": {
+    "u": "it/consigli/stile-di-attaccamento.html",
+    "t": "Qual è il vostro stile di attaccamento?",
+    "d": "Test: qual è il vostro stile di attaccamento in amore — sicuro, ansioso, evitante o timoroso? Dodici domande, un risultato spiegato, e ciò che aiuta per ogni profilo."
+   },
+   "pt": {
+    "u": "pt/conselhos/estilo-de-vinculacao.html",
+    "t": "Qual é o seu estilo de vinculação?",
+    "d": "Teste: qual é o seu estilo de vinculação no amor — seguro, ansioso, evitante ou receoso? Doze perguntas, um resultado explicado, e o que ajuda para cada perfil."
+   },
+   "nl": {
+    "u": "nl/advies/hechtingsstijl.html",
+    "t": "Wat is uw hechtingsstijl?",
+    "d": "Test: wat is uw hechtingsstijl in de liefde — veilig, angstig, vermijdend of angstig-vermijdend? Twaalf vragen, een uitgelegd resultaat, en wat helpt voor elk profiel."
+   },
+   "pl": {
+    "u": "pl/porady/styl-przywiazania.html",
+    "t": "Jaki jest twój styl przywiązania?",
+    "d": "Test: jaki jest twój styl przywiązania w miłości — bezpieczny, lękowy, unikający czy lękowo-unikający? Dwanaście pytań, wyjaśniony wynik i co pomaga w każdym profilu."
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/baglanma-stili.html",
+    "t": "Bağlanma stiliniz nedir?",
+    "d": "Test: aşkta bağlanma stiliniz nedir — güvenli, kaygılı, kaçıngan ya da kaygılı-kaçıngan? On iki soru, açıklanmış bir sonuç ve her profil için yardımcı olan."
+   }
+  },
+  "coupleSolide": {
+   "fr": {
+    "u": "fr/conseils/couple-solide.html",
+    "t": "Votre couple est-il solide ?",
+    "d": "Test : votre couple est-il solide ? Douze questions fondées sur la recherche (critique, mépris, réparation, amitié, projets), un résultat expliqué et les pages à lire ensuite."
+   },
+   "en": {
+    "u": "en/advice/strong-couple.html",
+    "t": "Is your relationship solid?",
+    "d": "Test: is your relationship solid? Twelve research-based questions (criticism, contempt, repair, friendship, plans), an explained result and the pages to read next."
+   },
+   "de": {
+    "u": "de/ratgeber/stabile-beziehung.html",
+    "t": "Ist Ihre Beziehung stabil?",
+    "d": "Test: Ist Ihre Beziehung stabil? Zwölf Fragen auf Forschungsgrundlage (Kritik, Verachtung, Reparatur, Freundschaft, Pläne), ein erklärtes Ergebnis und die Seiten zum Weiterlesen."
+   },
+   "es": {
+    "u": "es/consejos/pareja-solida.html",
+    "t": "¿Es sólida su pareja?",
+    "d": "Test: ¿es sólida su pareja? Doce preguntas basadas en la investigación (crítica, desprecio, reparación, amistad, proyectos), un resultado explicado y las páginas que leer después."
+   },
+   "it": {
+    "u": "it/consigli/coppia-solida.html",
+    "t": "La vostra coppia è solida?",
+    "d": "Test: la vostra coppia è solida? Dodici domande fondate sulla ricerca (critica, disprezzo, riparazione, amicizia, progetti), un risultato spiegato e le pagine da leggere poi."
+   },
+   "pt": {
+    "u": "pt/conselhos/casal-solido.html",
+    "t": "O seu casal é sólido?",
+    "d": "Teste: o seu casal é sólido? Doze perguntas baseadas na investigação (crítica, desprezo, reparação, amizade, projetos), um resultado explicado e as páginas a ler a seguir."
+   },
+   "nl": {
+    "u": "nl/advies/stevige-relatie.html",
+    "t": "Is uw relatie stevig?",
+    "d": "Test: is uw relatie stevig? Twaalf vragen gebaseerd op onderzoek (kritiek, minachting, herstel, vriendschap, plannen), een uitgelegd resultaat en de pagina's om daarna te lezen."
+   },
+   "pl": {
+    "u": "pl/porady/trwaly-zwiazek.html",
+    "t": "Czy twój związek jest trwały?",
+    "d": "Test: czy twój związek jest trwały? Dwanaście pytań opartych na badaniach (krytyka, pogarda, naprawa, przyjaźń, plany), wyjaśniony wynik i strony do przeczytania potem."
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/saglam-iliski.html",
+    "t": "İlişkiniz sağlam mı?",
+    "d": "Test: ilişkiniz sağlam mı? Araştırmaya dayanan on iki soru (eleştiri, aşağılama, onarım, dostluk, planlar), açıklanmış bir sonuç ve sonra okunacak sayfalar."
+   }
+  },
+  "compteur": {
+   "fr": {
+    "u": "fr/conseils/compteur-de-couple.html",
+    "t": "Compteur de couple : depuis combien de temps êtes-vous ensemble ?",
+    "d": "Compteur de couple : calculez depuis combien de jours vous êtes ensemble, vos prochains caps (1 000, 5 000, 10 000 jours), votre prochain anniversaire de rencontre et le nom de vos prochaines noces."
+   },
+   "en": {
+    "u": "en/advice/relationship-counter.html",
+    "t": "Relationship counter: how long have you been together?",
+    "d": "Relationship counter: work out how many days you have been together, your next milestones (1,000, 5,000, 10,000 days), your next anniversary and the name of your next wedding anniversary."
+   },
+   "de": {
+    "u": "de/ratgeber/beziehungszaehler.html",
+    "t": "Beziehungszähler: seit wann sind Sie zusammen?",
+    "d": "Beziehungszähler: Berechnen Sie, seit wie vielen Tagen Sie zusammen sind, Ihre nächsten Marken (1 000, 5 000, 10 000 Tage), Ihren nächsten Jahrestag und den Namen Ihres nächsten Hochzeitstags."
+   },
+   "es": {
+    "u": "es/consejos/contador-de-pareja.html",
+    "t": "Contador de pareja: ¿cuánto tiempo lleváis juntos?",
+    "d": "Contador de pareja: calcule cuántos días lleváis juntos, vuestros próximos hitos (1 000, 5 000, 10 000 días), vuestro próximo aniversario de encuentro y el nombre de vuestras próximas bodas."
+   },
+   "it": {
+    "u": "it/consigli/contatore-di-coppia.html",
+    "t": "Contatore di coppia: da quanto tempo state insieme?",
+    "d": "Contatore di coppia: calcolate da quanti giorni state insieme, i vostri prossimi traguardi (1 000, 5 000, 10 000 giorni), il prossimo anniversario dell’incontro e il nome delle vostre prossime nozze."
+   },
+   "pt": {
+    "u": "pt/conselhos/contador-do-casal.html",
+    "t": "Contador do casal: há quanto tempo estão juntos?",
+    "d": "Contador do casal: calcule há quantos dias estão juntos, os vossos próximos marcos (1 000, 5 000, 10 000 dias), o próximo aniversário do encontro e o nome das vossas próximas bodas."
+   },
+   "nl": {
+    "u": "nl/advies/relatieteller.html",
+    "t": "Relatieteller: hoe lang zijn jullie al samen?",
+    "d": "Relatieteller: bereken hoeveel dagen jullie al samen zijn, jullie volgende mijlpalen (1 000, 5 000, 10 000 dagen), jullie volgende ontmoetingsverjaardag en de naam van jullie volgende huwelijksjubileu"
+   },
+   "pl": {
+    "u": "pl/porady/licznik-zwiazku.html",
+    "t": "Licznik związku: od jak dawna jesteście razem?",
+    "d": "Licznik związku: oblicz, ile dni jesteście razem, wasze następne okrągłe liczby (1 000, 5 000, 10 000 dni), następną rocznicę poznania i nazwę następnej rocznicy ślubu."
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/iliski-sayaci.html",
+    "t": "İlişki sayacı: ne zamandan beri birliktesiniz?",
+    "d": "İlişki sayacı: kaç gündür birlikte olduğunuzu, sonraki yuvarlak sayılarınızı (1 000, 5 000, 10 000 gün), sonraki tanışma yıldönümünüzü ve sonraki evlilik yıldönümünüzün adını hesaplayın."
+   }
+  },
+  "ovulation": {
+   "fr": {
+    "u": "fr/sante/estimateur-ovulation.html",
+    "t": "Estimateur d’ovulation et de période fertile",
+    "d": "Calculateur d’ovulation : estimez votre date d’ovulation, votre période fertile et vos prochaines règles à partir de la date des dernières règles et de la longueur du cycle, avec les limites de la mét"
+   },
+   "en": {
+    "u": "en/health/ovulation-calculator.html",
+    "t": "Ovulation and fertile window calculator",
+    "d": "Ovulation calculator: estimate your ovulation date, fertile window and next periods from the date of your last period and your cycle length, with the limits of the method."
+   },
+   "de": {
+    "u": "de/gesundheit/eisprungrechner.html",
+    "t": "Eisprung- und Fruchtbarkeitsrechner",
+    "d": "Eisprungrechner: Schätzen Sie Eisprung, fruchtbare Tage und die nächsten Blutungen aus dem Datum der letzten Regel und der Zykluslänge, mit den Grenzen der Methode."
+   },
+   "es": {
+    "u": "es/salud/calculadora-de-ovulacion.html",
+    "t": "Calculadora de ovulación y de periodo fértil",
+    "d": "Calculadora de ovulación: estime su fecha de ovulación, su periodo fértil y su próxima regla a partir de la fecha de la última regla y de la duración del ciclo, con los límites del método."
+   },
+   "it": {
+    "u": "it/salute/calcolo-ovulazione.html",
+    "t": "Calcolo dell’ovulazione e del periodo fertile",
+    "d": "Calcolatore dell’ovulazione: stimate la data dell’ovulazione, il periodo fertile e le prossime mestruazioni a partire dalla data delle ultime mestruazioni e dalla durata del ciclo, con i limiti del me"
+   },
+   "pt": {
+    "u": "pt/saude/calculadora-de-ovulacao.html",
+    "t": "Calculadora de ovulação e de período fértil",
+    "d": "Calculadora de ovulação: estime a data da ovulação, o período fértil e a próxima menstruação a partir da data da última menstruação e da duração do ciclo, com os limites do método."
+   },
+   "nl": {
+    "u": "nl/gezondheid/eisprongcalculator.html",
+    "t": "Eisprongcalculator en vruchtbare periode",
+    "d": "Eisprongcalculator: schat uw eisprongdatum, uw vruchtbare periode en uw volgende menstruatie op basis van de datum van de laatste menstruatie en de cycluslengte, met de grenzen van de methode."
+   },
+   "pl": {
+    "u": "pl/zdrowie/kalkulator-owulacji.html",
+    "t": "Kalkulator owulacji i dni płodnych",
+    "d": "Kalkulator owulacji: oszacuj datę owulacji, dni płodne i następną miesiączkę na podstawie daty ostatniej miesiączki i długości cyklu, z ograniczeniami metody."
+   },
+   "tr": {
+    "u": "tr/saglik/yumurtlama-hesaplayici.html",
+    "t": "Yumurtlama hesaplayıcı ve doğurgan dönem",
+    "d": "Yumurtlama hesaplayıcı: son âdet tarihinden ve döngü uzunluğundan yumurtlama tarihinizi, doğurgan döneminizi ve sonraki âdetinizi, yöntemin sınırlarıyla birlikte tahmin edin."
+   }
+  },
+  "conseils": {
+   "fr": {
+    "u": "fr/conseils/index.html",
+    "t": "Conseils",
+    "d": "Rencontres en ligne, séduction, premier rendez-vous, vie de couple et sécurité : tous nos conseils."
+   },
+   "en": {
+    "u": "en/advice/index.html",
+    "t": "Advice",
+    "d": "Online dating, flirting, first dates, making a relationship last, and staying safe."
+   },
+   "de": {
+    "u": "de/ratgeber/index.html",
+    "t": "Ratgeber",
+    "d": "Online-Dating, erstes Date, Flirten, Beziehungspflege, Trennung und Sicherheit."
+   },
+   "es": {
+    "u": "es/consejos/index.html",
+    "t": "Consejos",
+    "d": "Conocer a alguien, vivir en pareja, formar una familia, separarse: consejos concretos, y el derecho país por país en todo el mundo hispanohablante."
+   },
+   "it": {
+    "u": "it/consigli/index.html",
+    "t": "Consigli",
+    "d": "Incontrare qualcuno, vivere in coppia, formare una famiglia, separarsi: consigli concreti, e il diritto paese per paese in Italia, nella Svizzera italiana, a San Marino e nei paesi dell'emigrazione it"
+   },
+   "pt": {
+    "u": "pt/conselhos/index.html",
+    "t": "Conselhos",
+    "d": "Conhecer alguém, viver a dois, formar uma família, separar-se: conselhos concretos, e o direito país a país em todo o mundo de língua portuguesa."
+   },
+   "nl": {
+    "u": "nl/advies/index.html",
+    "t": "Advies",
+    "d": "De etappes van een leven met zijn tweeën, in volgorde: iemand ontmoeten, samenleven, een gezin stichten, uit elkaar gaan — met het recht van Nederland, Vlaanderen, Suriname en de Caribische delen van "
+   },
+   "pl": {
+    "u": "pl/porady/index.html",
+    "t": "Porady",
+    "d": "Etapy życia we dwoje, po kolei: poznać kogoś, żyć razem, założyć rodzinę, rozstać się — z prawem Polski i krajów, w których mieszkają Polacy, na osobnych stronach krajowych."
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/index.html",
+    "t": "Tavsiyeler",
+    "d": "Birlikte yaşamın aşamaları, sırasıyla: biriyle tanışmak, birlikte yaşamak, aile kurmak, ayrılmak — Türkiye'nin ve Türklerin yaşadığı ülkelerin hukuku ayrı ülke sayfalarında."
+   }
+  },
+  "sante": {
+   "fr": {
+    "u": "fr/sante/index.html",
+    "t": "Santé",
+    "d": "IST, contraception, grossesse, bien-être : des informations de santé claires et à jour."
+   },
+   "en": {
+    "u": "en/health/index.html",
+    "t": "Health",
+    "d": "STIs, contraception, pregnancy, sleep, mental health and wellbeing — Sexual health, contraception, pregnancy and everyday wellbeing: reliable"
+   },
+   "de": {
+    "u": "de/gesundheit/index.html",
+    "t": "Gesundheit",
+    "d": "Verhütung, Geschlechtskrankheiten, Zyklus, Schwangerschaft, Schlaf, Ernährung und psychische Gesundheit."
+   },
+   "es": {
+    "u": "es/salud/index.html",
+    "t": "Salud",
+    "d": "La salud de la pareja: infecciones de transmisión sexual, anticoncepción, aborto, embarazo, ciclo menstrual, reproducción asistida, salud mental y drogas — lo que es cierto en todas partes, y el acces"
+   },
+   "it": {
+    "u": "it/salute/index.html",
+    "t": "Salute",
+    "d": "La salute sessuale e riproduttiva e quello che tocca la coppia: le infezioni sessualmente trasmissibili, la contraccezione, l'aborto, la gravidanza, il ciclo menstruale, la procreazione assistita, la "
+   },
+   "pt": {
+    "u": "pt/saude/index.html",
+    "t": "Saúde",
+    "d": "A saúde sexual e reprodutiva e o que toca o casal: as infeções sexualmente transmissíveis, a contraceção, o aborto, a gravidez, o ciclo menstrual, a procriação assistida, a saúde mental e as drogas — "
+   },
+   "nl": {
+    "u": "nl/gezondheid/index.html",
+    "t": "Gezondheid",
+    "d": "Acht gezondheidsthema's die het leven met zijn tweeën raken — soa's, anticonceptie, abortus, zwangerschap, menstruatiecyclus, medisch begeleide voortplanting, mentale gezondheid, drugs —, met de genee"
+   },
+   "pl": {
+    "u": "pl/zdrowie/index.html",
+    "t": "Zdrowie",
+    "d": "Osiem tematów zdrowotnych, które dotykają życia we dwoje — infekcje przenoszone drogą płciową, antykoncepcja, aborcja, ciąża, cykl menstruacyjny, wspomagana prokreacja, zdrowie psychiczne, narkotyki —"
+   },
+   "tr": {
+    "u": "tr/saglik/index.html",
+    "t": "Sağlık",
+    "d": "Birlikte yaşamı ilgilendiren sekiz sağlık konusu — cinsel yolla bulaşan enfeksiyonlar, doğum kontrolü, kürtaj, hamilelik, adet döngüsü, üremeye yardımcı tedavi, ruh sağlığı, uyuşturucu —, her yerde ge"
+   }
+  },
+  "sexualite": {
+   "fr": {
+    "u": "fr/sexualite/index.html",
+    "t": "Sexualité",
+    "d": "Désir, plaisir, caresses, zones érogènes et questions fréquentes sur la sexualité."
+   },
+   "en": {
+    "u": "en/sexuality/index.html",
+    "t": "Sexuality",
+    "d": "Desire, pleasure, anatomy, consent and common questions about sex — Desire, pleasure, intimacy and the questions people rarely ask out loud — clear"
+   },
+   "de": {
+    "u": "de/sexualitaet/index.html",
+    "t": "Sexualität",
+    "d": "Lust, Anatomie, Einvernehmen, Verhütungsfragen und Antworten auf das, was man selten laut fragt."
+   },
+   "es": {
+    "u": "es/sexualidad/index.html",
+    "t": "Sexualidad",
+    "d": "La sexualidad en la pareja, tratada como salud sexual: el deseo y el placer, los besos y las caricias, el placer femenino, las prácticas, las orientaciones, los lubricantes, el consentimiento, el dese"
+   },
+   "it": {
+    "u": "it/sessualita/index.html",
+    "t": "Sessualità",
+    "d": "La sessualità come tema di salute e di coppia: il desiderio e il piacere, i baci e le carezze, le zone erogene, il piacere femminile, le pratiche, gli orientamenti, i lubrificanti, il consenso, il des"
+   },
+   "pt": {
+    "u": "pt/sexualidade/index.html",
+    "t": "Sexualidade",
+    "d": "A sexualidade como tema de saúde e de casal: o desejo e o prazer, os beijos e as carícias, as zonas erógenas, o prazer feminino, as práticas, as orientações, os lubrificantes, o consentimento, o desej"
+   },
+   "nl": {
+    "u": "nl/seksualiteit/index.html",
+    "t": "Seksualiteit",
+    "d": "De seksualiteit als thema van gezondheid en van het koppel: het verlangen en het genot, kussen en strelen, de erogene zones, het vrouwelijk genot, de praktijken, de geaardheden, de glijmiddelen, de to"
+   },
+   "pl": {
+    "u": "pl/seksualnosc/index.html",
+    "t": "Seksualność",
+    "d": "Seksualność jako temat zdrowia i związku: pożądanie i przyjemność, pocałunki i pieszczoty, strefy erogenne, przyjemność kobiety, praktyki, orientacje, lubrykanty, zgoda, pożądanie po porodzie, seksual"
+   },
+   "tr": {
+    "u": "tr/cinsellik/index.html",
+    "t": "Cinsellik",
+    "d": "Bir sağlık ve çift konusu olarak cinsellik: arzu ve haz, öpüşme ve okşama, erojen bölgeler, kadın hazzı, pratikler, yönelimler, kayganlaştırıcılar, rıza, doğumdan sonra arzu, cinsellik ve yaş ve sık s"
+   }
+  },
+  "pays": {
+   "fr": {
+    "u": "fr/conseils/pays.html",
+    "t": "Le site pays par pays",
+    "d": "Toutes les pages d'AffectionPlus classées par pays : droit de la famille, mariage, divorce, santé, contraception, rencontre"
+   },
+   "en": {
+    "u": "en/advice/countries.html",
+    "t": "The site country by country",
+    "d": "Every AffectionPlus page sorted by country: family law, marriage, divorce, health, contraception, dating — national detail, gathered country by country."
+   },
+   "de": {
+    "u": "de/ratgeber/laender.html",
+    "t": "Die Website Land für Land",
+    "d": "Alle AffectionPlus-Seiten nach Land sortiert: Familienrecht, Ehe, Scheidung, Gesundheit, Verhütung, Partnersuche — nationale Angaben, Land für Land gebündelt."
+   },
+   "es": {
+    "u": "es/consejos/paises.html",
+    "t": "El sitio país por país",
+    "d": "Todos los países hispanohablantes, más Estados Unidos, la Unión Europea e Italia, país de destino de la emigración hispanohablante: para cada uno, una página que reúne sus fichas sobre el matrimonio, "
+   },
+   "it": {
+    "u": "it/consigli/paesi.html",
+    "t": "Il sito paese per paese",
+    "d": "Italia, Svizzera italiana, San Marino, Unione europea e i paesi della grande emigrazione italiana, come Argentina, Brasile, Stati Uniti, Uruguay, Venezuela, Francia e Germania: per ciascuno, una pagin"
+   },
+   "pt": {
+    "u": "pt/conselhos/paises.html",
+    "t": "O site país a país",
+    "d": "Todos os países de língua portuguesa, Macau, a União Europeia e os países da emigração portuguesa, a começar pela França: para cada um, uma página que reúne as suas fichas sobre o casamento, o divórci"
+   },
+   "nl": {
+    "u": "nl/advies/landen.html",
+    "t": "De site land per land",
+    "d": "Nederland, België (Vlaanderen), Suriname, Aruba, Curaçao, Sint Maarten, Caribisch Nederland, de Europese Unie en de landen van de Nederlandse emigratie, te beginnen met Canada: voor elk een pagina die"
+   },
+   "pl": {
+    "u": "pl/porady/kraje.html",
+    "t": "Serwis kraj po kraju",
+    "d": "Polska, Unia Europejska i kraje, w których żyją Polacy — Niemcy, Wielka Brytania, Irlandia, Holandia, Francja, Belgia, Włochy, Hiszpania, Austria, Szwajcaria, Luksemburg, Stany Zjednoczone, Kanada, Au"
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/ulkeler.html",
+    "t": "Ülke ülke site",
+    "d": "Türkiye, Avrupa Birliği ve Türklerin yaşadığı ülkeler — Almanya, Fransa, Hollanda, Avusturya, Belçika, İsviçre, Birleşik Krallık, ABD, Avustralya, Kanada, İsveç, Danimarka, Kıbrıs: her biri için evlil"
+   }
+  },
+  "recherche": {
+   "fr": {
+    "u": "fr/recherche.html",
+    "t": "Rechercher sur AffectionPlus",
+    "d": "Rechercher dans les 2 000 pages d'AffectionPlus : santé, sexualité, mariage, droits, conseils, prénoms et astrologie."
+   },
+   "en": {
+    "u": "en/search.html",
+    "t": "Search AffectionPlus",
+    "d": "Search the 2,000 pages of AffectionPlus: health, sexuality, marriage, rights, advice, names and astrology."
+   },
+   "de": {
+    "u": "de/suche.html",
+    "t": "AffectionPlus durchsuchen",
+    "d": "Durchsuchen Sie die 2 000 Seiten von AffectionPlus: Gesundheit, Sexualität, Ehe, Recht, Ratgeber, Vornamen und Astrologie."
+   },
+   "es": {
+    "u": "es/buscar.html",
+    "t": "Buscar",
+    "d": "Buscar en las páginas de AffectionPlus: salud, sexualidad, pareja, derechos, consejos y astrología."
+   },
+   "it": {
+    "u": "it/cerca.html",
+    "t": "Cerca",
+    "d": "Cerca nelle pagine di AffectionPlus: salute, sessualità, coppia, diritti, consigli e astrologia."
+   },
+   "pt": {
+    "u": "pt/pesquisar.html",
+    "t": "Pesquisar",
+    "d": "Pesquisar nas páginas do AffectionPlus: saúde, sexualidade, casal, direitos, conselhos e astrologia."
+   },
+   "nl": {
+    "u": "nl/zoeken.html",
+    "t": "Zoeken",
+    "d": "Zoeken in de pagina's van AffectionPlus: gezondheid, seksualiteit, koppel, rechten, advies en astrologie."
+   },
+   "pl": {
+    "u": "pl/szukaj.html",
+    "t": "Szukaj",
+    "d": "Szukaj na stronach AffectionPlus: zdrowie, seksualność, para, prawa, porady i astrologia."
+   },
+   "tr": {
+    "u": "tr/ara.html",
+    "t": "Ara",
+    "d": "AffectionPlus sayfalarında arayın: sağlık, cinsellik, çift, haklar, tavsiyeler ve astroloji."
+   }
+  },
+  "newsletter": {
+   "fr": {
+    "u": "fr/newsletter.html",
+    "t": "La lettre d'AffectionPlus",
+    "d": "Inscription à la lettre d'information d'AffectionPlus : nouvelles pages, changements du droit pays par pays, quiz et outils. Une à deux fois par mois, désinscription à tout moment."
+   },
+   "en": {
+    "u": "en/newsletter.html",
+    "t": "The AffectionPlus newsletter",
+    "d": "Subscribe to the AffectionPlus newsletter: new pages, legal changes country by country, quizzes and tools. Once or twice a month, unsubscribe at any time."
+   },
+   "de": {
+    "u": "de/newsletter.html",
+    "t": "Der AffectionPlus-Newsletter",
+    "d": "Anmeldung zum AffectionPlus-Newsletter: neue Seiten, Rechtsänderungen Land für Land, Quiz und Werkzeuge. Ein- bis zweimal im Monat, Abmeldung jederzeit."
+   },
+   "es": {
+    "u": "es/boletin.html",
+    "t": "El boletín de AffectionPlus",
+    "d": "Suscripción al boletín de AffectionPlus: páginas nuevas, cambios del derecho país por país, quiz y herramientas. Una o dos veces al mes, baja en cualquier momento."
+   },
+   "it": {
+    "u": "it/newsletter.html",
+    "t": "La newsletter di AffectionPlus",
+    "d": "Iscrizione alla newsletter di AffectionPlus: nuove pagine, cambiamenti del diritto paese per paese, quiz e strumenti. Una o due volte al mese, disiscrizione in qualsiasi momento."
+   },
+   "pt": {
+    "u": "pt/newsletter.html",
+    "t": "A newsletter do AffectionPlus",
+    "d": "Inscrição na newsletter do AffectionPlus: páginas novas, alterações do direito país a país, quizzes e ferramentas. Uma ou duas vezes por mês, cancelamento a qualquer momento."
+   },
+   "nl": {
+    "u": "nl/nieuwsbrief.html",
+    "t": "De nieuwsbrief van AffectionPlus",
+    "d": "Inschrijven voor de nieuwsbrief van AffectionPlus: nieuwe pagina's, juridische wijzigingen land per land, quizzen en tools. Een- tot tweemaal per maand, op elk moment uitschrijven."
+   },
+   "pl": {
+    "u": "pl/newsletter.html",
+    "t": "Newsletter AffectionPlus",
+    "d": "Zapis do newslettera AffectionPlus: nowe strony, zmiany prawa kraj po kraju, quizy i narzędzia. Raz lub dwa razy w miesiącu, wypisanie w każdej chwili."
+   },
+   "tr": {
+    "u": "tr/bulten.html",
+    "t": "AffectionPlus bülteni",
+    "d": "AffectionPlus bültenine kayıt: yeni sayfalar, ülke ülke hukuk değişiklikleri, testler ve araçlar. Ayda bir ya da iki kez, istediğiniz zaman abonelikten çıkma."
+   }
+  },
+  "apropos": {
+   "fr": {
+    "u": "fr/a-propos.html",
+    "t": "À propos",
+    "d": "La méthode éditoriale d'AffectionPlus : ce qui est vérifié, comment les pages sont datées, qui édite le site"
+   },
+   "en": {
+    "u": "en/about.html",
+    "t": "About",
+    "d": "The editorial method behind AffectionPlus: what is verified, how pages are dated, who publishes the site, how it is funded and what it does not replace."
+   },
+   "de": {
+    "u": "de/ueber-uns.html",
+    "t": "Über uns",
+    "d": "Die redaktionelle Methode von AffectionPlus: was geprüft wird, wie Seiten datiert werden, wer die Website herausgibt"
+   },
+   "es": {
+    "u": "es/acerca-de.html",
+    "t": "Acerca de AffectionPlus",
+    "d": "Qué es AffectionPlus, cómo se escriben las páginas, quién las edita, cómo se financia el sitio y qué no hace."
+   },
+   "it": {
+    "u": "it/chi-siamo.html",
+    "t": "Chi siamo",
+    "d": "Cos'è AffectionPlus, come si scrivono le pagine, chi le pubblica, come si finanzia il sito e cosa non fa."
+   },
+   "pt": {
+    "u": "pt/sobre.html",
+    "t": "Sobre o AffectionPlus",
+    "d": "O que é o AffectionPlus, como se escrevem as páginas, quem as edita, como se financia o site e o que não faz."
+   },
+   "nl": {
+    "u": "nl/over-ons.html",
+    "t": "Over AffectionPlus",
+    "d": "Wat AffectionPlus is, hoe de pagina's geschreven worden, wie ze uitgeeft, hoe de site gefinancierd wordt en wat hij niet doet."
+   },
+   "pl": {
+    "u": "pl/o-nas.html",
+    "t": "O AffectionPlus",
+    "d": "Czym jest AffectionPlus, jak powstają strony, kto je wydaje, jak serwis jest finansowany i czego nie robi."
+   },
+   "tr": {
+    "u": "tr/hakkimizda.html",
+    "t": "AffectionPlus hakkında",
+    "d": "AffectionPlus nedir, sayfalar nasıl yazılır, kim yayımlar, site nasıl finanse edilir ve ne yapmaz."
+   }
+  },
+  "contact": {
+   "fr": {
+    "u": "fr/contact.html",
+    "t": "Nous écrire",
+    "d": "Une question, une correction, une suggestion, une proposition commerciale, un partenariat, un signalement : une seule adresse, et nous lisons tout."
+   },
+   "en": {
+    "u": "en/contact.html",
+    "t": "Contact us",
+    "d": "A question, a correction, a suggestion, a commercial proposal, a partnership, a report: one address, and we read everything."
+   },
+   "de": {
+    "u": "de/kontakt.html",
+    "t": "Kontakt",
+    "d": "Eine Frage, eine Korrektur, ein Vorschlag, ein kommerzielles Angebot, eine Partnerschaft, eine Meldung: eine Adresse, und wir lesen alles."
+   },
+   "es": {
+    "u": "es/contacto.html",
+    "t": "Escríbanos",
+    "d": "Una sola dirección para las preguntas, las correcciones, las sugerencias, las propuestas comerciales, la prensa y las solicitudes sobre datos personales."
+   },
+   "it": {
+    "u": "it/contatti.html",
+    "t": "Scrivici",
+    "d": "Un solo indirizzo per le domande, le correzioni, i suggerimenti, le proposte commerciali, la stampa e le richieste sui dati personali."
+   },
+   "pt": {
+    "u": "pt/contacto.html",
+    "t": "Escreva-nos",
+    "d": "Um só endereço para as perguntas, as correções, as sugestões, as propostas comerciais, a imprensa e os pedidos sobre dados pessoais."
+   },
+   "nl": {
+    "u": "nl/contact.html",
+    "t": "Schrijf ons",
+    "d": "Eén adres voor de vragen, de correcties, de suggesties, de commerciële voorstellen, de pers en de verzoeken over persoonsgegevens."
+   },
+   "pl": {
+    "u": "pl/kontakt.html",
+    "t": "Napisz do nas",
+    "d": "Jeden adres na pytania, poprawki, sugestie, propozycje handlowe, prasę i wnioski dotyczące danych osobowych."
+   },
+   "tr": {
+    "u": "tr/iletisim.html",
+    "t": "Bize yazın",
+    "d": "Sorular, düzeltmeler, öneriler, ticari teklifler, basın ve kişisel verilere ilişkin talepler için tek adres."
+   }
+  },
+  "confidentialite": {
+   "fr": {
+    "u": "fr/confidentialite.html",
+    "t": "Politique de confidentialité",
+    "d": "Politique de confidentialité d'AffectionPlus : mesure d'audience, publicité, cookies, base légale, durées de conservation et exercice de vos droits."
+   },
+   "en": {
+    "u": "en/privacy.html",
+    "t": "Privacy policy",
+    "d": "AffectionPlus privacy policy: analytics, advertising, cookies, legal basis, retention periods and how to exercise your rights."
+   },
+   "de": {
+    "u": "de/datenschutz.html",
+    "t": "Datenschutzerklärung",
+    "d": "Datenschutzerklärung von AffectionPlus: Reichweitenmessung, Werbung, Cookies, Rechtsgrundlage, Speicherdauer und Ihre Rechte."
+   },
+   "es": {
+    "u": "es/privacidad.html",
+    "t": "Política de privacidad",
+    "d": "Qué datos trata AffectionPlus, para qué, con qué herramientas — medición de audiencia y publicidad, solo con su consentimiento —, y cuáles son sus derechos."
+   },
+   "it": {
+    "u": "it/privacy.html",
+    "t": "Politica sulla privacy",
+    "d": "Quali dati tratta AffectionPlus, per cosa, con quali strumenti — misurazione dell'audience e pubblicità, solo con il vostro consenso —, e quali sono i vostri diritti."
+   },
+   "pt": {
+    "u": "pt/privacidade.html",
+    "t": "Política de privacidade",
+    "d": "Que dados trata o AffectionPlus, para quê, com que ferramentas — medição de audiência e publicidade, só com o seu consentimento —, e quais são os seus direitos."
+   },
+   "nl": {
+    "u": "nl/privacy.html",
+    "t": "Privacybeleid",
+    "d": "Welke gegevens AffectionPlus verwerkt, waarvoor, met welke instrumenten — publieksmeting en reclame, alleen met uw toestemming —, en wat uw rechten zijn."
+   },
+   "pl": {
+    "u": "pl/prywatnosc.html",
+    "t": "Polityka prywatności",
+    "d": "Jakie dane przetwarza AffectionPlus, po co, jakimi narzędziami — pomiar oglądalności i reklama, tylko za twoją zgodą — i jakie masz prawa."
+   },
+   "tr": {
+    "u": "tr/gizlilik.html",
+    "t": "Gizlilik politikası",
+    "d": "AffectionPlus hangi verileri işler, ne için, hangi araçlarla — ziyaretçi ölçümü ve reklam, yalnızca onayınızla — ve haklarınız nelerdir."
+   }
+  }
+ }
+}

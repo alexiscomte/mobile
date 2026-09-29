@@ -1,18 +1,52 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect } from 'react';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { TEXTES } from '@/i18n';
+import { ProfilProvider, useProfil } from '@/profil';
+import { COULEURS } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+const THEME = {
+  ...DefaultTheme,
+  colors: { ...DefaultTheme.colors, primary: COULEURS.primaire, background: COULEURS.fond, card: COULEURS.fond, text: COULEURS.texte, border: COULEURS.bordure },
+};
+
+function Pile() {
+  const { pret, langue } = useProfil();
+  const T = TEXTES[langue];
+  useEffect(() => { if (pret) SplashScreen.hideAsync(); }, [pret]);
+  if (!pret) return null;
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <Stack screenOptions={{ headerTintColor: COULEURS.primaire, headerTitleStyle: { color: COULEURS.texte, fontWeight: '600' }, headerBackTitle: T.retour }}>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="page" options={{ title: '', headerBackTitle: T.retour }} />
+      <Stack.Screen name="horoscope" options={{ title: T.horoscopeDuJour }} />
+      <Stack.Screen name="biorythme" options={{ title: '' }} />
+      <Stack.Screen name="qdj" options={{ title: T.questionDuJour }} />
+      <Stack.Screen name="sondages" options={{ title: '' }} />
+      <Stack.Screen name="jeu2" options={{ title: '' }} />
+      <Stack.Screen name="quiz" options={{ title: '' }} />
+      <Stack.Screen name="theme" options={{ title: '' }} />
+      <Stack.Screen name="article" options={{ title: '' }} />
+      <Stack.Screen name="chinois" options={{ title: '' }} />
+      <Stack.Screen name="lune" options={{ title: '' }} />
+      <Stack.Screen name="ovulation" options={{ title: '' }} />
+      <Stack.Screen name="compteur" options={{ title: '' }} />
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <ProfilProvider>
+      <ThemeProvider value={THEME}>
+        <StatusBar style="dark" />
+        <Pile />
+      </ThemeProvider>
+    </ProfilProvider>
   );
 }

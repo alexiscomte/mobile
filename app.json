@@ -1,18 +1,30 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "AffectionPlus",
+    "slug": "affectionplus",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
-    "userInterfaceStyle": "automatic",
+    "scheme": "affectionplus",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#FFFFFF",
+    "primaryColor": "#580378",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "bundleIdentifier": "com.affectionplus.app",
+      "buildNumber": "1",
+      "supportsTablet": true,
+      "icon": "./assets/images/icon.png",
+      "infoPlist": {
+        "CFBundleDisplayName": "AffectionPlus",
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleLocalizations": ["fr", "en", "de", "es", "it", "pt", "nl", "pl", "tr"],
+        "CFBundleDevelopmentRegion": "fr"
+      }
     },
     "android": {
+      "package": "com.affectionplus.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#580378",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -25,12 +37,13 @@
     },
     "plugins": [
       "expo-router",
+      "expo-localization",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#580378",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 160
         }
       ]
     ],
