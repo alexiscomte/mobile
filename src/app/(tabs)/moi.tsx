@@ -6,6 +6,7 @@ import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Switch, Te
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Ligne, Titre } from '@/components/carte';
+import { ResumeSignes } from '@/components/resume-signes';
 import { LANGUES, NOMS_LANGUES, TEXTES, type Langue } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
 import { toutTelecharger } from '@/moteur/contenu';
@@ -91,6 +92,7 @@ export default function Moi() {
           <Text style={styles.boutonTxt}>{T.enregistrer}</Text>
         </Pressable>
         {message ? <Text style={styles.message}>{message}</Text> : null}
+        <View style={styles.resume}><ResumeSignes /></View>
 
         <Text style={styles.label}>{T.lieuNaissance}</Text>
         <Text style={styles.aide}>{profil.naissance_lieu ? [profil.naissance_lieu.ville, profil.naissance_lieu.code].filter(Boolean).join(', ') : T.lieuNaissanceTxt}</Text>
@@ -154,6 +156,7 @@ const styles = StyleSheet.create({
   boutonDangerTxt: { color: COULEURS.coeur, fontWeight: '600' },
   presse: { opacity: 0.8 },
   message: { color: COULEURS.vert, marginTop: 8, textAlign: 'center' },
+  resume: { marginTop: 14, backgroundColor: COULEURS.fondDoux, borderRadius: 12, padding: 12 },
   aide: { color: COULEURS.texteMuet, fontSize: 14, lineHeight: 19 },
   langues: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   langue: { borderWidth: 1, borderColor: COULEURS.bordure, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 7 },

@@ -5,6 +5,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Carte, Titre } from '@/components/carte';
+import { ResumeSignes } from '@/components/resume-signes';
 import { fmt, TEXTES } from '@/i18n';
 import { ouvrirCle } from '@/nav';
 import { useProfil } from '@/profil';
@@ -22,6 +23,7 @@ export default function Accueil() {
       <ScrollView contentContainerStyle={styles.contenu}>
         <Text style={styles.bonjour}>{profil.prenom ? fmt(T.bonjourPrenom, profil.prenom) : T.bonjour}</Text>
         <Text style={styles.date}>{date}</Text>
+        <View style={styles.resume}><ResumeSignes /></View>
 
         <View style={styles.grille}>
           <Carte large titre={T.horoscopeDuJour} texte={T.horoscopeDuJourTxt} couleur={DEGRADES.astro[0]} sf="sparkles" onPress={() => router.push('/horoscope')} />
@@ -51,6 +53,7 @@ const styles = StyleSheet.create({
   fond: { flex: 1, backgroundColor: COULEURS.fond },
   contenu: { padding: 16, paddingBottom: 110 },
   bonjour: { fontSize: 28, fontWeight: '800', color: COULEURS.primaire },
-  date: { fontSize: 15, color: COULEURS.texteMuet, textTransform: 'capitalize', marginBottom: 14 },
+  date: { fontSize: 15, color: COULEURS.texteMuet, textTransform: 'capitalize', marginBottom: 6 },
+  resume: { marginBottom: 14 },
   grille: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },
 });

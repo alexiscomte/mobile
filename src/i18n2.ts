@@ -4,9 +4,22 @@ import type { Langue } from './i18n';
 type T2 = {
   mesSignes: string; votreSigne: string; signeChinois: string; ascendant: string; sansDate: string; renseigner: string;
   autresSignes: string; masquerAutres: string; conseil: string; lesDouze: string; calculSurAppareil: string;
+  tipHoroscope: string; tipBio: string; forme: string; niveaux: string[];
+};
+// info-bulles et forme du jour (mêmes mots que le bandeau du site, espace.js)
+const RESUME: Record<Langue, Pick<T2, 'tipHoroscope' | 'tipBio' | 'forme' | 'niveaux'>> = {
+  fr: { tipHoroscope: 'Consulter votre horoscope', tipBio: 'Voir vos biorythmes du jour', forme: 'forme', niveaux: ['bonne', 'moyenne', 'à ménager', 'jour critique'] },
+  en: { tipHoroscope: 'See your horoscope', tipBio: 'See today’s biorhythms', forme: 'energy', niveaux: ['good', 'average', 'take it easy', 'critical day'] },
+  de: { tipHoroscope: 'Ihr Horoskop ansehen', tipBio: 'Ihre Biorhythmen heute', forme: 'Form', niveaux: ['gut', 'mittel', 'schonen', 'kritischer Tag'] },
+  es: { tipHoroscope: 'Consultar su horóscopo', tipBio: 'Ver sus biorritmos de hoy', forme: 'forma', niveaux: ['buena', 'media', 'con calma', 'día crítico'] },
+  it: { tipHoroscope: 'Consultare il vostro oroscopo', tipBio: 'I vostri bioritmi di oggi', forme: 'forma', niveaux: ['buona', 'media', 'con calma', 'giorno critico'] },
+  pt: { tipHoroscope: 'Consultar o seu horóscopo', tipBio: 'Ver os seus biorritmos de hoje', forme: 'forma', niveaux: ['boa', 'média', 'com calma', 'dia crítico'] },
+  nl: { tipHoroscope: 'Uw horoscoop bekijken', tipBio: 'Uw bioritmen van vandaag', forme: 'vorm', niveaux: ['goed', 'gemiddeld', 'rustig aan', 'kritieke dag'] },
+  pl: { tipHoroscope: 'Zobacz swój horoskop', tipBio: 'Twoje dzisiejsze biorytmy', forme: 'forma', niveaux: ['dobra', 'średnia', 'oszczędzaj się', 'dzień krytyczny'] },
+  tr: { tipHoroscope: 'Burç yorumunuzu görün', tipBio: 'Bugünkü biyoritimleriniz', forme: 'form', niveaux: ['iyi', 'orta', 'kendinizi koruyun', 'kritik gün'] },
 };
 
-export const TEXTES2: Record<Langue, T2> = {
+const BASE2: Record<Langue, Omit<T2, 'tipHoroscope' | 'tipBio' | 'forme' | 'niveaux'>> = {
   fr: { mesSignes: 'Vos signes', votreSigne: 'Votre signe', signeChinois: 'Signe chinois', ascendant: 'Ascendant',
         sansDate: 'Renseignez votre date de naissance pour voir vos signes en premier.', renseigner: 'Mes infos',
         autresSignes: 'Voir les horoscopes des autres signes', masquerAutres: 'Ne garder que mes signes', conseil: 'Conseil du jour',
@@ -44,5 +57,9 @@ export const TEXTES2: Record<Langue, T2> = {
         autresSignes: 'Diğer burçların yorumlarını göster', masquerAutres: 'Sadece benim burçlarımı tut', conseil: 'Günün tavsiyesi',
         lesDouze: 'On iki burç', calculSurAppareil: 'Günün gerçek konumlarından cihazınızda hesaplandı.' },
 };
+
+export const TEXTES2: Record<Langue, T2> = Object.fromEntries(
+  (Object.keys(BASE2) as Langue[]).map((lg) => [lg, { ...BASE2[lg], ...RESUME[lg] }]),
+) as Record<Langue, T2>;
 
 export const GLYPHES = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'];
