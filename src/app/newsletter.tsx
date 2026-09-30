@@ -1,7 +1,7 @@
 // Inscription à la lettre d'information, natif : même API que le site (/api/newsletter), messages du site (outils_txt.json).
 import { Stack } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { Bouton, Champ, F } from '@/components/form';
 import outils from '@/moteur/outils_txt.json';
@@ -46,6 +46,18 @@ export default function Newsletter() {
         </View>
         <Bouton titre={T.go} onPress={envoyer} disabled={envoi} />
         {msg ? <Text style={[styles.msg, { color: msg.ok ? COULEURS.vert : COULEURS.coeur }]}>{msg.t}</Text> : null}
+        {T.donnees ? (
+          // « Vos données » (01/10/2026) : même texte que le site, dont le prestataire d'envoi (Brevo) ; lien vers la page Confidentialité du site
+          <View style={styles.donnees}>
+            <Text style={styles.h2}>{T.h_donnees}</Text>
+            <Text style={styles.donneesTxt}>{T.donnees}</Text>
+            {T.confidentialite_url ? (
+              <Text style={styles.lien} accessibilityRole="link" onPress={() => Linking.openURL(SITE + langue + '/' + T.confidentialite_url)}>
+                {T.confidentialite_lbl}
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
       </ScrollView>
     </>
   );
@@ -55,4 +67,8 @@ const styles = StyleSheet.create({
   consent: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 16 },
   consentTxt: { flex: 1, color: COULEURS.texte, fontSize: 14, lineHeight: 19 },
   msg: { marginTop: 14, fontSize: 15, lineHeight: 21 },
+  donnees: { marginTop: 28, paddingTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COULEURS.bordure },
+  h2: { fontSize: 17, fontWeight: '700', color: COULEURS.texte, marginBottom: 6 },
+  donneesTxt: { color: COULEURS.texte, fontSize: 14, lineHeight: 20 },
+  lien: { marginTop: 10, color: COULEURS.secondaire, fontSize: 14, fontWeight: '600', textDecorationLine: 'underline' },
 });
