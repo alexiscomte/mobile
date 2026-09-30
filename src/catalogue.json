@@ -1123,6 +1123,21 @@
     "u": "pt/astrologia/astrologia-vedica.html",
     "t": "A astrologia védica (jyotish)",
     "d": "Astrologia védica (jyotish): calculadora de signo sideral, rashi, nakshatra e lagna; zodíaco sideral e ayanamsa, nove grahas, 27 nakshatras, dashas Vimshottari, usos na Índia, história e valor."
+   },
+   "nl": {
+    "u": "nl/astrologie/vedische-astrologie.html",
+    "t": "De Vedische astrologie (jyotish)",
+    "d": "Vedische astrologie (jyotish): rekenmodule voor siderisch teken, rashi, nakshatra en lagna; siderische dierenriem en ayanamsa, negen grahas, 27 nakshatras, Vimshottari-dashas, gebruik in India, geschi"
+   },
+   "pl": {
+    "u": "pl/astrologia/astrologia-wedyjska.html",
+    "t": "Astrologia wedyjska (jyotish)",
+    "d": "Astrologia wedyjska (jyotish): kalkulator znaku syderycznego, rashi, nakszatry i lagny; zodiak syderyczny i ajanamsa, dziewięć grah, 27 nakszatr, dasze Vimshottari, zastosowania w Indiach, historia i "
+   },
+   "tr": {
+    "u": "tr/astroloji/vedik-astroloji.html",
+    "t": "Vedik astroloji (jyotish)",
+    "d": "Vedik astroloji (jyotish): sideral burç, rashi, nakşatra ve lagna hesaplayıcısı; sideral zodyak ve ayanamsa, dokuz graha, 27 nakşatra, Vimshottari dasha'ları, Hindistan'daki kullanımlar, tarih ve değe"
    }
   },
   "maya": {
@@ -1155,6 +1170,21 @@
     "u": "pt/astrologia/astrologia-maia.html",
     "t": "A astrologia maia e o tzolk'in",
     "d": "Astrologia maia: calculadora de signo tzolk'in (número, signo do dia, equivalente asteca), os 20 signos e o seu sentido, os 13 números, haab, conta longa e 2012, guardiões do calendário k'iche', Dream"
+   },
+   "nl": {
+    "u": "nl/astrologie/maya-astrologie.html",
+    "t": "De Maya-astrologie en de tzolk'in",
+    "d": "Maya-astrologie: rekenmodule voor het tzolk'in-teken (getal, dagteken, Azteeks equivalent), de 20 tekens en hun betekenis, de 13 getallen, haab, lange telling en 2012, kalenderbewaarders van de K'iche"
+   },
+   "pl": {
+    "u": "pl/astrologia/astrologia-majow.html",
+    "t": "Astrologia Majów i tzolk’in",
+    "d": "Astrologia Majów: kalkulator znaku tzolk’in (liczba, znak dnia, odpowiednik aztecki), 20 znaków i ich znaczenie, 13 liczb, haab, długa rachuba i 2012, strażnicy kalendarza K’iche’, Dreamspell i rachub"
+   },
+   "tr": {
+    "u": "tr/astroloji/maya-astrolojisi.html",
+    "t": "Maya astrolojisi ve tzolk'in",
+    "d": "Maya astrolojisi: tzolk'in burcu hesaplayıcısı (sayı, gün işareti, Aztek karşılığı), 20 işaret ve anlamları, 13 sayı, haab, uzun sayım ve 2012, K'iche' takvim bekçileri, Dreamspell ve geleneksel sayım"
    }
   },
   "epoux": {
@@ -1266,6 +1296,36 @@
     "u": "de/gesundheit/naechste-geburtsklinik.html",
     "t": "Die nächste Geburtsklinik finden",
     "d": "Nächste Geburtsklinik: Wohnort eingeben oder Position nutzen und die nächsten Geburtskliniken mit Entfernung, Versorgungsstufe, Träger und Geburten pro Jahr erhalten (amtliche französische Liste 2024,"
+   },
+   "es": {
+    "u": "es/salud/maternidad-mas-cercana.html",
+    "t": "Encontrar la maternidad más cercana a mi casa",
+    "d": "Maternidad más cercana a su casa: escriba su ciudad o use su posición y obtenga las maternidades más cercanas con la distancia, el tipo 1, 2a, 2b o 3, la titularidad pública o privada y el número de p"
+   },
+   "it": {
+    "u": "it/salute/maternita-piu-vicina.html",
+    "t": "Trovare la maternità più vicina a casa mia",
+    "d": "Maternità più vicina a casa vostra: inserite la vostra città o usate la vostra posizione e ottenete le maternità più vicine con la distanza, il tipo 1, 2a, 2b o 3, lo status pubblico o privato e il nu"
+   },
+   "pt": {
+    "u": "pt/saude/maternidade-mais-proxima.html",
+    "t": "Encontrar a maternidade mais próxima de minha casa",
+    "d": "Maternidade mais próxima de sua casa: escreva a sua cidade ou use a sua posição e obtenha as maternidades mais próximas com a distância, o tipo 1, 2a, 2b ou 3, o estatuto público ou privado e o número"
+   },
+   "nl": {
+    "u": "nl/gezondheid/dichtstbijzijnde-kraamkliniek.html",
+    "t": "De dichtstbijzijnde kraamkliniek vinden",
+    "d": "Dichtstbijzijnde kraamkliniek: voer uw plaats in of gebruik uw locatie en krijg de dichtstbijzijnde kraamklinieken met de afstand, het type 1, 2a, 2b of 3, het openbare of particuliere statuut en het "
+   },
+   "pl": {
+    "u": "pl/zdrowie/najblizsza-porodowka.html",
+    "t": "Znajdź porodówkę najbliżej domu",
+    "d": "Porodówka najbliżej twojego domu: wpisz miejscowość lub użyj swojej lokalizacji i zobacz najbliższe porodówki z odległością, typem 1, 2a, 2b lub 3, statusem publicznym lub prywatnym i liczbą porodów r"
+   },
+   "tr": {
+    "u": "tr/saglik/en-yakin-dogum-hastanesi.html",
+    "t": "Evime en yakın doğum hastanesini bulmak",
+    "d": "Evinize en yakın doğum hastanesi: şehrinizi yazın ya da konumunuzu kullanın; en yakın doğum hastanelerini mesafe, tip 1, 2a, 2b ya da 3, kamu ya da özel statüsü ve yıllık doğum sayısıyla bulun (2024 r"
    }
   },
   "distance": {

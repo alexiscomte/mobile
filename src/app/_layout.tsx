@@ -41,6 +41,7 @@ function Pile() {
       <Stack.Screen name="epoux" options={{ title: '' }} />
       <Stack.Screen name="garde" options={{ title: '' }} />
       <Stack.Screen name="maternite" options={{ title: '' }} />
+      <Stack.Screen name="distance" options={{ title: '' }} />
       <Stack.Screen name="newsletter" options={{ title: T.newsletter }} />
     </Stack>
   );

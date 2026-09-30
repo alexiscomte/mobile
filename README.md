@@ -17,8 +17,8 @@ construisent dans le nuage d'Expo (EAS Build), sans Mac.
 - **Infos** : recherche dans toutes les pages du site (index `assets/search-<langue>.json`, gardé sur l'appareil
   24 h), les rubriques (Conseils, Santé, Sexualité, Astrologie, Pays) lues en natif et hors ligne, et les outils
   natifs : estimateur d'ovulation, maternité la plus proche (position du téléphone ou pays/ville), compteur de couple,
-  vie d'époux selon le prénom, calendrier de garde alternée (export .ics). « Distance et différences » reste une page
-  du site (ses textes n'existent qu'en fr/en/de).
+  vie d'époux selon le prénom, calendrier de garde alternée (export .ics), distance et différences (deux lieux :
+  distance, vol, décalage horaire du jour, repères culturels, fiches pays).
 - **Moi** : prénom, date et heure de naissance, langue, favoris, téléchargement de tout le contenu pour lire hors
   ligne, inscription à la lettre d'information (`/api/newsletter`), effacement des données.
 
@@ -36,9 +36,10 @@ src/app/                 écrans (Expo Router) : (tabs)/index|astro|jeux|infos|m
                          jeu2, quiz, ovulation, maternite, compteur, epoux, garde, newsletter
 src/components/vue-site  vue web d'une page du site (injection, messages, liens externes, hors-ligne)
 src/components/form      champs communs des outils (date, heure inconnue, boutons, notes, suggestions)
-src/moteur/              moteurs et données du site : astro.js, astro_txt.js (copies), compat.ts + compat_txt.json,
+src/moteur/              moteurs et données du site : astro.js, astro_txt.js, lieu.js (copies), compat.ts + compat_txt.json,
                          epoux.ts, garde.ts, autres.ts, lieux.ts (pays.json, villes lues sur le site), maternite.ts
-                         (maternites_fr.json, OpenStreetMap), outils_txt.json, ui.json, qdj/jeu2/sondages.json — écrits
+                         (maternites_fr.json, OpenStreetMap), distance.ts (distance.json, culture.json),
+                         outils_txt.json, ui.json, qdj/jeu2/sondages.json — écrits
                          par outils/gen/app_moteurs.py, app_outils_txt.py, app_compat_txt.py : ne pas modifier à la main
 src/i18n.ts, i18n2, i18n3  textes de l'interface, 9 langues
 src/catalogue.json       adresses et titres des pages du site par langue — écrit par outils/gen/app_catalogue.py

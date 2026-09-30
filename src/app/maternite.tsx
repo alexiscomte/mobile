@@ -2,12 +2,12 @@
 // France = liste officielle DREES, ailleurs = OpenStreetMap.
 import * as Location from 'expo-location';
 import { Stack } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Bouton, Champ, F, fmt, Note } from '@/components/form';
+import { Bouton, F, fmt, Note } from '@/components/form';
+import { ChoixLieu, type LieuChoisi } from '@/components/lieu';
 import { TEXTES3 } from '@/i18n3';
-import { chercherPays, chercherVille, listePays, villes, type PaysInfo, type Ville } from '@/moteur/lieux';
 import { enFrance, prochesFR, prochesOSM, textesMaternite, type Etablissement } from '@/moteur/maternite';
 import { useProfil } from '@/profil';
 import { page } from '@/site';
@@ -18,26 +18,11 @@ type Sortie = { fr: boolean; liste: Etablissement[]; note?: string };
 export default function Maternite() {
   const { langue, profil } = useProfil();
   const T = textesMaternite(langue), T3 = TEXTES3[langue];
-  const PAYS = useMemo(() => listePays(langue), [langue]);
-  const res0 = profil.residence;
-  const [pays, setPays] = useState<PaysInfo | null>(() => (res0 && res0.code ? PAYS.find((p) => p.code === res0.code) || null : null));
-  const [qPays, setQPays] = useState(pays ? pays.nom : '');
-  const [ville, setVille] = useState<{ nom: string; lat: number; lon: number } | null>(
-    res0 && typeof res0.lat === 'number' && typeof res0.lon === 'number' ? { nom: res0.ville || '', lat: res0.lat, lon: res0.lon } : null);
-  const [qVille, setQVille] = useState(ville ? ville.nom : '');
-  const [liste, setListe] = useState<Ville[]>([]);
+  const r0 = profil.residence;
+  const [lieu, setLieu] = useState<LieuChoisi | null>(r0 && r0.code && typeof r0.lat === 'number' && typeof r0.lon === 'number' ? { code: r0.code, nomPays: '', lat: r0.lat, lon: r0.lon, ville: r0.ville || null } : null);
   const [msg, setMsg] = useState('');
   const [enCours, setEnCours] = useState(false);
   const [out, setOut] = useState<Sortie | null>(null);
-
-  useEffect(() => {
-    let actif = true;
-    setListe([]);
-    if (pays) villes(pays.code).then((l) => { if (actif) setListe(l); }, () => {});
-    return () => { actif = false; };
-  }, [pays]);
-  const sugPays = useMemo(() => (pays && qPays === pays.nom ? [] : chercherPays(PAYS, qPays)), [PAYS, qPays, pays]);
-  const sugVille = useMemo(() => (ville && qVille === ville.nom ? [] : chercherVille(liste, qVille)), [liste, qVille, ville]);
 
   const chercher = async (lat: number, lon: number, code: string | null) => {
     setOut(null); setMsg(T.cherche); setEnCours(true);
@@ -51,10 +36,7 @@ export default function Maternite() {
     } catch { setMsg(T.osm_erreur); }
     setEnCours(false);
   };
-  const go = () => {
-    if (!pays) { setMsg(T.manque); return; }
-    chercher(ville ? ville.lat : pays.lat, ville ? ville.lon : pays.lon, pays.code);
-  };
+  const go = () => { if (!lieu) { setMsg(T.manque); return; } chercher(lieu.lat, lieu.lon, lieu.code); };
   const position = async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -73,24 +55,7 @@ export default function Maternite() {
       <Stack.Screen options={{ title: page('maternite', langue).t }} />
       <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled">
         <Text style={F.h2}>{T.ou}</Text>
-        <Champ label={T3.pays} value={qPays} onChangeText={(v) => { setQPays(v); setPays(null); setVille(null); setQVille(''); }} autoCorrect={false} />
-        {sugPays.length ? (
-          <View style={F.suggestions}>
-            {sugPays.map((p) => (
-              <Pressable key={p.code} style={F.suggestion} onPress={() => { setPays(p); setQPays(p.nom); }}><Text style={F.suggestionTxt}>{p.nom}</Text></Pressable>
-            ))}
-          </View>
-        ) : null}
-        <Champ label={T3.ville} value={qVille} onChangeText={(v) => { setQVille(v); setVille(null); }} editable={!!pays} autoCorrect={false} />
-        {sugVille.length ? (
-          <View style={F.suggestions}>
-            {sugVille.map((v) => (
-              <Pressable key={v.nom + v.lat} style={F.suggestion} onPress={() => { setVille({ nom: v.nom, lat: v.lat, lon: v.lon }); setQVille(v.nom); }}>
-                <Text style={F.suggestionTxt}>{v.nom}{v.cp ? ' (' + v.cp + ')' : ''}</Text>
-              </Pressable>
-            ))}
-          </View>
-        ) : null}
+        <ChoixLieu langue={langue} valeur={lieu} onChange={setLieu} labelPays={T3.pays} labelVille={T3.ville} />
         <Bouton titre={T.go} onPress={go} disabled={enCours} />
         <Bouton titre={T.position} onPress={position} secondaire disabled={enCours} />
         {msg ? <View style={styles.etat}>{enCours ? <ActivityIndicator color={COULEURS.primaire} /> : null}<Text style={styles.etatTxt}>{msg}</Text></View> : null}

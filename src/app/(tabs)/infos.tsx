@@ -19,14 +19,14 @@ const RUBRIQUES: { cle: Cle; sf: string }[] = [
   { cle: 'astrologie', sf: 'moon.stars.fill' },
   { cle: 'pays', sf: 'globe.europe.africa.fill' },
 ];
-// les outils pratiques, en natif (article du site pour « distance et différences », dont les textes n'existent qu'en fr/en/de)
+// les outils pratiques, tous en natif
 const OUTILS: { cle: Cle; sf: string; route?: string }[] = [
   { cle: 'ovulation', sf: 'calendar.badge.clock', route: '/ovulation' },
   { cle: 'maternite', sf: 'cross.case.fill', route: '/maternite' },
   { cle: 'compteur', sf: 'heart.circle.fill', route: '/compteur' },
   { cle: 'epoux', sf: 'textformat.abc', route: '/epoux' },
   { cle: 'garde', sf: 'calendar', route: '/garde' },
-  { cle: 'distance', sf: 'globe' },
+  { cle: 'distance', sf: 'globe', route: '/distance' },
 ];
 
 export default function Infos() {
