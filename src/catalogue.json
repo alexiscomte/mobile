@@ -1422,6 +1422,194 @@
     "d": "Birlikte yaşamın aşamaları, sırasıyla: biriyle tanışmak, birlikte yaşamak, aile kurmak, ayrılmak — Türkiye'nin ve Türklerin yaşadığı ülkelerin hukuku ayrı ülke sayfalarında."
    }
   },
+  "rencontreEnLigne": {
+   "fr": {
+    "u": "fr/conseils/rencontre-en-ligne.html",
+    "t": "La rencontre en ligne",
+    "d": "Sites et applications, profil, conversation, arnaques sentimentales, droit à l'image et données personnelles : le dossier rencontre en ligne d'AffectionPlus."
+   },
+   "en": {
+    "u": "en/advice/online-dating.html",
+    "t": "Online dating",
+    "d": "Sites and apps, profiles, conversation, romance scams, image rights and personal data: the AffectionPlus online dating file."
+   },
+   "de": {
+    "u": "de/ratgeber/online-dating.html",
+    "t": "Online-Dating",
+    "d": "Seiten und Apps, Profil, Gespräch, Liebesbetrug, Bildrechte und personenbezogene Daten: das AffectionPlus-Dossier Online-Dating."
+   },
+   "es": {
+    "u": "es/consejos/citas-en-linea.html",
+    "t": "Las citas en línea",
+    "d": "Cómo escribir un perfil que se parezca a usted, reconocer una estafa romántica antes de pagar, entender el ghosting y conocer sus derechos en línea."
+   },
+   "it": {
+    "u": "it/consigli/incontri-online.html",
+    "t": "Gli incontri online",
+    "d": "Come scrivere un profilo che vi somigli, riconoscere una truffa sentimentale prima di pagare, capire il ghosting e conoscere i vostri diritti online."
+   },
+   "pt": {
+    "u": "pt/conselhos/encontros-online.html",
+    "t": "Os encontros online",
+    "d": "Como escrever um perfil que se pareça consigo, reconhecer uma burla romântica antes de pagar, perceber o ghosting e conhecer os seus direitos online."
+   },
+   "nl": {
+    "u": "nl/advies/online-daten.html",
+    "t": "Online daten",
+    "d": "Een profiel dat op u lijkt, eerste berichten die ergens toe leiden, de signalen van datingfraude, ghosting, en uw rechten op de apps: gegevens, betalingen, opzegging."
+   },
+   "pl": {
+    "u": "pl/porady/randki-online.html",
+    "t": "Randki online",
+    "d": "Profil, który jest do Ciebie podobny, pierwsze wiadomości, które do czegoś prowadzą, sygnały oszustwa matrymonialnego, ghosting i Twoje prawa w aplikacjach: dane, płatności, rezygnacja."
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/cevrimici-tanisma.html",
+    "t": "Çevrimiçi tanışma",
+    "d": "Size benzeyen bir profil, bir yere varan ilk mesajlar, romantik dolandırıcılığın işaretleri, ghosting ve uygulamalardaki haklarınız: veriler, ödemeler, üyelik iptali."
+   }
+  },
+  "mariage": {
+   "fr": {
+    "u": "fr/conseils/mariage/index.html",
+    "t": "La vie de couple",
+    "d": "Union civile, régimes matrimoniaux, cérémonie et organisation du mariage."
+   },
+   "en": {
+    "u": "en/advice/marriage/index.html",
+    "t": "Couple life",
+    "d": "Civil marriage, civil partnerships, property, divorce, inheritance and wedding planning."
+   },
+   "de": {
+    "u": "de/ratgeber/ehe/index.html",
+    "t": "Das Paarleben",
+    "d": "Standesamtliche Hochzeit, eingetragene Partnerschaft, Güterstand, Scheidung, Erbrecht und Hochzeitsplanung."
+   },
+   "es": {
+    "u": "es/consejos/pareja/index.html",
+    "t": "Vida en pareja: casarse, o no",
+    "d": "Casarse o convivir, el matrimonio civil, las uniones de hecho, el matrimonio igualitario, el régimen económico y la organización de la boda, con el derecho de cada país hispanohablante."
+   },
+   "it": {
+    "u": "it/consigli/coppia/index.html",
+    "t": "Vita di coppia",
+    "d": "Sposarsi o no, e come: il matrimonio civile, le unioni civili e la convivenza di fatto, il matrimonio tra persone dello stesso sesso, il regime patrimoniale e l'organizzazione del matrimonio — con il "
+   },
+   "pt": {
+    "u": "pt/conselhos/casal/index.html",
+    "t": "Vida a dois",
+    "d": "Casar ou não, e como: o casamento civil, a união de facto e a união estável, o casamento entre pessoas do mesmo sexo, o regime de bens e a organização do casamento — com o direito de cada país lusófon"
+   },
+   "nl": {
+    "u": "nl/advies/samenleven/index.html",
+    "t": "Samenleven",
+    "d": "Trouwen of niet: het burgerlijk huwelijk, het samenwonen en het geregistreerd partnerschap, het huwelijk voor iedereen, het huwelijksvermogensrecht en de bruiloft — wat overal geldt, en de landenpagin"
+   },
+   "pl": {
+    "u": "pl/porady/zycie-we-dwoje/index.html",
+    "t": "Życie we dwoje",
+    "d": "Ślub czy nie: ślub cywilny, związki nieformalne, małżeństwo osób tej samej płci, ustrój majątkowy i wesele — to, co obowiązuje wszędzie, i strony krajowe Polski oraz krajów, w których mieszkają Polacy"
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/birlikte-yasam/index.html",
+    "t": "Birlikte yaşam",
+    "d": "Evlenmek ya da evlenmemek: resmî nikâh, birlikte yaşama ve kayıtlı birliktelik, mal rejimi ve düğün — her yerde geçerli olan, ve Türkiye ile Türklerin yaşadığı ülkelerin ülke sayfaları."
+   }
+  },
+  "famille": {
+   "fr": {
+    "u": "fr/conseils/famille.html",
+    "t": "La famille",
+    "d": "Devenir parents : prénoms, garder son couple, adoption, GPA, faire garder son enfant, familles recomposées, animal de compagnie, et la succession"
+   },
+   "en": {
+    "u": "en/advice/family.html",
+    "t": "Family",
+    "d": "Becoming parents: baby names, keeping the couple alive, adoption, surrogacy, childcare, step-families, pets, and inheritance"
+   },
+   "de": {
+    "u": "de/ratgeber/familie.html",
+    "t": "Die Familie",
+    "d": "Eltern werden: Vornamen, die Beziehung erhalten, Adoption, Leihmutterschaft, Kinderbetreuung, Patchworkfamilie, Haustiere"
+   },
+   "es": {
+    "u": "es/consejos/familia.html",
+    "t": "La familia",
+    "d": "Formar y organizar una familia: la custodia de los hijos, la adopción, las familias reconstituidas y la herencia, con el derecho de cada país hispanohablante."
+   },
+   "it": {
+    "u": "it/consigli/famiglia.html",
+    "t": "La famiglia",
+    "d": "Quello che il diritto decide quando ci sono dei figli — affidamento e mantenimento dopo la separazione, adozione, famiglia ricomposta — e quello che si trasmette: l'eredità, con le regole di ogni paes"
+   },
+   "pt": {
+    "u": "pt/conselhos/familia.html",
+    "t": "A família",
+    "d": "O que o direito decide quando há filhos — guarda e alimentos depois da separação, adoção, família recomposta — e o que se transmite: a herança, com as regras de cada país."
+   },
+   "nl": {
+    "u": "nl/advies/gezin.html",
+    "t": "Het gezin",
+    "d": "Waar het recht het huis binnenkomt: het gezag en de omgang na een scheiding, de adoptie, het samengestelde gezin en de erfenis — wat overal geldt, en de landenpagina's."
+   },
+   "pl": {
+    "u": "pl/porady/rodzina.html",
+    "t": "Rodzina",
+    "d": "Gdzie prawo wchodzi do domu: opieka nad dziećmi po rozstaniu, adopcja, rodzina patchworkowa i dziedziczenie — to, co obowiązuje wszędzie, i strony krajowe."
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/aile.html",
+    "t": "Aile",
+    "d": "Hukukun eve girdiği yer: ayrılıktan sonra velayet, evlat edinme, yeniden kurulan aile ve miras — her yerde geçerli olan, ve ülke sayfaları."
+   }
+  },
+  "separation": {
+   "fr": {
+    "u": "fr/conseils/separation.html",
+    "t": "Divorce et séparation",
+    "d": "Divorce et séparation : procédures et délais pays par pays, ce qui change quand on n'était pas marié, la garde, la pension, le partage"
+   },
+   "en": {
+    "u": "en/advice/separation.html",
+    "t": "Divorce and separation",
+    "d": "Divorce and separation: procedures and timescales country by country, what changes when you were not married, custody, maintenance, division of assets"
+   },
+   "de": {
+    "u": "de/ratgeber/trennung.html",
+    "t": "Scheidung und Trennung",
+    "d": "Scheidung und Trennung: Verfahren und Fristen Land für Land, was ohne Trauschein anders ist, Sorge, Unterhalt, Vermögensteilung und der Kostenrechner."
+   },
+   "es": {
+    "u": "es/consejos/separacion.html",
+    "t": "Divorcio y separación",
+    "d": "Separarse: el divorcio y su coste, lo que viene después de la ruptura, la soledad, y la violencia en la pareja — con el derecho de cada país hispanohablante."
+   },
+   "it": {
+    "u": "it/consigli/separazione.html",
+    "t": "La separazione",
+    "d": "Il divorzio e i suoi procedimenti, quello che si organizza dopo la rottura — casa, figli, conti, documenti —, la solitudine che segue, e la violenza nella coppia, che è la ragione più urgente per sepa"
+   },
+   "pt": {
+    "u": "pt/conselhos/separacao.html",
+    "t": "A separação",
+    "d": "O divórcio e os seus procedimentos, o que se organiza depois da rutura — casa, filhos, contas, documentos —, a solidão que se segue, e a violência no casal, que é a razão mais urgente para se separar."
+   },
+   "nl": {
+    "u": "nl/advies/scheiding.html",
+    "t": "De scheiding",
+    "d": "De echtscheiding en haar procedures, wat er na de breuk praktisch te regelen valt, de eenzaamheid daarna, en het geweld in de relatie — wat overal geldt, en de landenpagina's."
+   },
+   "pl": {
+    "u": "pl/porady/rozstanie.html",
+    "t": "Rozstanie",
+    "d": "Rozwód i jego procedury, co praktycznie trzeba załatwić po rozstaniu, samotność potem, i przemoc w związku — to, co obowiązuje wszędzie, i strony krajowe."
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/ayrilik.html",
+    "t": "Ayrılık",
+    "d": "Boşanma ve usulleri, ayrılıktan sonra pratikte düzenlenecekler, sonrasındaki yalnızlık ve ilişkide şiddet — her yerde geçerli olan, ve ülke sayfaları."
+   }
+  },
   "sante": {
    "fr": {
     "u": "fr/sante/index.html",

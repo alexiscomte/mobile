@@ -9,7 +9,7 @@ export const NOMS_LANGUES: Record<Langue, string> = {
 type Textes = {
   accueil: string; astro: string; jeux: string; infos: string; moi: string;
   bonjour: string; bonjourPrenom: string; aujourdhui: string;
-  vosOutils: string; jouer: string; commencerIci: string; commencerIciTxt: string;
+  vosOutils: string; jouer: string; commencerIci: string; commencerIciTxt: string; etapes: string; etapeRencontre: string; etapeMariage: string; etapeFamille: string; etapeDivorce: string;
   horoscopeDuJour: string; horoscopeDuJourTxt: string; questionDuJour: string; questionDuJourTxt: string;
   compatTxt: string; jeu2Txt: string; themeTxt: string; bioTxt: string; sondagesTxt: string; quizTxt: string;
   astroTitre: string; astroIntro: string; jeuxTitre: string; jeuxIntro: string;
@@ -27,7 +27,7 @@ const fr: Textes = {
   accueil: 'Accueil', astro: 'Astro', jeux: 'Jeux', infos: 'Infos', moi: 'Moi',
   bonjour: 'Bonjour', bonjourPrenom: 'Bonjour %s', aujourdhui: "Aujourd’hui",
   vosOutils: 'Vos outils', jouer: 'Jouer à deux', commencerIci: 'Par où commencer ?',
-  commencerIciTxt: 'Quelques questions pour vous orienter vers les pages qui vous concernent.',
+  commencerIciTxt: 'Quelques questions pour vous orienter vers les pages qui vous concernent.', etapes: 'Les étapes de la vie de couple', etapeRencontre: 'Rencontre', etapeMariage: 'Mariage', etapeFamille: 'Famille', etapeDivorce: 'Divorce',
   horoscopeDuJour: 'Votre horoscope du jour', horoscopeDuJourTxt: 'Zodiaque, signe chinois, ascendant : calculé pour vous, chaque jour.',
   questionDuJour: 'La question du jour à deux', questionDuJourTxt: 'Une question à vous poser en couple et un petit défi.',
   compatTxt: 'Deux prénoms, deux dates de naissance, sept lectures.', jeu2Txt: 'Répondez, devinez les réponses de l’autre, comparez.',
@@ -54,7 +54,7 @@ const en: Textes = {
   accueil: 'Home', astro: 'Astro', jeux: 'Games', infos: 'Info', moi: 'Me',
   bonjour: 'Hello', bonjourPrenom: 'Hello %s', aujourdhui: 'Today',
   vosOutils: 'Your tools', jouer: 'Play together', commencerIci: 'Where to start?',
-  commencerIciTxt: 'A few questions to point you to the pages that concern you.',
+  commencerIciTxt: 'A few questions to point you to the pages that concern you.', etapes: 'The stages of a relationship', etapeRencontre: 'Dating', etapeMariage: 'Marriage', etapeFamille: 'Family', etapeDivorce: 'Divorce',
   horoscopeDuJour: 'Your horoscope today', horoscopeDuJourTxt: 'Zodiac, Chinese sign, ascendant: computed for you, every day.',
   questionDuJour: 'The question of the day for couples', questionDuJourTxt: 'One question to ask each other and a small challenge.',
   compatTxt: 'Two first names, two dates of birth, seven readings.', jeu2Txt: 'Answer, guess the other’s answers, compare.',
@@ -81,7 +81,7 @@ const de: Textes = {
   accueil: 'Start', astro: 'Astro', jeux: 'Spiele', infos: 'Infos', moi: 'Ich',
   bonjour: 'Guten Tag', bonjourPrenom: 'Guten Tag %s', aujourdhui: 'Heute',
   vosOutils: 'Ihre Werkzeuge', jouer: 'Zu zweit spielen', commencerIci: 'Wo anfangen?',
-  commencerIciTxt: 'Ein paar Fragen, die Sie zu den Seiten führen, die Sie betreffen.',
+  commencerIciTxt: 'Ein paar Fragen, die Sie zu den Seiten führen, die Sie betreffen.', etapes: 'Die Etappen des Paarlebens', etapeRencontre: 'Kennenlernen', etapeMariage: 'Ehe', etapeFamille: 'Familie', etapeDivorce: 'Scheidung',
   horoscopeDuJour: 'Ihr Horoskop heute', horoscopeDuJourTxt: 'Tierkreis, chinesisches Zeichen, Aszendent: jeden Tag für Sie berechnet.',
   questionDuJour: 'Die Frage des Tages für Paare', questionDuJourTxt: 'Eine Frage für Sie beide und eine kleine Aufgabe.',
   compatTxt: 'Zwei Vornamen, zwei Geburtsdaten, sieben Lesarten.', jeu2Txt: 'Antworten, die Antworten des anderen erraten, vergleichen.',
@@ -108,7 +108,7 @@ const es: Textes = {
   accueil: 'Inicio', astro: 'Astro', jeux: 'Juegos', infos: 'Info', moi: 'Yo',
   bonjour: 'Hola', bonjourPrenom: 'Hola, %s', aujourdhui: 'Hoy',
   vosOutils: 'Sus herramientas', jouer: 'Jugar en pareja', commencerIci: '¿Por dónde empezar?',
-  commencerIciTxt: 'Unas preguntas para orientarle hacia las páginas que le conciernen.',
+  commencerIciTxt: 'Unas preguntas para orientarle hacia las páginas que le conciernen.', etapes: 'Las etapas de la vida en pareja', etapeRencontre: 'Encuentros', etapeMariage: 'Matrimonio', etapeFamille: 'Familia', etapeDivorce: 'Divorcio',
   horoscopeDuJour: 'Su horóscopo de hoy', horoscopeDuJourTxt: 'Zodiaco, signo chino, ascendente: calculado para usted cada día.',
   questionDuJour: 'La pregunta del día en pareja', questionDuJourTxt: 'Una pregunta para hacerse en pareja y un pequeño reto.',
   compatTxt: 'Dos nombres, dos fechas de nacimiento, siete lecturas.', jeu2Txt: 'Responda, adivine las respuestas del otro, comparen.',
@@ -135,7 +135,7 @@ const it: Textes = {
   accueil: 'Home', astro: 'Astro', jeux: 'Giochi', infos: 'Info', moi: 'Io',
   bonjour: 'Buongiorno', bonjourPrenom: 'Buongiorno %s', aujourdhui: 'Oggi',
   vosOutils: 'I vostri strumenti', jouer: 'Giocare in due', commencerIci: 'Da dove cominciare?',
-  commencerIciTxt: 'Qualche domanda per orientarvi verso le pagine che vi riguardano.',
+  commencerIciTxt: 'Qualche domanda per orientarvi verso le pagine che vi riguardano.', etapes: 'Le tappe della vita di coppia', etapeRencontre: 'Incontri', etapeMariage: 'Matrimonio', etapeFamille: 'Famiglia', etapeDivorce: 'Divorzio',
   horoscopeDuJour: 'Il vostro oroscopo di oggi', horoscopeDuJourTxt: 'Zodiaco, segno cinese, ascendente: calcolati per voi ogni giorno.',
   questionDuJour: 'La domanda del giorno per la coppia', questionDuJourTxt: 'Una domanda da farvi in coppia e una piccola sfida.',
   compatTxt: 'Due nomi, due date di nascita, sette letture.', jeu2Txt: 'Rispondete, indovinate le risposte dell’altro, confrontate.',
@@ -162,7 +162,7 @@ const pt: Textes = {
   accueil: 'Início', astro: 'Astro', jeux: 'Jogos', infos: 'Info', moi: 'Eu',
   bonjour: 'Olá', bonjourPrenom: 'Olá, %s', aujourdhui: 'Hoje',
   vosOutils: 'As suas ferramentas', jouer: 'Jogar a dois', commencerIci: 'Por onde começar?',
-  commencerIciTxt: 'Algumas perguntas para o orientar para as páginas que lhe dizem respeito.',
+  commencerIciTxt: 'Algumas perguntas para o orientar para as páginas que lhe dizem respeito.', etapes: 'As etapas da vida a dois', etapeRencontre: 'Encontros', etapeMariage: 'Casamento', etapeFamille: 'Família', etapeDivorce: 'Divórcio',
   horoscopeDuJour: 'O seu horóscopo de hoje', horoscopeDuJourTxt: 'Zodíaco, signo chinês, ascendente: calculados para si todos os dias.',
   questionDuJour: 'A pergunta do dia a dois', questionDuJourTxt: 'Uma pergunta para fazerem um ao outro e um pequeno desafio.',
   compatTxt: 'Dois nomes, duas datas de nascimento, sete leituras.', jeu2Txt: 'Responda, adivinhe as respostas do outro, comparem.',
@@ -189,7 +189,7 @@ const nl: Textes = {
   accueil: 'Start', astro: 'Astro', jeux: 'Spellen', infos: 'Info', moi: 'Ik',
   bonjour: 'Hallo', bonjourPrenom: 'Hallo %s', aujourdhui: 'Vandaag',
   vosOutils: 'Uw hulpmiddelen', jouer: 'Samen spelen', commencerIci: 'Waar beginnen?',
-  commencerIciTxt: 'Een paar vragen die u naar de pagina’s leiden die u aangaan.',
+  commencerIciTxt: 'Een paar vragen die u naar de pagina’s leiden die u aangaan.', etapes: 'De stappen van het samenleven', etapeRencontre: 'Daten', etapeMariage: 'Huwelijk', etapeFamille: 'Gezin', etapeDivorce: 'Scheiding',
   horoscopeDuJour: 'Uw horoscoop van vandaag', horoscopeDuJourTxt: 'Sterrenbeeld, Chinees teken, ascendant: elke dag voor u berekend.',
   questionDuJour: 'De vraag van de dag voor koppels', questionDuJourTxt: 'Een vraag om elkaar te stellen en een kleine uitdaging.',
   compatTxt: 'Twee voornamen, twee geboortedata, zeven lezingen.', jeu2Txt: 'Antwoord, raad de antwoorden van de ander, vergelijk.',
@@ -216,7 +216,7 @@ const pl: Textes = {
   accueil: 'Start', astro: 'Astro', jeux: 'Gry', infos: 'Info', moi: 'Ja',
   bonjour: 'Dzień dobry', bonjourPrenom: 'Dzień dobry, %s', aujourdhui: 'Dzisiaj',
   vosOutils: 'Twoje narzędzia', jouer: 'Gra we dwoje', commencerIci: 'Od czego zacząć?',
-  commencerIciTxt: 'Kilka pytań, które skierują cię do stron, które cię dotyczą.',
+  commencerIciTxt: 'Kilka pytań, które skierują cię do stron, które cię dotyczą.', etapes: 'Etapy życia we dwoje', etapeRencontre: 'Randki', etapeMariage: 'Małżeństwo', etapeFamille: 'Rodzina', etapeDivorce: 'Rozwód',
   horoscopeDuJour: 'Twój horoskop na dziś', horoscopeDuJourTxt: 'Zodiak, znak chiński, ascendent: obliczane dla ciebie codziennie.',
   questionDuJour: 'Pytanie dnia dla par', questionDuJourTxt: 'Jedno pytanie do zadania sobie w parze i małe wyzwanie.',
   compatTxt: 'Dwa imiona, dwie daty urodzenia, siedem odczytów.', jeu2Txt: 'Odpowiedz, zgadnij odpowiedzi drugiej osoby, porównajcie.',
@@ -243,7 +243,7 @@ const tr: Textes = {
   accueil: 'Ana sayfa', astro: 'Astro', jeux: 'Oyunlar', infos: 'Bilgi', moi: 'Ben',
   bonjour: 'Merhaba', bonjourPrenom: 'Merhaba %s', aujourdhui: 'Bugün',
   vosOutils: 'Araçlarınız', jouer: 'Birlikte oynayın', commencerIci: 'Nereden başlamalı?',
-  commencerIciTxt: 'Sizi ilgilendiren sayfalara yönlendiren birkaç soru.',
+  commencerIciTxt: 'Sizi ilgilendiren sayfalara yönlendiren birkaç soru.', etapes: 'Çift hayatının aşamaları', etapeRencontre: 'Tanışma', etapeMariage: 'Evlilik', etapeFamille: 'Aile', etapeDivorce: 'Boşanma',
   horoscopeDuJour: 'Bugünkü burç yorumunuz', horoscopeDuJourTxt: 'Burç, Çin burcu, yükselen: her gün sizin için hesaplanır.',
   questionDuJour: 'Çiftler için günün sorusu', questionDuJourTxt: 'Birbirinize soracağınız bir soru ve küçük bir görev.',
   compatTxt: 'İki isim, iki doğum tarihi, yedi okuma.', jeu2Txt: 'Cevaplayın, diğerinin cevaplarını tahmin edin, karşılaştırın.',

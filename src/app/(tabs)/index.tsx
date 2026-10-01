@@ -43,6 +43,15 @@ export default function Accueil() {
           <Carte titre={page('quiz', langue).t} texte={T.quizTxt} couleur={DEGRADES.conseils[0]} sf="questionmark.circle.fill" onPress={go('quiz')} />
         </View>
 
+        {/* étapes de la vie de couple : mêmes tuiles que l'accueil du site (accueil_etapes.py, 01/10/2026), pages du catalogue */}
+        <Titre>{T.etapes}</Titre>
+        <View style={styles.grille}>
+          <Carte titre={T.etapeRencontre} texte={page('rencontreEnLigne', langue).d} couleur={DEGRADES.compat[0]} sf="heart.circle.fill" onPress={go('rencontreEnLigne')} />
+          <Carte titre={T.etapeMariage} texte={page('mariage', langue).d} couleur={DEGRADES.conseils[0]} sf="gift.fill" onPress={go('mariage')} />
+          <Carte titre={T.etapeFamille} texte={page('famille', langue).d} couleur={DEGRADES.sante[0]} sf="figure.2.and.child.holdinghands" onPress={go('famille')} />
+          <Carte titre={T.etapeDivorce} texte={page('separation', langue).d} couleur={DEGRADES.jeux[0]} sf="heart.slash.fill" onPress={go('separation')} />
+        </View>
+
         <Titre>{T.commencerIci}</Titre>
         <View style={styles.grille}>
           <Carte large titre={page('maSituation', langue).t} texte={T.commencerIciTxt} couleur={COULEURS.primaire} sf="signpost.right.fill" onPress={go('maSituation')} />
