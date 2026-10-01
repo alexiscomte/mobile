@@ -10,10 +10,14 @@ import { article, cheminDe, type Article } from '@/moteur/contenu';
 import { ouvrir } from '@/nav';
 import { useProfil } from '@/profil';
 import sondages from '@/moteur/sondages.json';
-import { SITE, url } from '@/site';
+import { page, SITE, url, type Cle } from '@/site';
 import { COULEURS } from '@/theme';
 
-const ROUTES: Record<string, string> = { horoscope: '/horoscope', biorythme: '/biorythme', theme: '/theme', jeu2: '/jeu2', qdj: '/qdj', sondages: '/sondages', scores: '/quiz' };
+const ROUTES: Record<string, string> = { horoscope: '/horoscope', biorythme: '/biorythme', theme: '/theme', jeu2: '/jeu2', qdj: '/qdj', sondages: '/sondages', scores: '/quiz',
+  compat: '/compat', chinois: '/chinois', distance: '/distance', maternite: '/maternite', ovulation: '/ovulation', garde: '/garde', epoux: '/epoux' };
+// conteneur generique div#outil : l'ecran natif se retrouve par la page du catalogue (02/10/2026 : plan callisthenique)
+const OUTILS_PAGE: Cle[] = ['ovulation', 'maternite', 'compteur', 'epoux', 'garde', 'callisthenie'];
+const routeDePage = (u: string, lg: Parameters<typeof page>[1]) => { const k = OUTILS_PAGE.find((c) => page(c, lg).u === u); return k ? '/' + k : undefined; };
 const SONDAGES = (sondages as { sondages: { id: string; u: Record<string, string> }[] }).sondages;
 
 export default function EcranArticle() {
@@ -31,7 +35,7 @@ export default function EcranArticle() {
     div: ({ tnode, TDefaultRenderer, ...props }: any) => {
       const outil = tnode.attributes['data-app-outil'], quiz = tnode.attributes['data-app-quiz'];
       if (outil) {
-        const route = ROUTES[outil];
+        const route = ROUTES[outil] || (outil === 'outil' && u ? routeDePage(u, langue) : undefined);
         return (
           <Pressable onPress={() => (route ? router.push(route as never) : enLigne())} style={styles.marqueur}>
             <Text style={styles.marqueurTxt}>{route ? T3.ouvrirOutil : T3.enLigne} →</Text>
@@ -47,7 +51,7 @@ export default function EcranArticle() {
       }
       return <TDefaultRenderer tnode={tnode} {...props} />;
     },
-  }), [router, T3]); // eslint-disable-line react-hooks/exhaustive-deps
+  }), [router, T3, u, langue]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!u) { router.back(); return null; }
   return (

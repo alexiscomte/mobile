@@ -1328,6 +1328,53 @@
     "d": "Evinize en yakın doğum hastanesi: şehrinizi yazın ya da konumunuzu kullanın; en yakın doğum hastanelerini mesafe, tip 1, 2a, 2b ya da 3, kamu ya da özel statüsü ve yıllık doğum sayısıyla bulun (2024 r"
    }
   },
+  "callisthenie": {
+   "fr": {
+    "u": "fr/conseils/hygiene-de-vie/plan-callisthenique.html",
+    "t": "Votre plan d’entraînement callisthénique : dix questions, un programme",
+    "d": "Plan d’entraînement callisthénique personnalisé : répondez à dix questions (objectif, niveau, temps, matériel, douleurs, seul ou en couple) et obtenez un programme d’exercices au poids du corps sur qu"
+   },
+   "en": {
+    "u": "en/advice/healthy-living/calisthenics-plan.html",
+    "t": "Your calisthenics training plan: ten questions, one programme",
+    "d": "Personalised calisthenics training plan: answer ten questions (goal, level, time, equipment, aches and pains, alone or as a couple) and get a four-week bodyweight exercise programme plus nutrition gui"
+   },
+   "de": {
+    "u": "de/ratgeber/lebensweise/calisthenics-plan.html",
+    "t": "Ihr Calisthenics-Trainingsplan: zehn Fragen, ein Programm",
+    "d": "Persönlicher Calisthenics-Trainingsplan: Beantworten Sie zehn Fragen (Ziel, Niveau, Zeit, Ausrüstung, Beschwerden, allein oder als Paar) und erhalten Sie ein Vier-Wochen-Programm aus Übungen mit dem e"
+   },
+   "es": {
+    "u": "es/consejos/estilo-de-vida/plan-de-calistenia.html",
+    "t": "Su plan de entrenamiento de calistenia: diez preguntas, un programa",
+    "d": "Plan de entrenamiento de calistenia personalizado: responda a diez preguntas (objetivo, nivel, tiempo, material, dolores, solo o en pareja) y obtenga un programa de ejercicios con el peso del cuerpo d"
+   },
+   "it": {
+    "u": "it/consigli/stile-di-vita/piano-di-calisthenics.html",
+    "t": "Il vostro piano di calisthenics: dieci domande, un programma",
+    "d": "Piano di allenamento calisthenics personalizzato: rispondete a dieci domande (obiettivo, livello, tempo, attrezzatura, dolori, da soli o in coppia) e ottenete un programma di esercizi a corpo libero s"
+   },
+   "pt": {
+    "u": "pt/conselhos/estilo-de-vida/plano-de-calistenia.html",
+    "t": "O seu plano de treino de calistenia: dez perguntas, um programa",
+    "d": "Plano de treino de calistenia personalizado: responda a dez perguntas (objetivo, nível, tempo, material, dores, sozinho ou em casal) e obtenha um programa de exercícios com o peso do corpo ao longo de"
+   },
+   "nl": {
+    "u": "nl/advies/levensstijl/calisthenics-schema.html",
+    "t": "Uw calisthenics-trainingsplan: tien vragen, één programma",
+    "d": "Persoonlijk calisthenics-trainingsplan: beantwoord tien vragen (doel, niveau, tijd, materiaal, pijn, alleen of als koppel) en krijg een programma met oefeningen met het eigen lichaamsgewicht over vier"
+   },
+   "pl": {
+    "u": "pl/porady/styl-zycia/plan-kalisteniki.html",
+    "t": "Twój plan treningu kalistenicznego: dziesięć pytań, jeden program",
+    "d": "Spersonalizowany plan treningu kalistenicznego: odpowiedz na dziesięć pytań (cel, poziom, czas, sprzęt, dolegliwości, solo czy w parze) i otrzymaj program ćwiczeń z masą własnego ciała na cztery tygod"
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/yasam-tarzi/kalistenik-plani.html",
+    "t": "Kalistenik antrenman planınız: on soru, bir program",
+    "d": "Kişiselleştirilmiş kalistenik antrenman planı: on soruyu yanıtlayın (hedef, seviye, zaman, ekipman, ağrılar, tek başına ya da çift olarak) ve dört haftalık bir vücut ağırlığı egzersiz programı ile bes"
+   }
+  },
   "distance": {
    "fr": {
     "u": "fr/conseils/rencontre-internationale.html",

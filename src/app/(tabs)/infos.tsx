@@ -23,6 +23,7 @@ const RUBRIQUES: { cle: Cle; sf: string }[] = [
 const OUTILS: { cle: Cle; sf: string; route?: string }[] = [
   { cle: 'ovulation', sf: 'calendar.badge.clock', route: '/ovulation' },
   { cle: 'maternite', sf: 'cross.case.fill', route: '/maternite' },
+  { cle: 'callisthenie', sf: 'figure.strengthtraining.traditional', route: '/callisthenie' },
   { cle: 'compteur', sf: 'heart.circle.fill', route: '/compteur' },
   { cle: 'epoux', sf: 'textformat.abc', route: '/epoux' },
   { cle: 'garde', sf: 'calendar', route: '/garde' },
