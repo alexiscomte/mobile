@@ -2005,32 +2005,32 @@
    "es": {
     "u": "es/privacidad.html",
     "t": "Política de privacidad",
-    "d": "Qué datos trata AffectionPlus, para qué, con qué herramientas — medición de audiencia y publicidad, solo con su consentimiento —, y cuáles son sus derechos."
+    "d": "Qué datos trata AffectionPlus, para qué, con qué herramientas — medición de audiencia (que puede rechazar) y publicidad (solo con su consentimiento) —, y cuáles son sus derechos."
    },
    "it": {
     "u": "it/privacy.html",
     "t": "Politica sulla privacy",
-    "d": "Quali dati tratta AffectionPlus, per cosa, con quali strumenti — misurazione dell'audience e pubblicità, solo con il vostro consenso —, e quali sono i vostri diritti."
+    "d": "Quali dati tratta AffectionPlus, per cosa, con quali strumenti — misurazione dell'audience (che potete rifiutare) e pubblicità (solo con il vostro consenso) —, e quali sono i vostri diritti."
    },
    "pt": {
     "u": "pt/privacidade.html",
     "t": "Política de privacidade",
-    "d": "Que dados trata o AffectionPlus, para quê, com que ferramentas — medição de audiência e publicidade, só com o seu consentimento —, e quais são os seus direitos."
+    "d": "Que dados trata o AffectionPlus, para quê, com que ferramentas — medição de audiência (que pode recusar) e publicidade (só com o seu consentimento) —, e quais são os seus direitos."
    },
    "nl": {
     "u": "nl/privacy.html",
     "t": "Privacybeleid",
-    "d": "Welke gegevens AffectionPlus verwerkt, waarvoor, met welke instrumenten — publieksmeting en reclame, alleen met uw toestemming —, en wat uw rechten zijn."
+    "d": "Welke gegevens AffectionPlus verwerkt, waarvoor, met welke instrumenten — publieksmeting (die u kunt weigeren) en reclame (alleen met uw toestemming) —, en wat uw rechten zijn."
    },
    "pl": {
     "u": "pl/prywatnosc.html",
     "t": "Polityka prywatności",
-    "d": "Jakie dane przetwarza AffectionPlus, po co, jakimi narzędziami — pomiar oglądalności i reklama, tylko za twoją zgodą — i jakie masz prawa."
+    "d": "Jakie dane przetwarza AffectionPlus, po co, jakimi narzędziami — pomiar oglądalności (który możesz odrzucić) i reklama (tylko za twoją zgodą) — i jakie masz prawa."
    },
    "tr": {
     "u": "tr/gizlilik.html",
     "t": "Gizlilik politikası",
-    "d": "AffectionPlus hangi verileri işler, ne için, hangi araçlarla — ziyaretçi ölçümü ve reklam, yalnızca onayınızla — ve haklarınız nelerdir."
+    "d": "AffectionPlus hangi verileri işler, ne için, hangi araçlarla — ziyaretçi ölçümü (reddedilebilir) ve reklam (yalnızca onayınızla) — ve haklarınız nelerdir."
    }
   }
  }
