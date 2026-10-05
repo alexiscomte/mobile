@@ -3,7 +3,9 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 
+import { Banniere, Illustration } from '@/components/illustration';
 import { TEXTES } from '@/i18n';
+import { ARCHETYPES } from '@/images';
 import { bilanQcm, chargerQuiz, lireScores, memoriserScore, resultatTest, teste, texteHtml, type Quiz, type Reponse, type Score } from '@/moteur/quiz';
 import { useProfil } from '@/profil';
 import { page, SITE } from '@/site';
@@ -77,6 +79,7 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
       return (
         <Ecran titre={quiz.t}>
           <Text style={styles.score}>{bons} / {d.questions.length}</Text>
+          {lot.img ? <Banniere image={SITE + lot.img} ratio={1.5} /> : null}
           <Text style={styles.resTitre}>{texteHtml(lot.titre)}</Text>
           <Text style={styles.texte}>{texteHtml(lot.corps)}</Text>
           {rates.length ? <><Text style={styles.sousTitre}>{texteHtml(d.revoir || '')}</Text>{rates.map((r, k) => <Text key={k} style={styles.texte}>• {texteHtml(r)}</Text>)}</> : null}
@@ -87,8 +90,12 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
       );
     }
     const r = resultatTest(d, score);
+    // l'animal du test d'archétype est embarqué (src/images.ts) ; les autres résultats ont une image servie par le site
+    const cle = (r.si || []).find((c) => c[0] === '@max');
+    const animal = quiz.id.startsWith('qarch') && cle ? ARCHETYPES[String(cle[2])] : undefined;
     return (
       <Ecran titre={quiz.t}>
+        {animal ? <Illustration image={animal} taille={240} style={styles.animal} /> : r.img ? <Banniere image={SITE + r.img} ratio={1.5} /> : null}
         <Text style={styles.resTitre}>{texteHtml(r.titre)}</Text>
         <Text style={styles.texte}>{texteHtml(r.corps)}</Text>
         {notes.length && d.retenu ? <><Text style={styles.sousTitre}>{texteHtml(d.retenu)}</Text>{notes.map((n, k) => <Text key={k} style={styles.texte}>• {texteHtml(n)}</Text>)}</> : null}
@@ -103,6 +110,7 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
     return (
       <Ecran titre={quiz.t}>
         <Text style={styles.etape}>{i + 1} / {d.questions.length}</Text>
+        {q.img ? <Banniere key={q.img} image={SITE + q.img} /> : null}
         <Text style={styles.question}>{texteHtml(q.q)}</Text>
         {correction ? (
           <>
@@ -122,6 +130,7 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
   return (
     <Ecran titre={quiz.t}>
       <Text style={styles.etape}>{pile.length + 1}</Text>
+      {q.img ? <Banniere key={q.img} image={SITE + q.img} /> : null}
       <Text style={styles.question}>{texteHtml(q.q)}</Text>
       {q.aide ? <Text style={styles.aide}>{texteHtml(q.aide)}</Text> : null}
       {q.r.map((r, k) => (
@@ -172,6 +181,7 @@ const styles = StyleSheet.create({
   bon: { color: COULEURS.vert }, faux: { color: COULEURS.coeur },
   texte: { fontSize: 15, lineHeight: 22, color: COULEURS.texte, marginBottom: 10 },
   score: { fontSize: 44, fontWeight: '800', color: COULEURS.primaire, textAlign: 'center', marginVertical: 8 },
+  animal: { alignSelf: 'center', marginBottom: 14 },
   resTitre: { fontSize: 20, fontWeight: '700', color: COULEURS.primaireFonce, marginBottom: 8 },
   sousTitre: { fontSize: 16, fontWeight: '700', color: COULEURS.primaireFonce, marginTop: 10, marginBottom: 6 },
   note: { color: COULEURS.texteMuet, fontSize: 12, marginTop: 12 },

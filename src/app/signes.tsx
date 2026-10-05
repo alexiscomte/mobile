@@ -4,8 +4,10 @@ import React, { useMemo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { Bandeau, Bouton, F, fmt, Note } from '@/components/form';
+import { Illustration } from '@/components/illustration';
 import { TEXTES } from '@/i18n';
 import { TEXTES2 } from '@/i18n2';
+import { ZODIAQUE } from '@/images';
 import { ASTRO } from '@/moteur/astro';
 import { textes } from '@/moteur/horoscope';
 import { ouvrir } from '@/nav';
@@ -41,7 +43,10 @@ export default function Signes() {
     return { sun, moon, m1, m2, luneSure: known || m1 === m2, known, lieu, asc, mc, bascule };
   }, [profil]);
   const ligne = (lab: string, lon: number) => (
-    <Text style={F.texte}><Text style={F.gras}>{lab}</Text> : {T.signes[ASTRO.sign(lon)]} {ASTRO.fmtDeg(lon)}</Text>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+      <Illustration image={ZODIAQUE[ASTRO.sign(lon)]} taille={64} alt={T.signes[ASTRO.sign(lon)]} />
+      <Text style={[F.texte, { flex: 1, marginBottom: 0 }]}><Text style={F.gras}>{lab}</Text> : {T.signes[ASTRO.sign(lon)]} {ASTRO.fmtDeg(lon)}</Text>
+    </View>
   );
 
   return (

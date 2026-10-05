@@ -3,29 +3,35 @@ import { SymbolView, type SFSymbol } from 'expo-symbols';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { FondTuile, Illustration } from '@/components/illustration';
+import type { Img } from '@/images';
 import { COULEURS } from '@/theme';
 
-type CarteProps = { titre: string; texte?: string; couleur: string; sf: string; onPress: () => void; large?: boolean };
+// image : photo de fond (src/images.ts, TUILES) sous un voile à la couleur de la tuile ; le texte se place alors en bas (tuile
+// étroite) ou à gauche (tuile large), et le symbole laisse la place à la photo
+type CarteProps = { titre: string; texte?: string; couleur: string; sf: string; onPress: () => void; large?: boolean; image?: Img };
 
-export function Carte({ titre, texte, couleur, sf, onPress, large }: CarteProps) {
+export function Carte({ titre, texte, couleur, sf, onPress, large, image }: CarteProps) {
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      style={({ pressed }) => [styles.carte, { backgroundColor: couleur }, large && styles.large, pressed && styles.pressee]}>
-      <SymbolView name={sf as SFSymbol} tintColor="#fff" size={26} fallback={<Text style={styles.puce}>◆</Text>} />
-      <Text style={styles.carteTitre} numberOfLines={3}>{titre}</Text>
-      {texte ? <Text style={styles.carteTexte} numberOfLines={3}>{texte}</Text> : null}
+      style={({ pressed }) => [styles.carte, { backgroundColor: couleur }, large && styles.large, image ? (large ? styles.largeImage : styles.avecImage) : null, pressed && styles.pressee]}>
+      {image ? <FondTuile image={image} couleur={couleur} horizontal={large} /> : (
+        <SymbolView name={sf as SFSymbol} tintColor="#fff" size={26} fallback={<Text style={styles.puce}>◆</Text>} />
+      )}
+      <Text style={[styles.carteTitre, image && large ? styles.texteGauche : null]} numberOfLines={3}>{titre}</Text>
+      {texte ? <Text style={[styles.carteTexte, image && large ? styles.texteGauche : null]} numberOfLines={3}>{texte}</Text> : null}
     </Pressable>
   );
 }
 
-type LigneProps = { titre: string; texte?: string; sf?: string; onPress: () => void };
+type LigneProps = { titre: string; texte?: string; sf?: string; onPress: () => void; image?: Img };
 
-export function Ligne({ titre, texte, sf, onPress }: LigneProps) {
+export function Ligne({ titre, texte, sf, onPress, image }: LigneProps) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" style={({ pressed }) => [styles.ligne, pressed && styles.pressee]}>
-      {sf ? (
+      {image ? <Illustration image={image} taille={52} /> : sf ? (
         <View style={styles.ligneIcone}>
           <SymbolView name={sf as SFSymbol} tintColor={COULEURS.primaire} size={22} fallback={<Text style={{ color: COULEURS.primaire }}>◆</Text>} />
         </View>
@@ -46,6 +52,9 @@ export function Titre({ children }: { children: React.ReactNode }) {
 const styles = StyleSheet.create({
   carte: { width: '48%', minHeight: 132, borderRadius: 16, padding: 14, gap: 6, justifyContent: 'flex-start' },
   large: { width: '100%', minHeight: 110 },
+  avecImage: { minHeight: 168, justifyContent: 'flex-end', overflow: 'hidden' },
+  largeImage: { minHeight: 124, justifyContent: 'center', overflow: 'hidden' },
+  texteGauche: { maxWidth: '64%' },
   pressee: { opacity: 0.8 },
   puce: { color: '#fff', fontSize: 20 },
   carteTitre: { color: '#fff', fontSize: 16, fontWeight: '700', lineHeight: 20 },

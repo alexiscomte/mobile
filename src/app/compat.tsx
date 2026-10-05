@@ -4,9 +4,12 @@ import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Bouton, Champ, ChampDate, ChampHeure, Erreur, F, Note } from '@/components/form';
+import { Illustration } from '@/components/illustration';
 import { TEXTES } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
+import { CHINOIS, ZODIAQUE } from '@/images';
 import { compatibilite, plat, textesCompat, type Personne, type Resultat, type Section } from '@/moteur/compat';
+import { signesDe, textes as textesAstro } from '@/moteur/horoscope';
 import { ouvrirArticle, resoudre } from '@/nav';
 import { useProfil } from '@/profil';
 import { page } from '@/site';
@@ -99,6 +102,29 @@ export default function Compat() {
                 <Text style={styles.totalTxt}>{U.total_txt}</Text>
               </View>
             ) : null}
+            {(() => {
+              // les signes des deux personnes en images (zodiaque et animal chinois), quand les deux dates sont données
+              const s1 = signesDe(d1), s2 = signesDe(d2);
+              if (!s1 || !s2) return null;
+              const TA = textesAstro(langue);
+              const duo = (nom: string, s: NonNullable<typeof s1>) => (
+                <View style={styles.personne}>
+                  <View style={styles.paire}>
+                    <Illustration image={ZODIAQUE[s.soleil]} taille={68} alt={TA.signes[s.soleil]} />
+                    <Illustration image={CHINOIS[s.chinois.animal]} taille={68} alt={TA.chinois.animaux[s.chinois.animal]} />
+                  </View>
+                  <Text style={styles.personneNom} numberOfLines={1}>{nom}</Text>
+                  <Text style={styles.personneSignes} numberOfLines={2}>{TA.signes[s.soleil]} · {TA.chinois.animaux[s.chinois.animal]}</Text>
+                </View>
+              );
+              return (
+                <View style={styles.duo}>
+                  {duo(n1.trim() || U.p1, s1)}
+                  <Text style={styles.coeur}>♥</Text>
+                  {duo(n2.trim() || U.p2, s2)}
+                </View>
+              );
+            })()}
             {res.avis.map((a, i) => <Note key={i}>{a}</Note>)}
             {res.sections.map((s, i) => <Bloc key={i} s={s} ui={U} lire={T3.lirePage} ouvrir={ouvrir} />)}
             <Text style={F.h2}>{T.fin.titre}</Text>
@@ -128,4 +154,10 @@ const styles = StyleSheet.create({
   totalNombre: { color: '#fff', fontSize: 40, fontWeight: '800' },
   totalSur: { fontSize: 16, fontWeight: '400' },
   totalTxt: { color: 'rgba(255,255,255,0.9)', fontSize: 13, lineHeight: 18, marginTop: 4 },
+  duo: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: COULEURS.fondDoux, borderRadius: 14, padding: 12, marginBottom: 10 },
+  personne: { flex: 1, alignItems: 'center', gap: 4 },
+  paire: { flexDirection: 'row', gap: 6 },
+  personneNom: { fontSize: 16, fontWeight: '700', color: COULEURS.primaireFonce },
+  personneSignes: { fontSize: 12, color: COULEURS.texteMuet, textAlign: 'center' },
+  coeur: { fontSize: 26, color: COULEURS.coeur, marginHorizontal: 6 },
 });

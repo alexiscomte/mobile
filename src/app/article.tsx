@@ -118,6 +118,9 @@ const TAGS: Record<string, MixedStyleDeclaration> = {
   summary: { fontWeight: '700', color: COULEURS.primaireFonce },
   details: { backgroundColor: COULEURS.fondMuet, borderRadius: 8, padding: 10, marginBottom: 8 },
   img: { marginVertical: 8 },
+  // photos qui illustrent les articles (site : photos_pages.py, 05/10/2026), avec leur légende
+  figure: { marginTop: 6, marginBottom: 16, marginHorizontal: 0 },
+  figcaption: { fontSize: 13, lineHeight: 18, color: COULEURS.texteMuet, textAlign: 'center', marginTop: 4 },
 };
 const CLASSES: Record<string, MixedStyleDeclaration> = {
   content: { marginBottom: 6 },
@@ -128,6 +131,7 @@ const CLASSES: Record<string, MixedStyleDeclaration> = {
   maj: { color: COULEURS.texteMuet, fontSize: 12 },
   'af-note': { color: COULEURS.texteMuet, fontSize: 13 },
   clean: { paddingLeft: 0 },
+  'photo-article': { marginTop: 6, marginBottom: 16 },
 };
 
 const styles = StyleSheet.create({

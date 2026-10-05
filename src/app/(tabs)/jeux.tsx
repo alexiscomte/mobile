@@ -6,20 +6,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Carte, Ligne, Titre } from '@/components/carte';
 import { TEXTES } from '@/i18n';
+import { TUILES, VIGNETTES, type Img } from '@/images';
 import { questionDuJour, sondageDuJour } from '@/moteur/qdj';
 import { ouvrirCle } from '@/nav';
 import { useProfil } from '@/profil';
 import { page, type Cle } from '@/site';
 import { COULEURS, DEGRADES } from '@/theme';
 
-const AUTRES: { cle: Cle; sf: string }[] = [
-  { cle: 'tests', sf: 'checkmark.circle.fill' },
-  { cle: 'scores', sf: 'trophy.fill' },
-  { cle: 'attachement', sf: 'link' },
-  { cle: 'coupleSolide', sf: 'shield.checkered' },
-  { cle: 'compteur', sf: 'calendar' },
-  { cle: 'quiz', sf: 'square.grid.2x2.fill' },
-  { cle: 'jeux', sf: 'gamecontroller.fill' },
+const AUTRES: { cle: Cle; sf: string; image?: Img }[] = [
+  { cle: 'tests', sf: 'checkmark.circle.fill', image: VIGNETTES.tests },
+  { cle: 'scores', sf: 'trophy.fill', image: VIGNETTES.scores },
+  { cle: 'attachement', sf: 'link', image: VIGNETTES.attachement },
+  { cle: 'coupleSolide', sf: 'shield.checkered', image: VIGNETTES['couple-solide'] },
+  { cle: 'compteur', sf: 'calendar', image: VIGNETTES.compteur },
+  { cle: 'quiz', sf: 'square.grid.2x2.fill', image: VIGNETTES.quiz },
+  { cle: 'jeux', sf: 'gamecontroller.fill', image: VIGNETTES.jeux },
 ];
 
 export default function Jeux() {
@@ -34,15 +35,15 @@ export default function Jeux() {
         <Text style={styles.titre}>{T.jeuxTitre}</Text>
         <Text style={styles.intro}>{T.jeuxIntro}</Text>
         <View style={styles.grille}>
-          <Carte large titre={page('jeu2', langue).t} texte={T.jeu2Txt} couleur={DEGRADES.jeux[0]} sf="person.2.fill" onPress={() => router.push('/jeu2')} />
-          <Carte titre={page('qdj', langue).t} texte={questionDuJour(langue)} couleur={DEGRADES.compat[0]} sf="bubble.left.and.bubble.right.fill" onPress={() => router.push('/qdj')} />
-          <Carte titre={page('sondages', langue).t} texte={sondage ? sondage.q[langue] || sondage.q.fr : T.sondagesTxt} couleur={DEGRADES.sexualite[0]} sf="chart.bar.fill" onPress={() => router.push('/sondages')} />
+          <Carte large titre={page('jeu2', langue).t} texte={T.jeu2Txt} couleur={DEGRADES.jeux[0]} sf="person.2.fill" image={TUILES.jeu2} onPress={() => router.push('/jeu2')} />
+          <Carte titre={page('qdj', langue).t} texte={questionDuJour(langue)} couleur={DEGRADES.compat[0]} sf="bubble.left.and.bubble.right.fill" image={TUILES.qdj} onPress={() => router.push('/qdj')} />
+          <Carte titre={page('sondages', langue).t} texte={sondage ? sondage.q[langue] || sondage.q.fr : T.sondagesTxt} couleur={DEGRADES.sexualite[0]} sf="chart.bar.fill" image={TUILES.sondages} onPress={() => router.push('/sondages')} />
         </View>
         <Titre>{page('quiz', langue).t}</Titre>
-        {AUTRES.map(({ cle, sf }) => {
+        {AUTRES.map(({ cle, sf, image }) => {
           const p = page(cle, langue);
           const natif = cle === 'tests' || cle === 'scores' || cle === 'quiz' ? () => router.push('/quiz') : cle === 'compteur' ? () => router.push('/compteur') : go(cle);
-          return <Ligne key={cle} titre={p.t} texte={p.d} sf={sf} onPress={natif} />;
+          return <Ligne key={cle} titre={p.t} texte={p.d} sf={sf} image={image} onPress={natif} />;
         })}
       </ScrollView>
     </SafeAreaView>

@@ -3,8 +3,10 @@ import { Stack, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { Illustration } from '@/components/illustration';
 import { TEXTES } from '@/i18n';
 import { GLYPHES, TEXTES2 } from '@/i18n2';
+import { CHINOIS as CHINOIS_IMG, ZODIAQUE } from '@/images';
 import { chinoisDuJour, type TextesChinois } from '@/moteur/chinois';
 import { ciel, entete, horoscope, signesDe, textes } from '@/moteur/horoscope';
 import ui from '@/moteur/ui.json';
@@ -41,6 +43,11 @@ export default function Horoscope() {
         {miens ? (
           <View style={styles.bandeau}>
             <Text style={styles.bandeauTitre}>{T2.mesSignes}</Text>
+            <View style={styles.mesImages}>
+              <Illustration image={ZODIAQUE[miens.soleil]} taille={92} alt={TA.signes[miens.soleil]} />
+              <Illustration image={CHINOIS_IMG[miens.chinois.animal]} taille={92} alt={TA.chinois.animaux[miens.chinois.animal]} />
+              {miens.ascendant !== null && miens.ascendant !== miens.soleil ? <Illustration image={ZODIAQUE[miens.ascendant]} taille={92} alt={TA.signes[miens.ascendant]} /> : null}
+            </View>
             <Text style={styles.bandeauTxt}>
               {T2.votreSigne} : <Text style={styles.gras}>{GLYPHES[miens.soleil]} {TA.signes[miens.soleil]}</Text>
               {'  ·  '}{T2.signeChinois} : <Text style={styles.gras}>{TA.chinois.animaux[miens.chinois.animal]}</Text> ({TA.chinois.elements[miens.chinois.element]})
@@ -65,7 +72,10 @@ export default function Horoscope() {
           const mien = enAvant.includes(s);
           return (
             <View key={s} style={[styles.carte, mien && styles.carteMienne]}>
-              <Text style={styles.carteTitre}>{GLYPHES[s]} {TA.signes[s]}</Text>
+              <View style={styles.carteTete}>
+                <Illustration image={ZODIAQUE[s]} taille={56} alt={TA.signes[s]} />
+                <Text style={[styles.carteTitre, styles.carteTitreTete]}>{GLYPHES[s]} {TA.signes[s]}</Text>
+              </View>
               <Text style={styles.texte}>{h.phrases.join(' ')}</Text>
               <Text style={styles.conseil}>{T2.conseil} — <Text style={styles.italique}>{h.conseil}</Text></Text>
             </View>
@@ -84,7 +94,10 @@ export default function Horoscope() {
                 const mien = !!miens && miens.chinois.animal === a;
                 return (
                   <View key={'c' + a} style={[styles.carte, mien && styles.carteMienne]}>
-                    <Text style={styles.carteTitre}>{TA.chinois.animaux[a]} <Text style={styles.dates}>{TC.annees} {h.annees.join(', ')}…</Text></Text>
+                    <View style={styles.carteTete}>
+                      <Illustration image={CHINOIS_IMG[a]} taille={56} alt={TA.chinois.animaux[a]} />
+                      <Text style={[styles.carteTitre, styles.carteTitreTete]}>{TA.chinois.animaux[a]} <Text style={styles.dates}>{TC.annees} {h.annees.join(', ')}…</Text></Text>
+                    </View>
                     <Text style={styles.texte}>{h.texte}</Text>
                     <Text style={styles.conseil}>{T2.conseil} — <Text style={styles.italique}>{h.conseil}</Text></Text>
                   </View>
@@ -113,6 +126,9 @@ const styles = StyleSheet.create({
   carte: { borderWidth: 1, borderColor: COULEURS.bordure, borderRadius: 14, padding: 14, marginBottom: 12, backgroundColor: COULEURS.fondMuet },
   carteMienne: { borderColor: COULEURS.primaire, borderWidth: 2, backgroundColor: COULEURS.fondDoux },
   carteTitre: { fontSize: 18, fontWeight: '700', color: COULEURS.primaireFonce, marginBottom: 6 },
+  carteTete: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 },
+  carteTitreTete: { flex: 1, marginBottom: 0 },
+  mesImages: { flexDirection: 'row', gap: 10, marginBottom: 10 },
   texte: { fontSize: 15, lineHeight: 22, color: COULEURS.texte },
   conseil: { marginTop: 8, fontSize: 14, color: COULEURS.secondaireFonce },
   italique: { fontStyle: 'italic' },

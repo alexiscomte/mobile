@@ -2,21 +2,36 @@
 import { Stack } from 'expo-router';
 import React, { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Circle, ClipPath, Defs, Image as SvgImage, Path } from 'react-native-svg';
 
+import { Illustration } from '@/components/illustration';
+import { LUNE, ZODIAQUE } from '@/images';
 import { ASTRO } from '@/moteur/astro';
 import { textes } from '@/moteur/horoscope';
 import { useProfil } from '@/profil';
 import { page } from '@/site';
 import { COULEURS } from '@/theme';
 
+// La Lune du jour : une photo de pleine Lune (src/images.ts, LUNE) dont on ne montre que la partie éclairée (masque de la phase),
+// le reste du disque restant à peine visible (lumière cendrée). Sans l'image : le disque dessiné d'origine.
 function Disque({ illum, waxing }: { illum: number; waxing: boolean }) {
-  const r = 40, dirn = waxing ? 1 : -1, x = r * (2 * illum - 1) * dirn, sweep1 = dirn === 1 ? 1 : 0;
+  const r = 46, dirn = waxing ? 1 : -1, x = r * (2 * illum - 1) * dirn, sweep1 = dirn === 1 ? 1 : 0;
   const sweep2 = x * dirn >= 0 ? (dirn === 1 ? 1 : 0) : (dirn === 1 ? 0 : 1);
+  const eclaire = `M0 -${r} A${r} ${r} 0 0 ${sweep1} 0 ${r} A${Math.abs(x).toFixed(2)} ${r} 0 0 ${sweep2} 0 -${r}Z`;
+  const c = r * 1.03;      // l'image déborde à peine du disque : son fin liseré noir reste hors du masque
   return (
-    <Svg viewBox="-50 -50 100 100" width={120} height={120}>
-      <Circle r={r} fill="#2b2140" />
-      <Path d={`M0 -${r} A${r} ${r} 0 0 ${sweep1} 0 ${r} A${Math.abs(x).toFixed(2)} ${r} 0 0 ${sweep2} 0 -${r}Z`} fill="#f3e9c6" />
+    <Svg viewBox="-50 -50 100 100" width={132} height={132}>
+      <Defs>
+        <ClipPath id="disque"><Circle r={r} /></ClipPath>
+        <ClipPath id="eclaire"><Path d={eclaire} /></ClipPath>
+      </Defs>
+      <Circle r={r} fill="#17112b" />
+      {LUNE ? (
+        <>
+          <SvgImage href={LUNE} x={-c} y={-c} width={2 * c} height={2 * c} preserveAspectRatio="xMidYMid slice" clipPath="url(#disque)" opacity={0.14} />
+          <SvgImage href={LUNE} x={-c} y={-c} width={2 * c} height={2 * c} preserveAspectRatio="xMidYMid slice" clipPath="url(#eclaire)" />
+        </>
+      ) : <Path d={eclaire} fill="#f3e9c6" />}
     </Svg>
   );
 }
@@ -43,7 +58,10 @@ export default function Lune() {
             <Text style={styles.suite}>{cap(String(U.prochaine_pl))} : {r.pleine} · {U.prochaine_nl} : {r.nouvelle}.</Text>
           </View>
         </View>
-        <Text style={styles.lecture}>{(T.horoscope.phase as string[])[r.ph.idx]} {T.lune[r.s]}</Text>
+        <View style={styles.signe}>
+          <Illustration image={ZODIAQUE[r.s]} taille={72} alt={T.signes[r.s]} />
+          <Text style={[styles.lecture, styles.lectureSigne]}>{(T.horoscope.phase as string[])[r.ph.idx]} {T.lune[r.s]}</Text>
+        </View>
       </ScrollView>
     </>
   );
@@ -57,4 +75,6 @@ const styles = StyleSheet.create({
   gras: { fontWeight: '700', color: COULEURS.primaireFonce },
   suite: { fontSize: 13, color: COULEURS.texteMuet, marginTop: 6 },
   lecture: { fontSize: 15, lineHeight: 22, color: COULEURS.texte, marginTop: 16 },
+  signe: { flexDirection: 'row', gap: 12, alignItems: 'flex-start', marginTop: 16 },
+  lectureSigne: { flex: 1, marginTop: 0 },
 });

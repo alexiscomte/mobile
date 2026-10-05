@@ -7,14 +7,15 @@ import { SITE } from '../site';
 
 export type Cond = [string, string, number | string];
 export type Reponse = { t: string; p?: Record<string, number>; n?: string; ok?: boolean };
-export type Question = { q: string; aide?: string; r: Reponse[]; si?: Cond[]; exp?: string; lien?: string };
-export type ResultatTest = { titre: string; corps: string; si?: Cond[] };
-export type BilanQcm = { min: number; titre: string; corps: string };
+// img : image d'illustration servie par le site (chemin relatif à SITE, posé par outils/gen/app_quiz.py d'après quiz_images.py)
+export type Question = { q: string; aide?: string; r: Reponse[]; si?: Cond[]; exp?: string; lien?: string; img?: string };
+export type ResultatTest = { titre: string; corps: string; si?: Cond[]; img?: string };
+export type BilanQcm = { min: number; titre: string; corps: string; img?: string };
 export type Donnees = {
   mode?: string; questions: Question[]; resultats?: ResultatTest[]; bilans?: BilanQcm[];
   retenu?: string; note?: string; refaire?: string; retour?: string; suivant?: string; resultat?: string; juste?: string; errone?: string; revoir?: string;
 };
-export type Quiz = { id: string; u: string; t: string; m: 'qcm' | 'test'; d: Donnees };
+export type Quiz = { id: string; u: string; t: string; m: 'qcm' | 'test'; d: Donnees; img?: string };
 export type Score = { s: number; n: number; d: string; t: string; u: string };
 
 const memoire: Partial<Record<Langue, Quiz[]>> = {};

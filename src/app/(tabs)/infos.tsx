@@ -6,28 +6,29 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Ligne, Titre } from '@/components/carte';
 import { TEXTES } from '@/i18n';
+import { TUILES, VIGNETTES, type Img } from '@/images';
 import { useProfil } from '@/profil';
 import { chargerIndex, chercher, type Ligne as LigneIndex, type Resultat } from '@/recherche';
 import { page, type Cle } from '@/site';
 import { COULEURS } from '@/theme';
 
-const RUBRIQUES: { cle: Cle; sf: string }[] = [
-  { cle: 'maSituation', sf: 'signpost.right.fill' },
-  { cle: 'conseils', sf: 'heart.circle.fill' },
-  { cle: 'sante', sf: 'cross.case.fill' },
-  { cle: 'sexualite', sf: 'flame.fill' },
-  { cle: 'astrologie', sf: 'moon.stars.fill' },
-  { cle: 'pays', sf: 'globe.europe.africa.fill' },
+const RUBRIQUES: { cle: Cle; sf: string; image?: Img }[] = [
+  { cle: 'maSituation', sf: 'signpost.right.fill', image: TUILES.situation },
+  { cle: 'conseils', sf: 'heart.circle.fill', image: VIGNETTES.conseils },
+  { cle: 'sante', sf: 'cross.case.fill', image: VIGNETTES.sante },
+  { cle: 'sexualite', sf: 'flame.fill', image: VIGNETTES.sexualite },
+  { cle: 'astrologie', sf: 'moon.stars.fill', image: VIGNETTES.astrologie },
+  { cle: 'pays', sf: 'globe.europe.africa.fill', image: VIGNETTES.pays },
 ];
 // les outils pratiques, tous en natif
-const OUTILS: { cle: Cle; sf: string; route?: string }[] = [
-  { cle: 'ovulation', sf: 'calendar.badge.clock', route: '/ovulation' },
-  { cle: 'maternite', sf: 'cross.case.fill', route: '/maternite' },
-  { cle: 'callisthenie', sf: 'figure.strengthtraining.traditional', route: '/callisthenie' },
-  { cle: 'compteur', sf: 'heart.circle.fill', route: '/compteur' },
-  { cle: 'epoux', sf: 'textformat.abc', route: '/epoux' },
-  { cle: 'garde', sf: 'calendar', route: '/garde' },
-  { cle: 'distance', sf: 'globe', route: '/distance' },
+const OUTILS: { cle: Cle; sf: string; route?: string; image?: Img }[] = [
+  { cle: 'ovulation', sf: 'calendar.badge.clock', route: '/ovulation', image: VIGNETTES.ovulation },
+  { cle: 'maternite', sf: 'cross.case.fill', route: '/maternite', image: VIGNETTES.maternite },
+  { cle: 'callisthenie', sf: 'figure.strengthtraining.traditional', route: '/callisthenie', image: VIGNETTES.callisthenie },
+  { cle: 'compteur', sf: 'heart.circle.fill', route: '/compteur', image: VIGNETTES.compteur },
+  { cle: 'epoux', sf: 'textformat.abc', route: '/epoux', image: VIGNETTES.epoux },
+  { cle: 'garde', sf: 'calendar', route: '/garde', image: VIGNETTES.garde },
+  { cle: 'distance', sf: 'globe', route: '/distance', image: VIGNETTES.distance },
 ];
 
 export default function Infos() {
@@ -74,17 +75,17 @@ export default function Infos() {
       {enRecherche && index && !resultats.length ? <Text style={styles.etatTxt}>{T.aucunResultat}</Text> : null}
       {!enRecherche ? <Titre>{T.rubriques}</Titre> : <Titre>{T.resultats}</Titre>}
       {!enRecherche
-        ? RUBRIQUES.map(({ cle, sf }) => {
+        ? RUBRIQUES.map(({ cle, sf, image }) => {
             const p = page(cle, langue);
-            return <Ligne key={cle} titre={p.t} texte={p.d} sf={sf} onPress={() => router.push({ pathname: '/article', params: { u: p.u } })} />;
+            return <Ligne key={cle} titre={p.t} texte={p.d} sf={sf} image={image} onPress={() => router.push({ pathname: '/article', params: { u: p.u } })} />;
           })
         : null}
       {!enRecherche ? <Titre>{T.vosOutils}</Titre> : null}
       {!enRecherche
-        ? OUTILS.map(({ cle, sf, route }) => {
+        ? OUTILS.map(({ cle, sf, route, image }) => {
             const p = page(cle, langue);
             const aller = route ? () => router.push(route as never) : () => router.push({ pathname: '/article', params: { u: p.u } });
-            return <Ligne key={cle} titre={p.t} texte={p.d} sf={sf} onPress={aller} />;
+            return <Ligne key={cle} titre={p.t} texte={p.d} sf={sf} image={image} onPress={aller} />;
           })
         : null}
     </View>

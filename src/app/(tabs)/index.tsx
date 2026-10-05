@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Carte, Titre } from '@/components/carte';
 import { ResumeSignes } from '@/components/resume-signes';
 import { fmt, TEXTES } from '@/i18n';
+import { TUILES } from '@/images';
 import { questionDuJour, sondageDuJour } from '@/moteur/qdj';
 import { ouvrirCle } from '@/nav';
 import { useProfil } from '@/profil';
@@ -28,33 +29,33 @@ export default function Accueil() {
         <View style={styles.resume}><ResumeSignes /></View>
 
         <View style={styles.grille}>
-          <Carte large titre={T.horoscopeDuJour} texte={T.horoscopeDuJourTxt} couleur={DEGRADES.astro[0]} sf="sparkles" onPress={() => router.push('/horoscope')} />
-          <Carte large titre={T.questionDuJour} texte={questionDuJour(langue)} couleur={DEGRADES.jeux[0]} sf="bubble.left.and.bubble.right.fill" onPress={() => router.push('/qdj')} />
-          {sondage ? <Carte large titre={page('sondages', langue).t} texte={sondage.q[langue] || sondage.q.fr} couleur={DEGRADES.sexualite[0]} sf="chart.bar.fill" onPress={() => router.push('/sondages')} /> : null}
+          <Carte large titre={T.horoscopeDuJour} texte={T.horoscopeDuJourTxt} couleur={DEGRADES.astro[0]} sf="sparkles" image={TUILES.horoscope} onPress={() => router.push('/horoscope')} />
+          <Carte large titre={T.questionDuJour} texte={questionDuJour(langue)} couleur={DEGRADES.jeux[0]} sf="bubble.left.and.bubble.right.fill" image={TUILES.qdj} onPress={() => router.push('/qdj')} />
+          {sondage ? <Carte large titre={page('sondages', langue).t} texte={sondage.q[langue] || sondage.q.fr} couleur={DEGRADES.sexualite[0]} sf="chart.bar.fill" image={TUILES.sondages} onPress={() => router.push('/sondages')} /> : null}
         </View>
 
         <Titre>{T.vosOutils}</Titre>
         <View style={styles.grille}>
-          <Carte titre={page('compat', langue).t} texte={T.compatTxt} couleur={DEGRADES.compat[0]} sf="heart.fill" onPress={() => router.push('/compat')} />
-          <Carte titre={page('jeu2', langue).t} texte={T.jeu2Txt} couleur={DEGRADES.jeux[0]} sf="person.2.fill" onPress={() => router.push('/jeu2')} />
-          <Carte titre={page('themeAstral', langue).t} texte={T.themeTxt} couleur={DEGRADES.astro[0]} sf="moon.stars.fill" onPress={() => router.push('/theme')} />
-          <Carte titre={page('biorythme', langue).t} texte={T.bioTxt} couleur={DEGRADES.sante[0]} sf="waveform.path.ecg" onPress={() => router.push('/biorythme')} />
-          <Carte titre={page('jeux', langue).t} texte={T.jeuxIntro} couleur={DEGRADES.sexualite[0]} sf="gamecontroller.fill" onPress={() => router.push('/(tabs)/jeux')} />
-          <Carte titre={page('quiz', langue).t} texte={T.quizTxt} couleur={DEGRADES.conseils[0]} sf="questionmark.circle.fill" onPress={go('quiz')} />
+          <Carte titre={page('compat', langue).t} texte={T.compatTxt} couleur={DEGRADES.compat[0]} sf="heart.fill" image={TUILES.compat} onPress={() => router.push('/compat')} />
+          <Carte titre={page('jeu2', langue).t} texte={T.jeu2Txt} couleur={DEGRADES.jeux[0]} sf="person.2.fill" image={TUILES.jeu2} onPress={() => router.push('/jeu2')} />
+          <Carte titre={page('themeAstral', langue).t} texte={T.themeTxt} couleur={DEGRADES.astro[0]} sf="moon.stars.fill" image={TUILES.theme} onPress={() => router.push('/theme')} />
+          <Carte titre={page('biorythme', langue).t} texte={T.bioTxt} couleur={DEGRADES.sante[0]} sf="waveform.path.ecg" image={TUILES.biorythme} onPress={() => router.push('/biorythme')} />
+          <Carte titre={page('jeux', langue).t} texte={T.jeuxIntro} couleur={DEGRADES.sexualite[0]} sf="gamecontroller.fill" image={TUILES.jeux} onPress={() => router.push('/(tabs)/jeux')} />
+          <Carte titre={page('quiz', langue).t} texte={T.quizTxt} couleur={DEGRADES.conseils[0]} sf="questionmark.circle.fill" image={TUILES.quiz} onPress={go('quiz')} />
         </View>
 
         {/* étapes de la vie de couple : mêmes tuiles que l'accueil du site (accueil_etapes.py, 01/10/2026), pages du catalogue */}
         <Titre>{T.etapes}</Titre>
         <View style={styles.grille}>
-          <Carte titre={T.etapeRencontre} texte={page('rencontreEnLigne', langue).d} couleur={DEGRADES.compat[0]} sf="heart.circle.fill" onPress={go('rencontreEnLigne')} />
-          <Carte titre={T.etapeMariage} texte={page('mariage', langue).d} couleur={DEGRADES.conseils[0]} sf="gift.fill" onPress={go('mariage')} />
-          <Carte titre={T.etapeFamille} texte={page('famille', langue).d} couleur={DEGRADES.sante[0]} sf="figure.2.and.child.holdinghands" onPress={go('famille')} />
-          <Carte titre={T.etapeDivorce} texte={page('separation', langue).d} couleur={DEGRADES.jeux[0]} sf="heart.slash.fill" onPress={go('separation')} />
+          <Carte titre={T.etapeRencontre} texte={page('rencontreEnLigne', langue).d} couleur={DEGRADES.compat[0]} sf="heart.circle.fill" image={TUILES.rencontre} onPress={go('rencontreEnLigne')} />
+          <Carte titre={T.etapeMariage} texte={page('mariage', langue).d} couleur={DEGRADES.conseils[0]} sf="gift.fill" image={TUILES.mariage} onPress={go('mariage')} />
+          <Carte titre={T.etapeFamille} texte={page('famille', langue).d} couleur={DEGRADES.sante[0]} sf="figure.2.and.child.holdinghands" image={TUILES.famille} onPress={go('famille')} />
+          <Carte titre={T.etapeDivorce} texte={page('separation', langue).d} couleur={DEGRADES.jeux[0]} sf="heart.slash.fill" image={TUILES.separation} onPress={go('separation')} />
         </View>
 
         <Titre>{T.commencerIci}</Titre>
         <View style={styles.grille}>
-          <Carte large titre={page('maSituation', langue).t} texte={T.commencerIciTxt} couleur={COULEURS.primaire} sf="signpost.right.fill" onPress={go('maSituation')} />
+          <Carte large titre={page('maSituation', langue).t} texte={T.commencerIciTxt} couleur={COULEURS.primaire} sf="signpost.right.fill" image={TUILES.situation} onPress={go('maSituation')} />
         </View>
       </ScrollView>
     </SafeAreaView>
