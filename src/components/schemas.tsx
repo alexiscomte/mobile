@@ -10,20 +10,22 @@ import { COULEURS } from '@/theme';
 const LARGEUR_MAX = 600;
 function largeurUtile(width: number) { return Math.min(width - 32, LARGEUR_MAX); }
 
-/** Frise du cycle 1 : c cases (21 à 35), règles en rose, fenêtre fertile en pervenche clair, jour d'ovulation en violet ;
- *  ovulation = règles suivantes − 14 jours, donc case c − 13 (case 1 = premier jour des règles) ; fenêtre = les six jours jusqu'à l'ovulation. */
+/** Frise du cycle 1 : c cases (21 à 35) puis les cinq premiers jours du cycle suivant ; fenêtre fertile en pervenche clair, jour
+ *  d'ovulation en violet, prochaines règles en rose (cases c + 1 à c + 5, même libellé que le résultat) ;
+ *  ovulation = règles suivantes − 14 jours, donc case c − 13 (case 1 = premier jour des dernières règles) ; fenêtre = les six jours jusqu'à l'ovulation. */
 export function FriseCycle({ c, legendes }: { c: number; legendes: { regles: string; fenetre: string; ovulation: string } }) {
   const { width } = useWindowDimensions();
-  const W = largeurUtile(width), pas = W / c, h = 34, y0 = 14;
+  const n = c + 5;
+  const W = largeurUtile(width), pas = W / n, h = 34, y0 = 14;
   const ovu = c - 13, fenetre = [ovu - 5, ovu];
-  const couleur = (j: number) => (j === ovu ? COULEURS.primaire : j >= fenetre[0] && j <= fenetre[1] ? '#C9CBF0' : j <= 5 ? '#F6D5DF' : COULEURS.fondMuet);
+  const couleur = (j: number) => (j === ovu ? COULEURS.primaire : j >= fenetre[0] && j <= fenetre[1] ? '#C9CBF0' : j > c ? '#F6D5DF' : COULEURS.fondMuet);
   return (
     <View style={styles.bloc} accessible accessibilityLabel={`${legendes.ovulation} : ${ovu}`}>
       <Svg width={W} height={y0 + h + 22}>
-        {Array.from({ length: c }, (_, i) => i + 1).map((j) => (
+        {Array.from({ length: n }, (_, i) => i + 1).map((j) => (
           <React.Fragment key={j}>
             <Rect x={(j - 1) * pas + 1} y={y0} width={pas - 2} height={h} rx={4} fill={couleur(j)} stroke={COULEURS.bordure} strokeWidth={0.5} />
-            {(j === 1 || j === ovu || j === c || j % 7 === 0) && (pas >= 9 || j === ovu) ? (
+            {(j === 1 || j === ovu || j === c + 1 || (j % 7 === 0 && j < c && Math.abs(j - ovu) > 1)) && (pas >= 9 || j === ovu) ? (
               <SvgText x={(j - 1) * pas + pas / 2} y={y0 + h + 16} textAnchor="middle" fontSize="10" fill={j === ovu ? COULEURS.primaire : COULEURS.texteMuet} fontWeight={j === ovu ? '700' : '400'}>{String(j)}</SvgText>
             ) : null}
           </React.Fragment>
