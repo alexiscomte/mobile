@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "affectionplus",
+    "scheme": ["affectionplus", "com.affectionplus.app"],
     "userInterfaceStyle": "light",
     "backgroundColor": "#FFFFFF",
     "primaryColor": "#580378",

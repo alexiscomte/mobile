@@ -1,6 +1,9 @@
-// Mon compte (06/10/2026) : compte facultatif, comme la fiche « Mes infos » du site (assets/js/compte.js). Sans compte : adresse
-// électronique + consentement, code à 6 chiffres reçu par courriel (ou Google). Connecté : état de la synchronisation,
-// « Synchroniser maintenant », « Se déconnecter », « Supprimer mon compte ». Textes : ui.json → compte (générés depuis le site).
+// Mon compte (06/10/2026) : compte facultatif, comme la page « Mes infos » du site (assets/js/compte.js). Sans compte : « Se connecter »
+// et « Créer un compte » ouvrent l'écran du service de connexion commun (adresse + mot de passe, mot de passe oublié ; connexion_oidc.js)
+// dans une session web privée (code + PKCE, rien n'est gardé dans Safari), ou « Se connecter avec Google » (natif). Connecté : état de la
+// synchronisation, « Synchroniser maintenant », mot de passe (changer / créer), « Se déconnecter », « Supprimer mon compte ».
+// Textes : ui.json → compte (générés depuis le site).
+import * as AuthSession from 'expo-auth-session';
 import * as Google from 'expo-auth-session/providers/google';
 import { Stack } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
@@ -9,7 +12,7 @@ import { ActivityIndicator, Alert, Linking, Platform, Pressable, ScrollView, Sty
 
 import { Bouton, Champ, F } from '@/components/form';
 import { Banniere } from '@/components/illustration';
-import { CONF, RX_COURRIEL, connecter, connecterGoogle, deconnecter, envoyerCode, supprimer, tirer, type Reponse } from '@/compte';
+import { CONF, OIDC, changerMdp, connecterGoogle, connecterOidc, deconnecter, supprimer, tirer, type Reponse } from '@/compte';
 import conf from '@/compte_conf.json';
 import { TEXTES, fmt, type Langue } from '@/i18n';
 import { TEXTES4 } from '@/i18n4';
@@ -28,12 +31,8 @@ const GOOGLE = conf as { googleIos?: string; googleWeb?: string };
 const ID_GOOGLE = Platform.OS === 'ios' ? GOOGLE.googleIos || '' : Platform.OS === 'web' ? GOOGLE.googleWeb || '' : '';
 // iOS : retour de Google par le schéma d'URL inverse du client (déclaré dans app.json, ios.scheme)
 const RETOUR_IOS = GOOGLE.googleIos ? 'com.googleusercontent.apps.' + GOOGLE.googleIos.replace(/\.apps\.googleusercontent\.com$/, '') + ':/oauthredirect' : undefined;
-
-/** L'intro du site finit par « Sans compte, tout reste dans ce navigateur » : l'appli dit « sur cet appareil ». */
-function introAppli(intro: string, fin: string): string {
-  const i = intro.lastIndexOf('. ', intro.length - 2);
-  return i > 0 ? intro.slice(0, i + 1) + ' ' + fin : intro;
-}
+// service commun : retour par le schéma com.affectionplus.app (app.json), déclaré pour le client affectionplus-appli ; pas dans l'aperçu web
+const AVEC_OIDC = Platform.OS !== 'web';
 
 function dateTexte(iso: string | null, lg: Langue, jamais: string): string {
   if (!iso) return jamais;
@@ -41,6 +40,26 @@ function dateTexte(iso: string | null, lg: Langue, jamais: string): string {
   if (isNaN(d.getTime())) return jamais;
   try { return d.toLocaleString(lg, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
   catch { return iso.slice(0, 16).replace('T', ' '); }
+}
+
+/** « Se connecter » ou « Créer un compte » (ecran = 'inscription') : écran du service commun, puis échange du code contre le jeton d'identité. */
+function BoutonOidc({ titre, ecran, langue, secondaire, occupe, onJeton, onEchec }:
+  { titre: string; ecran?: string; langue: Langue; secondaire?: boolean; occupe: boolean; onJeton: (j: string) => void; onEchec: () => void }) {
+  const [requete, reponse, demander] = AuthSession.useAuthRequest({
+    clientId: OIDC.client, redirectUri: OIDC.retour, scopes: ['openid', 'email', 'profile'], usePKCE: true,
+    responseType: AuthSession.ResponseType.Code, extraParams: ecran ? { ui_locales: langue, ecran } : { ui_locales: langue },
+  }, OIDC.decouverte);
+  useEffect(() => {
+    if (!reponse || !requete) return;
+    if (reponse.type === 'success' && reponse.params.code) {
+      AuthSession.exchangeCodeAsync({ clientId: OIDC.client, code: reponse.params.code, redirectUri: OIDC.retour,
+        extraParams: { code_verifier: requete.codeVerifier || '' } }, OIDC.decouverte)
+        .then((tok) => { if (tok.idToken) onJeton(tok.idToken); else onEchec(); })
+        .catch(onEchec);
+    } else if (reponse.type === 'error') onEchec();
+  }, [reponse]); // eslint-disable-line react-hooks/exhaustive-deps
+  // session privée : pas de cookie gardé dans Safari ni d'alerte « … veut utiliser affectionplus.com pour se connecter »
+  return <Bouton titre={titre} secondaire={secondaire} disabled={!requete || occupe} onPress={() => { demander({ preferEphemeralSession: true }).catch(onEchec); }} />;
 }
 
 /** Bouton « Se connecter avec Google » : jeton d'identité Google (expo-auth-session), envoyé ensuite à api/compte/google. */
@@ -60,38 +79,23 @@ function BoutonGoogle({ titre, langue, occupe, onJeton, onEchec }: { titre: stri
 }
 
 export default function CompteEcran() {
-  const { langue, profil, compte } = useProfil();
+  const { langue, compte } = useProfil();
   const T = TEXTES[langue];
   const T4 = TEXTES4[langue];
   const t = UI[langue] || UI.fr;
-  const [courriel, setCourriel] = useState(profil.courriel || '');
   const [consent, setConsent] = useState(false);
-  const [code, setCode] = useState('');
-  const [etape2, setEtape2] = useState(false);
   const [occupe, setOccupe] = useState(false);
   const [msg, setMsg] = useState<{ t: string; ok: boolean } | null>(null);
+  const [mdpOuvert, setMdpOuvert] = useState(false);
+  const [ancien, setAncien] = useState('');
+  const [nouveau, setNouveau] = useState('');
+  const [confirme, setConfirme] = useState('');
 
-  const erreur = (j: Reponse) => j.erreur === 'consentement' ? t.consentKo : j.erreur === 'trop' ? t.trop : j.erreur === 'courrier' ? t.courrierKo
-    : j.erreur === 'courriel' ? t.adresseKo : j.erreur === 'code' ? t.codeFaux : j.erreur === 'expire' ? t.codeExpire
-    : j.erreur === 'google' ? t.googleKo : t.reseau;
-
-  const demanderCode = async () => {
-    const c = courriel.trim().toLowerCase();
-    if (!RX_COURRIEL.test(c)) { setMsg({ t: t.adresseKo, ok: false }); return; }
+  const viaOidc = async (jeton: string) => {
     setOccupe(true); setMsg(null);
-    const j = await envoyerCode(c, langue, consent);
+    const j = await connecterOidc(jeton);
     setOccupe(false);
-    if (j.ok) { setEtape2(true); setMsg({ t: fmt(t.envoye, c), ok: true }); }
-    else setMsg({ t: erreur(j), ok: false });
-  };
-  const seConnecter = async () => {
-    const c = code.replace(/\D/g, '');
-    if (c.length !== 6) { setMsg({ t: t.codeFaux, ok: false }); return; }
-    setOccupe(true); setMsg(null);
-    const j = await connecter(courriel, c);
-    setOccupe(false);
-    if (j.ok) { setCode(''); setEtape2(false); setMsg({ t: t.synchro, ok: true }); }
-    else setMsg({ t: erreur(j), ok: false });
+    setMsg(j.ok ? { t: t.connexionOk, ok: true } : { t: j.erreur === 'trop' ? t.trop : j.erreur === 'reseau' ? t.reseau : t.oidcKo, ok: false });
   };
   const viaGoogle = async (jeton: string) => {
     setOccupe(true); setMsg(null);
@@ -106,9 +110,19 @@ export default function CompteEcran() {
     setOccupe(false);
     setMsg({ t: ok ? t.synchro : t.reseau, ok });
   };
+  const erreurMdp = (j: Reponse) => j.erreur === 'actuel' ? t.mdpActuelKo : j.erreur === 'court' ? t.mdpCourt : j.erreur === 'trop' ? t.trop : t.reseau;
+  const enregistrerMdp = async () => {
+    if (nouveau.length < 8) { setMsg({ t: t.mdpCourt, ok: false }); return; }
+    if (nouveau !== confirme) { setMsg({ t: t.mdpDiff, ok: false }); return; }
+    setOccupe(true); setMsg(null);
+    const j = await changerMdp(ancien, nouveau);
+    setOccupe(false);
+    if (j.ok) { setAncien(''); setNouveau(''); setConfirme(''); setMdpOuvert(false); setMsg({ t: t.mdpOk, ok: true }); }
+    else setMsg({ t: erreurMdp(j), ok: false });
+  };
   const seDeconnecter = async () => {
     await deconnecter();
-    setEtape2(false); setCode('');
+    setMdpOuvert(false); setAncien(''); setNouveau(''); setConfirme('');
     setMsg({ t: t.deconnecte, ok: true });
   };
   const confirmerSuppression = () => {
@@ -128,6 +142,7 @@ export default function CompteEcran() {
 
   const [avantLien, apresLien] = (t.consent || '%s').split('%s');
   const lienConf = SITE + (CONF[langue] || CONF.fr) + '#compte';
+  const echecOidc = () => { setOccupe(false); setMsg({ t: t.oidcKo, ok: false }); };
 
   return (
     <>
@@ -141,6 +156,22 @@ export default function CompteEcran() {
               <Text style={F.muet}>{fmt(t.sync, dateTexte(compte.sync, langue, t.jamais))}</Text>
             </View>
             <Bouton titre={t.synchroniser} onPress={synchroniser} disabled={occupe} />
+            <Pressable accessibilityRole="button" accessibilityState={{ expanded: mdpOuvert }} onPress={() => setMdpOuvert(!mdpOuvert)} style={styles.mdpTitre}>
+              <Text style={styles.lien}>{(mdpOuvert ? '▾ ' : '▸ ') + (compte.mdp ? t.mdpChanger : t.mdpCreer)}</Text>
+            </Pressable>
+            {mdpOuvert ? (
+              <View style={styles.mdp}>
+                {compte.mdp ? (
+                  <Champ label={t.mdpActuel} value={ancien} onChangeText={setAncien} secureTextEntry autoCapitalize="none" autoCorrect={false}
+                    textContentType="password" autoComplete="current-password" maxLength={200} />
+                ) : null}
+                <Champ label={t.mdpNouveau} value={nouveau} onChangeText={setNouveau} secureTextEntry autoCapitalize="none" autoCorrect={false}
+                  textContentType="newPassword" autoComplete="new-password" maxLength={200} />
+                <Champ label={t.mdpConfirmer} value={confirme} onChangeText={setConfirme} secureTextEntry autoCapitalize="none" autoCorrect={false}
+                  textContentType="newPassword" autoComplete="new-password" maxLength={200} returnKeyType="done" onSubmitEditing={enregistrerMdp} />
+                <Bouton titre={t.mdpEnregistrer} onPress={enregistrerMdp} disabled={occupe} />
+              </View>
+            ) : null}
             <Bouton titre={t.deconnecter} secondaire onPress={seDeconnecter} disabled={occupe} />
             <Pressable disabled={occupe} style={({ pressed }) => [styles.danger, (pressed || occupe) && F.presse]} onPress={confirmerSuppression}>
               <Text style={styles.dangerTxt}>{t.supprimer}</Text>
@@ -148,28 +179,24 @@ export default function CompteEcran() {
           </>
         ) : (
           <>
-            <Text style={F.texte}>{introAppli(t.intro, T4.sansCompte)}</Text>
-            <Champ label={t.courriel} value={courriel} onChangeText={setCourriel} keyboardType="email-address" autoCapitalize="none" autoCorrect={false}
-              autoComplete="email" textContentType="emailAddress" maxLength={254} returnKeyType="send" onSubmitEditing={demanderCode} />
-            <View style={styles.consent}>
-              <Switch value={consent} onValueChange={setConsent} trackColor={{ true: COULEURS.secondaire }} accessibilityLabel={t.conf} />
-              <Text style={styles.consentTxt}>
-                {avantLien}
-                <Text style={styles.lien} accessibilityRole="link" onPress={() => { Linking.openURL(lienConf).catch(() => undefined); }}>{t.conf}</Text>
-                {apresLien || ''}
-              </Text>
-            </View>
-            <Bouton titre={t.envoyer} onPress={demanderCode} disabled={occupe} secondaire={etape2} />
-            {etape2 ? (
+            <Text style={F.texte}>{t.introOidc + ' ' + T4.sansCompte}</Text>
+            {AVEC_OIDC ? (
               <>
-                <Champ label={t.code} value={code} onChangeText={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))} keyboardType="number-pad" maxLength={6}
-                  textContentType="oneTimeCode" autoComplete="one-time-code" autoFocus returnKeyType="done" onSubmitEditing={seConnecter} />
-                <Bouton titre={t.connecter} onPress={seConnecter} disabled={occupe} />
+                <BoutonOidc titre={t.seConnecter} langue={langue} occupe={occupe} onJeton={viaOidc} onEchec={echecOidc} />
+                <BoutonOidc titre={t.creerCompte} ecran="inscription" secondaire langue={langue} occupe={occupe} onJeton={viaOidc} onEchec={echecOidc} />
               </>
             ) : null}
             {ID_GOOGLE ? (
               <>
                 <Text style={styles.ou}>{t.ou}</Text>
+                <View style={styles.consent}>
+                  <Switch value={consent} onValueChange={setConsent} trackColor={{ true: COULEURS.secondaire }} accessibilityLabel={t.conf} />
+                  <Text style={styles.consentTxt}>
+                    {avantLien}
+                    <Text style={styles.lien} accessibilityRole="link" onPress={() => { Linking.openURL(lienConf).catch(() => undefined); }}>{t.conf}</Text>
+                    {apresLien || ''}
+                  </Text>
+                </View>
                 <BoutonGoogle titre={t.google} langue={langue} occupe={occupe} onJeton={viaGoogle} onEchec={() => setMsg({ t: t.googleKo, ok: false })} />
               </>
             ) : null}
@@ -184,9 +211,11 @@ export default function CompteEcran() {
 
 const styles = StyleSheet.create({
   etat: { backgroundColor: COULEURS.fondDoux, borderRadius: 12, padding: 12 },
-  consent: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 16 },
+  consent: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 12 },
   consentTxt: { flex: 1, color: COULEURS.texte, fontSize: 14, lineHeight: 19 },
   lien: { color: COULEURS.secondaire, fontWeight: '600', textDecorationLine: 'underline' },
+  mdpTitre: { marginTop: 18, paddingVertical: 6 },
+  mdp: { borderWidth: 1, borderColor: COULEURS.bordure, borderRadius: 12, padding: 12, marginTop: 6 },
   ou: { textAlign: 'center', color: COULEURS.texteMuet, marginTop: 18 },
   danger: { borderWidth: 1, borderColor: COULEURS.coeur, borderRadius: 12, paddingVertical: 11, alignItems: 'center', marginTop: 28 },
   dangerTxt: { color: COULEURS.coeur, fontWeight: '600' },

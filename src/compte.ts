@@ -1,14 +1,15 @@
 // Compte facultatif (06/10/2026), même système que le site (assets/js/compte.js, API compte_api.js) : identifiant = adresse
-// électronique, prouvée par un code reçu par courriel (ou par Google), sans mot de passe. À la connexion, les données du compte
+// électronique + mot de passe, par le service de connexion commun (connexion_oidc.js : écran web, code + PKCE, jeton d'identité
+// vérifié par api/compte/oidc), ou par Google (api/compte/google). À la connexion, les données du compte
 // remplissent l'appareil (profil, favoris, réponses aux sondages, scores des quiz) ; ensuite chaque changement local est renvoyé
 // au compte (pousser(), appelé par profil.tsx, moteur/quiz.ts, sondages.tsx, qdj.tsx, jeu2.tsx). Sans compte, rien ne change :
-// tout reste sur l'appareil. Clé AsyncStorage « ap.compte » = { courriel, session, sync } (même forme que le localStorage du site).
+// tout reste sur l'appareil. Clé AsyncStorage « ap.compte » = { courriel, session, sync, mdp } (même forme que le localStorage du site).
 // Ce module n'importe ni profil.tsx ni les écrans (pas de cycle) : il prévient le contexte par surCompte().
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SITE } from './site';
 import { fusionnerCompat, K_CT } from './compat_tests';
 
-export type Compte = { courriel: string; session: string; sync: string | null; depuis?: string };
+export type Compte = { courriel: string; session: string; sync: string | null; depuis?: string; mdp?: boolean };
 export type Reponse = { ok?: boolean; erreur?: string; statut: number; [k: string]: unknown };
 type Score = { s?: number; n?: number; d?: string; t?: string; u?: string };
 type FavoriBrut = { url?: unknown; date?: unknown; [k: string]: unknown };
@@ -45,6 +46,7 @@ function nettoyerCompte(x: unknown): Compte | null {
   if (typeof c.session !== 'string' || !c.session) return null;
   const out: Compte = { courriel: typeof c.courriel === 'string' ? c.courriel : '', session: c.session, sync: typeof c.sync === 'string' ? c.sync : null };
   if (typeof c.depuis === 'string') out.depuis = c.depuis;
+  if (typeof c.mdp === 'boolean') out.mdp = c.mdp;   // le compte a un mot de passe (sinon : « Créer un mot de passe »)
   return out;
 }
 function lireJson(v: string | null | undefined): unknown {
@@ -204,7 +206,8 @@ export async function tirer(): Promise<boolean> {
   if (!j.ok) return false;
   if (!actuel || actuel.session !== c.session) return false;   // déconnecté entre-temps
   await appliquer(j);
-  await garderCompte({ ...actuel, courriel: typeof j.courriel === 'string' && j.courriel ? j.courriel : actuel.courriel, sync: new Date().toISOString() });
+  await garderCompte({ ...actuel, courriel: typeof j.courriel === 'string' && j.courriel ? j.courriel : actuel.courriel, sync: new Date().toISOString(),
+    ...(typeof j.mdp === 'boolean' ? { mdp: j.mdp } : {}) });
   signaler('donnees');
   sale = true;
   if (enCours) rejouer = true;   // un envoi est en route : l'union repartira juste après
@@ -212,12 +215,13 @@ export async function tirer(): Promise<boolean> {
   return true;
 }
 
-/** Connexion réussie (code ou Google) : garde la session, remplit l'appareil, renvoie l'union (connecter de compte.js). */
+/** Connexion réussie (service commun ou Google) : garde la session, remplit l'appareil, renvoie l'union (connecter de compte.js). */
 async function ouvrir(j: Reponse) {
   const courriel = typeof j.courriel === 'string' ? j.courriel : '';
   const session = typeof j.session === 'string' ? j.session : '';
   if (!session) return;
-  await garderCompte({ courriel, session, sync: null, depuis: new Date().toISOString().slice(0, 10) });
+  const mdp = !!j.mdp;
+  await garderCompte({ courriel, session, sync: null, depuis: new Date().toISOString().slice(0, 10), mdp });
   await appliquer(j);
   // connexion Google : le prénom du compte Google remplit « Mes infos » seulement si l'appareil et le compte n'en ont pas (compte.js)
   if (typeof j.prenom_google === 'string' && j.prenom_google) {
@@ -226,22 +230,32 @@ async function ouvrir(j: Reponse) {
       if (!pf.prenom) { pf.prenom = j.prenom_google.slice(0, 40); await AsyncStorage.setItem(K_PROFIL, JSON.stringify(pf)); }
     } catch { /* stockage indisponible */ }
   }
-  await garderCompte({ courriel, session, sync: new Date().toISOString(), depuis: actuel?.depuis });
+  await garderCompte({ courriel, session, sync: new Date().toISOString(), depuis: actuel?.depuis, mdp });
   signaler('donnees');
   sale = true;
   if (enCours) rejouer = true; else pousserMaintenant();
 }
 
-/** Demande un code par courriel. Erreurs : consentement (409), courriel (400), trop (429), courrier (503), reseau. */
-export function envoyerCode(courriel: string, langue: string, consentement: boolean): Promise<Reponse> {
-  return api('code', { courriel: courriel.trim().toLowerCase(), langue, consentement: consentement ? 'oui' : '', site: '' });
+/** Client de l'appli auprès du service de connexion commun (connexion_oidc.js) : public, code + PKCE, retour par le schéma de l'appli. */
+export const OIDC = {
+  client: 'affectionplus-appli',
+  retour: 'com.affectionplus.app:/connexion',
+  decouverte: { authorizationEndpoint: SITE + 'connexion/auth', tokenEndpoint: SITE + 'connexion/token' },
+};
+
+/** Ouvre la session de l'appli avec le jeton d'identité du service commun. Erreurs : jeton (401), trop, reseau. */
+export async function connecterOidc(idToken: string): Promise<Reponse> {
+  const jetonLocal = (await AsyncStorage.getItem(K_SJ).catch(() => null)) || '';
+  const j = await api('oidc', { id_token: idToken, client_id: OIDC.client, jeton_local: jetonLocal, appareil: 'appli' });
+  if (j.ok) await ouvrir(j);
+  return j;
 }
 
-/** Connexion par le code à 6 chiffres. Erreurs : code, expire (401), trop, reseau. */
-export async function connecter(courriel: string, code: string): Promise<Reponse> {
-  const jetonLocal = (await AsyncStorage.getItem(K_SJ).catch(() => null)) || '';
-  const j = await api('connexion', { courriel: courriel.trim().toLowerCase(), code: code.replace(/\D/g, ''), jeton_local: jetonLocal, appareil: 'appli' });
-  if (j.ok) await ouvrir(j);
+/** Change (ou crée) le mot de passe du compte connecté. Erreurs : court (400), actuel (401), session, trop, reseau. */
+export async function changerMdp(ancien: string, nouveau: string): Promise<Reponse> {
+  await assurer();
+  const j = await api('mot-de-passe', { actuel: ancien, nouveau });
+  if (j.ok && actuel) await garderCompte({ ...actuel, mdp: true });
   return j;
 }
 
