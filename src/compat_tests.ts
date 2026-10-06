@@ -4,7 +4,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const K_CT = 'ap.compat';
-export type PersonneTest = { n: string; d: string; h?: string; g?: string; pays?: string; ville?: string; lat?: number; lon?: number };
+export type PersonneTest = {
+  n: string; d: string; h?: string; g?: string; pays?: string; ville?: string; lat?: number; lon?: number;
+  fam?: string; bpays?: string; bville?: string; blat?: number; blon?: number;   // nom de famille, lieu de naissance (06/10/2026)
+};
 export type TestCompat = {
   id: string; m: string; x?: number; lg?: string; p1?: PersonneTest; p2?: PersonneTest;
   s?: number | null; r?: Record<string, number>; z?: [number, number] | null; c?: [number, number] | null;

@@ -22,6 +22,7 @@ const UI_COMPTE = (ui as { compte: Record<string, Record<string, string>> }).com
 // sexe (textes du test de compatibilité du site) et page « Mes tests de compatibilité » (06/10/2026)
 const UI_S = (ui as unknown as { compatS: Record<string, Record<string, string>> }).compatS;
 const UI_MC = (ui as unknown as { mesCompatPage: Record<string, { h1: string; carte: string }> }).mesCompatPage;
+const UI_SYN = (ui as unknown as { compatSyn: Record<string, { nomFam: string }> }).compatSyn;
 
 function dateDe(s?: string): Date {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
@@ -44,6 +45,8 @@ export default function Moi() {
   const router = useRouter();
   const [prenom, setPrenom] = useState(profil.prenom || '');
   const [sexe, setSexe] = useState(profil.sexe || '');
+  const [nom, setNom] = useState(profil.nom || '');
+  const NF = (UI_SYN[langue] || UI_SYN.fr).nomFam;
   const TS = UI_S[langue] || UI_S.fr, MC = UI_MC[langue] || UI_MC.fr;
   const [naissance, setNaissance] = useState(profil.naissance || '');
   const [heure, setHeure] = useState(profil.heure || '');
@@ -57,10 +60,10 @@ export default function Moi() {
     catch { setProgression(T.horsLigne); }
   };
 
-  useEffect(() => { setPrenom(profil.prenom || ''); setSexe(profil.sexe || ''); setNaissance(profil.naissance || ''); setHeure(profil.heure || ''); setHeureConnue(!!profil.heure); }, [profil]);
+  useEffect(() => { setPrenom(profil.prenom || ''); setSexe(profil.sexe || ''); setNom(profil.nom || ''); setNaissance(profil.naissance || ''); setHeure(profil.heure || ''); setHeureConnue(!!profil.heure); }, [profil]);
 
   const enregistrer = async () => {
-    await setProfil({ ...profil, prenom: prenom.trim(), sexe: sexe || undefined, naissance: naissance || undefined, heure: heureConnue && heure ? heure : undefined });
+    await setProfil({ ...profil, prenom: prenom.trim(), nom: nom.trim() || undefined, sexe: sexe || undefined, naissance: naissance || undefined, heure: heureConnue && heure ? heure : undefined });
     setMessage(T.enregistre); setTimeout(() => setMessage(''), 2000);
   };
   const confirmerEffacer = () => {
@@ -84,6 +87,9 @@ export default function Moi() {
 
         <Text style={styles.label}>{T.prenom}</Text>
         <TextInput style={styles.entree} value={prenom} onChangeText={setPrenom} maxLength={40} autoComplete="given-name" autoCapitalize="words" />
+
+        <Text style={styles.label}>{NF}</Text>
+        <TextInput style={styles.entree} value={nom} onChangeText={setNom} maxLength={60} autoComplete="family-name" autoCapitalize="words" />
 
         <Text style={styles.label}>{TS.sexe}</Text>
         <View style={styles.langues}>

@@ -9,10 +9,11 @@ import { Bouton, Champ, ChampDate, ChampHeure, Erreur, F, Note, Puce } from '@/c
 import { enregistrerTest, testParId, testsVisibles } from '@/compat_tests';
 import { pousser } from '@/compte';
 import { Illustration } from '@/components/illustration';
+import { ChoixLieu, type LieuChoisi } from '@/components/lieu';
 import { TEXTES } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
 import { CHINOIS, ZODIAQUE } from '@/images';
-import { compatibilite, plat, textesCompat, textesS, type Personne, type Resultat, type Section } from '@/moteur/compat';
+import { compatibilite, plat, textesCompat, textesS, textesSyn, type Personne, type Resultat, type Section } from '@/moteur/compat';
 import { signesDe, textes as textesAstro } from '@/moteur/horoscope';
 import { ouvrirArticle, resoudre } from '@/nav';
 import { useProfil } from '@/profil';
@@ -68,6 +69,14 @@ export default function Compat() {
   const [h2, setH2] = useState('');
   const [g1, setG1] = useState(profil.sexe || '');
   const [g2, setG2] = useState('');
+  // nom de famille (numérologie du nom complet) et lieu de naissance (ascendant, fuseau) : 06/10/2026
+  const [f1, setF1] = useState(profil.nom || '');
+  const [f2, setF2] = useState('');
+  const lieuProfil = profil.naissance_lieu;
+  const [b1, setB1] = useState<LieuChoisi | null>(lieuProfil && typeof lieuProfil.lat === 'number' && typeof lieuProfil.lon === 'number'
+    ? { code: lieuProfil.code, nomPays: '', lat: lieuProfil.lat, lon: lieuProfil.lon, ville: lieuProfil.ville || null } : null);
+  const [b2, setB2] = useState<LieuChoisi | null>(null);
+  const Y = textesSyn(langue);
   const [res, setRes] = useState<Resultat | null>(null);
   const [erreur, setErreur] = useState('');
   const [garde, setGarde] = useState('');           // '' | 'ok' | 'ko'
@@ -78,23 +87,31 @@ export default function Compat() {
   // nombre de tests enregistrés (lien « Mes tests enregistrés (N) »), relu au retour sur l'écran
   useFocusEffect(useCallback(() => { testsVisibles().then((a) => setNbTests(a.length)).catch(() => undefined); }, []));
 
-  const calculerAvec = (v: { n1: string; d1: string; h1: string; g1: string; n2: string; d2: string; h2: string; g2: string }) => {
+  type Valeurs = { n1: string; d1: string; h1: string; g1: string; f1: string; b1: LieuChoisi | null; n2: string; d2: string; h2: string; g2: string; f2: string; b2: LieuChoisi | null };
+  // fuseau de la naissance : longitude du lieu de naissance (heure solaire), sinon celle du profil (comme avant)
+  const tzDe = (b: LieuChoisi | null) => (b && typeof b.lon === 'number' ? Math.round(b.lon / 15) : tz);
+  const calculerAvec = (v: Valeurs) => {
     const a = dateUTC(v.d1), b = dateUTC(v.d2), dates = !!(a && b), noms = !!(plat(v.n1) && plat(v.n2));
     if (!dates && !noms) { setErreur(U.manque); setRes(null); return; }
     setErreur(''); setGarde('');
-    const p: Personne = { n: v.n1.trim() || U.p1, d: a || new Date(0), h: heureNum(v.h1), tz, g: v.g1 };
-    const q: Personne = { n: v.n2.trim() || U.p2, d: b || new Date(0), h: heureNum(v.h2), tz, g: v.g2 };
+    const nl = (x: LieuChoisi | null) => (x && typeof x.lat === 'number' ? { lat: x.lat, lon: x.lon } : null);
+    const p: Personne = { n: v.n1.trim() || U.p1, d: a || new Date(0), h: heureNum(v.h1), tz: tzDe(v.b1), g: v.g1, fam: v.f1.trim(), nl: nl(v.b1) };
+    const q: Personne = { n: v.n2.trim() || U.p2, d: b || new Date(0), h: heureNum(v.h2), tz: tzDe(v.b2), g: v.g2, fam: v.f2.trim(), nl: nl(v.b2) };
     setRes(compatibilite(langue, p, q, dates, noms));
   };
-  const calculer = () => calculerAvec({ n1, d1, h1, g1, n2, d2, h2, g2 });
+  const calculer = () => calculerAvec({ n1, d1, h1, g1, f1, b1, n2, d2, h2, g2, f2, b2 });
 
   // test enregistré ouvert depuis « Mes tests de compatibilité » : champs remplis, calcul immédiat
   useEffect(() => {
     if (!id) return;
     testParId(String(id)).then((t) => {
       if (!t || !t.p1 || !t.p2) return;
-      const v = { n1: t.p1.n || '', d1: t.p1.d || '', h1: t.p1.h || '', g1: t.p1.g || '', n2: t.p2.n || '', d2: t.p2.d || '', h2: t.p2.h || '', g2: t.p2.g || '' };
-      setN1(v.n1); setD1(v.d1); setH1(v.h1); setG1(v.g1); setN2(v.n2); setD2(v.d2); setH2(v.h2); setG2(v.g2);
+      const lieu = (x: typeof t.p1): LieuChoisi | null => (x && x.bpays && typeof x.blat === 'number' && typeof x.blon === 'number'
+        ? { code: x.bpays, nomPays: '', lat: x.blat, lon: x.blon, ville: x.bville || null } : null);
+      const v: Valeurs = { n1: t.p1.n || '', d1: t.p1.d || '', h1: t.p1.h || '', g1: t.p1.g || '', f1: t.p1.fam || '', b1: lieu(t.p1),
+        n2: t.p2.n || '', d2: t.p2.d || '', h2: t.p2.h || '', g2: t.p2.g || '', f2: t.p2.fam || '', b2: lieu(t.p2) };
+      setN1(v.n1); setD1(v.d1); setH1(v.h1); setG1(v.g1); setF1(v.f1); setB1(v.b1);
+      setN2(v.n2); setD2(v.d2); setH2(v.h2); setG2(v.g2); setF2(v.f2); setB2(v.b2);
       calculerAvec(v);
     }).catch(() => undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -102,8 +119,10 @@ export default function Compat() {
 
   const garder = async () => {
     if (!res) return;
-    const pers = (n: string, d: string, h: string, g: string) => ({ n: n.trim().slice(0, 40), d, ...(h ? { h } : {}), ...(g ? { g } : {}) });
-    const ok = await enregistrerTest({ lg: langue, s: res.total, r: res.r, z: res.z, c: res.c, p1: pers(n1, d1, h1, g1), p2: pers(n2, d2, h2, g2) });
+    const pers = (n: string, d: string, h: string, g: string, f: string, b: LieuChoisi | null) => ({
+      n: n.trim().slice(0, 40), d, ...(h ? { h } : {}), ...(g ? { g } : {}), ...(f.trim() ? { fam: f.trim().slice(0, 60) } : {}),
+      ...(b ? { bpays: b.code, ...(b.ville ? { bville: b.ville } : {}), blat: b.lat, blon: b.lon } : {}) });
+    const ok = await enregistrerTest({ lg: langue, s: res.total, r: res.r, z: res.z, c: res.c, p1: pers(n1, d1, h1, g1, f1, b1), p2: pers(n2, d2, h2, g2, f2, b2) });
     setGarde(ok ? 'ok' : 'ko');
     if (ok) { pousser(); setNbTests((await testsVisibles()).length); }
   };
@@ -122,16 +141,22 @@ export default function Compat() {
           <>
             <Text style={F.h2}>{U.p1}</Text>
             <Champ label={U.prenom} value={n1} onChangeText={setN1} maxLength={40} autoCapitalize="words" />
+            <Champ label={Y.nomFam} value={f1} onChangeText={setF1} maxLength={60} autoCapitalize="words" />
             <Text style={F.label}>{S.sexe}</Text>
             {choixSexe(g1, setG1)}
             <ChampDate label={U.date} value={d1} onChange={setD1} langue={langue} max={new Date()} />
             <ChampHeure label={U.heure} inconnue={T1.heureInconnue} value={h1} onChange={setH1} langue={langue} />
+            <Text style={F.label}>{Y.lieuN}</Text>
+            <ChoixLieu langue={langue} valeur={b1} onChange={setB1} labelPays={T3.pays} labelVille={T3.ville} />
             <Text style={F.h2}>{U.p2}</Text>
             <Champ label={U.prenom} value={n2} onChangeText={setN2} maxLength={40} autoCapitalize="words" />
+            <Champ label={Y.nomFam} value={f2} onChangeText={setF2} maxLength={60} autoCapitalize="words" />
             <Text style={F.label}>{S.sexe}</Text>
             {choixSexe(g2, setG2)}
             <ChampDate label={U.date} value={d2} onChange={setD2} langue={langue} max={new Date()} />
             <ChampHeure label={U.heure} inconnue={T1.heureInconnue} value={h2} onChange={setH2} langue={langue} />
+            <Text style={F.label}>{Y.lieuN}</Text>
+            <ChoixLieu langue={langue} valeur={b2} onChange={setB2} labelPays={T3.pays} labelVille={T3.ville} />
             <Bouton titre={U.go} onPress={calculer} />
             <Erreur>{erreur}</Erreur>
             <Note>{U.note}</Note>

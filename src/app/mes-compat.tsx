@@ -19,7 +19,7 @@ import { COULEURS } from '@/theme';
 type TextesMC = Record<string, string> & { lect: Record<string, string> };
 const UI_T = (ui as unknown as { mesCompat: Record<string, TextesMC> }).mesCompat;
 const UI_P = (ui as unknown as { mesCompatPage: Record<string, { h1: string; lead: string }> }).mesCompatPage;
-const ORDRE = ['zod', 'chin', 'ved', 'bio', 'nom', 'vie'];
+const ORDRE = ['zod', 'syn', 'chin', 'ved', 'bio', 'nom', 'vie'];
 const K_TRI = 'ap.compat.tri';
 const fmt = (s: string, ...v: (string | number)[]) => { let i = 0; return s.replace(/%s/g, () => String(v[i++] ?? '')); };
 

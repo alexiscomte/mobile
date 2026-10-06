@@ -28,7 +28,7 @@ export function textesCompat(lg: Langue): { t: Textes; ny: [number, number, numb
 }
 
 /** g : sexe facultatif ('f', 'm' ou '') : sens traditionnel de la lecture védique pour un couple femme-homme (06/10/2026). */
-export type Personne = { n: string; d: Date; h: number | null; tz: number; g?: string };
+export type Personne = { n: string; d: Date; h: number | null; tz: number; g?: string; fam?: string; nl?: { lat: number; lon: number } | null };
 export type Ligne = { gras: string; texte: string };
 export type Section = { k?: string; titre: string; intro: string; lignes: Ligne[]; verdict?: { titre: string; texte: string }; extra?: string[]; score: number | null; caveat: string; lien?: string; tableau?: [string, string][] };
 
@@ -74,8 +74,66 @@ function lectureZodiac(T: Textes, p: Personne, q: Personne): Section {
     ], verdict: { titre: asp[0], texte: asp[1] + ' ' + txt }, score: asp[2], caveat: T.zod.caveat, lien: T.liens.zod };
 }
 
-/* ----------------------------------------------------------- chinois */
-function lunaire(NY: [number, number, number][], d: Date): number | null {
+/* --------------------------------- synastrie : Vénus, Mars, Lune, Soleil, ascendant (06/10/2026, même règle que compat.js) */
+export type TextesSyn = {
+  nomFam: string; lieuN: string; nomComplet: string; titre: string; intro: string; sep: string; url: string; lien: string;
+  planetes: Record<'sun' | 'moon' | 'venus' | 'mars' | 'asc', string>; aspects: Record<string, string>; orbe: string; aucunAsp: string;
+  textes: Record<string, Record<'fort' | 'fluide' | 'tendu' | 'aucun', string>>; bilans: [number, string, string][];
+  sans_heure: string; sans_asc: string; caveat: string;
+};
+export function textesSyn(lg: Langue): TextesSyn {
+  const S = (ui as unknown as { compatSyn: Record<string, TextesSyn> }).compatSyn;
+  return S[lg] || S.fr;
+}
+const SYN_POIDS: Record<string, number> = { vm: 3, sl: 3, ll: 2, vv: 1, va: 1 };
+const SYN_VAL: Record<string, number> = { conj: 1, tri: 0.9, sex: 0.75, opp: 0.4, sq: 0.15 };
+type Theme = { sun: number; moon: number; venus: number; mars: number; asc: number | null; change: boolean };
+function themeDe(x: Personne): Theme {
+  const hh = typeof x.h === 'number' ? x.h : 12;
+  const j = ASTRO.jd(x.d.getUTCFullYear(), x.d.getUTCMonth() + 1, x.d.getUTCDate(), hh - (x.tz || 0));
+  const asc = typeof x.h === 'number' && x.nl ? ASTRO.angles(j, x.nl.lat, x.nl.lon).asc : null;
+  const change = typeof x.h !== 'number' && ASTRO.sign(ASTRO.moonLon(j - 0.5)) !== ASTRO.sign(ASTRO.moonLon(j + 0.5));
+  return { sun: ASTRO.sunLon(j), moon: ASTRO.moonLon(j), venus: ASTRO.planetLon('venus', j), mars: ASTRO.planetLon('mars', j), asc, change };
+}
+function valElements(sa: number, sb: number): number {
+  const ea = sa % 4, eb = sb % 4; if (ea === eb) return 0.6;
+  const pair = [Math.min(ea, eb), Math.max(ea, eb)].join('-');
+  return pair === '0-2' || pair === '1-3' ? 0.55 : 0.35;
+}
+function lectureSyn(T: Textes, lg: Langue, p: Personne, q: Personne): Section {
+  const Y = textesSyn(lg), Z = T.zod.noms, P = Y.planetes, sep = Y.sep || ': ';
+  const a = themeDe(p), b = themeDe(q);
+  const resume = (n: string, t: Theme) => {
+    const l = [P.sun + sep + Z[ASTRO.sign(t.sun)], P.moon + sep + Z[ASTRO.sign(t.moon)], P.venus + sep + Z[ASTRO.sign(t.venus)], P.mars + sep + Z[ASTRO.sign(t.mars)]];
+    if (t.asc !== null) l.push(P.asc + sep + Z[ASTRO.sign(t.asc)]);
+    return { gras: n, texte: l.join(' · ') };
+  };
+  type Cle = 'sun' | 'moon' | 'venus' | 'mars' | 'asc';
+  const paires: [string, Cle, Theme, Personne, Cle, Theme, Personne][] = [
+    ['vm', 'venus', a, p, 'mars', b, q], ['vm', 'venus', b, q, 'mars', a, p], ['sl', 'sun', a, p, 'moon', b, q],
+    ['sl', 'sun', b, q, 'moon', a, p], ['ll', 'moon', a, p, 'moon', b, q], ['vv', 'venus', a, p, 'venus', b, q]];
+  if (b.asc !== null) paires.push(['va', 'venus', a, p, 'asc', b, q]);
+  if (a.asc !== null) paires.push(['va', 'venus', b, q, 'asc', a, p]);
+  const lignes: Ligne[] = [resume(p.n, a), resume(q.n, b)];
+  let somme = 0, poids = 0;
+  for (const [k, ka, ta, pa, kb, tb, pb] of paires) {
+    const la = ta[ka] as number, lb = tb[kb] as number, asp = ASTRO.aspect(la, lb);
+    let fam: 'fort' | 'fluide' | 'tendu' | 'aucun', v: number;
+    if (asp) { fam = asp.type === 'conj' ? 'fort' : asp.type === 'tri' || asp.type === 'sex' ? 'fluide' : 'tendu'; v = SYN_VAL[asp.type]; }
+    else { fam = 'aucun'; v = valElements(ASTRO.sign(la), ASTRO.sign(lb)); }
+    somme += v * SYN_POIDS[k]; poids += SYN_POIDS[k];
+    lignes.push({ gras: P[ka] + ' (' + pa.n + ') – ' + P[kb] + ' (' + pb.n + ')',
+      texte: '(' + Z[ASTRO.sign(la)] + ' – ' + Z[ASTRO.sign(lb)] + sep + (asp ? Y.aspects[asp.type] + ', ' + fmt(Y.orbe, Math.round(asp.orb)) : Y.aucunAsp) + '). ' + Y.textes[k][fam] });
+  }
+  const score = Math.max(0, Math.min(100, Math.round(somme / poids * 100)));
+  let bilan = Y.bilans[0]; for (const bb of Y.bilans) if (score >= bb[0]) bilan = bb;
+  const extra: string[] = [];
+  if (a.change || b.change) extra.push(Y.sans_heure);
+  if (a.asc === null || b.asc === null) extra.push(Y.sans_asc);
+  return { k: 'syn', titre: Y.titre, intro: Y.intro, lignes, verdict: { titre: bilan[1], texte: bilan[2] }, extra, score, caveat: Y.caveat, lien: Y.url };
+}
+
+/* ----------------------------------------------------------- chinois */function lunaire(NY: [number, number, number][], d: Date): number | null {
   let y = d.getUTCFullYear();
   const ny = NY.find((x) => x[0] === y); if (!ny) return null;
   if (d.getTime() < Date.UTC(ny[0], ny[1] - 1, ny[2])) y -= 1;
@@ -138,12 +196,14 @@ function descNombre(T: Textes, n: number): string {
   if (n === 11 || n === 22 || n === 33) t = T.nom.maitres[String(n)] + ' ' + t;
   return t;
 }
-function lectureNom(T: Textes, p: Personne, q: Personne): Section {
-  const a = valeurs(p.n), b = valeurs(q.n), v = verdictNombres(T, a.expr, b.expr);
+function lectureNom(T: Textes, lg: Langue, p: Personne, q: Personne): Section {
+  // nom de famille donné (06/10/2026) : nombres sur le nom complet, comme le veut la tradition (FLAMES reste sur les prénoms)
+  const na = p.n + (p.fam ? ' ' + p.fam : ''), nb = q.n + (q.fam ? ' ' + q.fam : '');
+  const a = valeurs(na), b = valeurs(nb), v = verdictNombres(T, a.expr, b.expr);
   return { k: 'nom', titre: T.nom.titre, intro: T.nom.intro, lignes: [
-      { gras: fmt(T.nom.de, p.n, a.expr, a.intime, a.real), texte: descNombre(T, a.expr) },
-      { gras: fmt(T.nom.de, q.n, b.expr, b.intime, b.real), texte: descNombre(T, b.expr) },
-    ], verdict: { titre: v[0], texte: v[1] }, score: v[2], caveat: T.nom.caveat, lien: T.liens.nom };
+      { gras: fmt(T.nom.de, na, a.expr, a.intime, a.real), texte: descNombre(T, a.expr) },
+      { gras: fmt(T.nom.de, nb, b.expr, b.intime, b.real), texte: descNombre(T, b.expr) },
+    ], verdict: { titre: v[0], texte: v[1] }, extra: p.fam || q.fam ? [textesSyn(lg).nomComplet] : [], score: v[2], caveat: T.nom.caveat, lien: T.liens.nom };
 }
 function chemin(d: Date): number {
   return reduire(reduire(d.getUTCDate(), true) + reduire(d.getUTCMonth() + 1, true) + reduire(d.getUTCFullYear(), true), true);
@@ -244,8 +304,8 @@ export type Resultat = { total: number | null; sections: Section[]; avis: string
 export function compatibilite(lg: Langue, p: Personne, q: Personne, dates: boolean, noms: boolean): Resultat {
   const { t: T, ny: NY } = textesCompat(lg);
   const parts: Section[] = [];
-  if (dates) { parts.push(lectureZodiac(T, p, q), lectureChin(T, NY, p, q)); const v = lectureVed(T, lg, p, q); if (v) parts.push(v); parts.push(lectureBio(T, p, q)); }
-  if (noms) parts.push(lectureNom(T, p, q));
+  if (dates) { parts.push(lectureZodiac(T, p, q), lectureSyn(T, lg, p, q), lectureChin(T, NY, p, q)); const v = lectureVed(T, lg, p, q); if (v) parts.push(v); parts.push(lectureBio(T, p, q)); }
+  if (noms) parts.push(lectureNom(T, lg, p, q));
   if (dates) parts.push(lectureVie(T, p, q), lectureAge(T, p, q));
   if (noms) parts.push(lectureFlames(T, p, q));
   let somme = 0, nb = 0;

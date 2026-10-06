@@ -173,7 +173,7 @@ const w = {};
 
   var ASPECTS = [[0, 8, "conj"], [180, 8, "opp"], [120, 6, "tri"], [90, 6, "sq"], [60, 4, "sex"]];
   function aspect(a, b) {
-    var d = Math.abs(((a - b) % 360 + 540) % 360 - 180); d = 180 - d;
+    var d = Math.abs(((a - b) % 360 + 540) % 360 - 180);   /* separation 0..180 (06/10/2026 : « d = 180 - d » inversait conjonction/opposition et sextile/trigone) */
     for (var i = 0; i < ASPECTS.length; i++) {
       var orb = Math.abs(d - ASPECTS[i][0]);
       if (orb <= ASPECTS[i][1]) return { type: ASPECTS[i][2], orb: orb, exact: ASPECTS[i][0] };
