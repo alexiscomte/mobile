@@ -19,21 +19,32 @@ construisent dans le nuage d'Expo (EAS Build), sans Mac.
   natifs : estimateur d'ovulation, maternité la plus proche (position du téléphone ou pays/ville), compteur de couple,
   vie d'époux selon le prénom, calendrier de garde alternée (export .ics), distance et différences (deux lieux :
   distance, vol, décalage horaire du jour, repères culturels, fiches pays).
-- **Moi** : prénom, date et heure de naissance, langue, favoris, téléchargement de tout le contenu pour lire hors
-  ligne, inscription à la lettre d'information (`/api/newsletter`), effacement des données.
+- **Moi** : prénom, date et heure de naissance, compte facultatif (écran `compte`), langue, favoris, « Mes sondages »,
+  téléchargement de tout le contenu pour lire hors ligne, inscription à la lettre d'information (`/api/newsletter`),
+  effacement des données.
 
 Les outils et les articles sont les pages du site, affichées dans une vue web en **mode application**
 (`?app=1` → `<html class="app">` : sans en-tête, pied, partage ni bandeau — `outils/gen/app_mode.py` côté site).
 Le profil saisi dans l'application est injecté dans le stockage de la page (clé `ap.profil`, même forme que
 `assets/js/espace.js`), et ce que le site apprend (lieu de naissance, favoris) revient dans l'application.
-Rien n'est envoyé à un serveur : ni profil, ni favoris.
+Sans compte, rien n'est envoyé à un serveur : ni profil, ni favoris.
+
+**Compte facultatif (06/10/2026)** : même système que le site (`assets/js/compte.js`, API `compte_api.js`, `/api/compte/…`).
+Identifiant = adresse électronique, prouvée par un code à 6 chiffres reçu par courriel ou par Google (expo-auth-session,
+client iOS de `src/compte_conf.json`, schéma d'URL inverse dans `app.json` → `ios.scheme`). À la connexion, les données du
+compte remplissent l'appareil (profil, favoris, votes, scores, question du jour, parties à deux) ; ensuite chaque changement
+local est renvoyé au compte (`pousser()` de `src/compte.ts`, regroupé 1,5 s). Session gardée sous `ap.compte`
+(`{ courriel, session, sync }`, même forme que le site) et injectée dans les pages du site ouvertes dans l'appli ; une
+connexion ou une déconnexion faite dans la page revient dans l'appli. « Effacer mes données » vide l'appareil et déconnecte,
+sans toucher au compte ; « Supprimer mon compte » est dans l'écran du compte.
 
 ## Structure
 
 ```
 src/app/                 écrans (Expo Router) : (tabs)/index|astro|jeux|infos|moi ; page (vue web) ; article (hors ligne) ;
                          horoscope, signes, theme, compat, biorythme, chinois, autres (védique/maya), lune, qdj, sondages,
-                         jeu2, quiz, ovulation, maternite, compteur, epoux, garde, newsletter
+                         jeu2, quiz, ovulation, maternite, compteur, epoux, garde, newsletter, compte
+src/compte.ts            compte facultatif : appels /api/compte, synchronisation (tirer, pousser, appliquer)
 src/components/vue-site  vue web d'une page du site (injection, messages, liens externes, hors-ligne)
 src/components/form      champs communs des outils (date, heure inconnue, boutons, notes, suggestions)
 src/moteur/              moteurs et données du site : astro.js, astro_txt.js, lieu.js (copies), compat.ts + compat_txt.json,
@@ -41,7 +52,7 @@ src/moteur/              moteurs et données du site : astro.js, astro_txt.js, l
                          (maternites_fr.json, OpenStreetMap), distance.ts (distance.json, culture.json),
                          outils_txt.json, ui.json, qdj/jeu2/sondages.json — écrits
                          par outils/gen/app_moteurs.py, app_outils_txt.py, app_compat_txt.py : ne pas modifier à la main
-src/i18n.ts, i18n2, i18n3  textes de l'interface, 9 langues
+src/i18n.ts, i18n2, i18n3, i18n4  textes de l'interface, 9 langues (i18n4 : compte et « Mes sondages »)
 src/catalogue.json       adresses et titres des pages du site par langue — écrit par outils/gen/app_catalogue.py
 src/site.ts              adresses en mode application, scripts injectés
 src/profil.tsx           profil, favoris, langue (AsyncStorage)

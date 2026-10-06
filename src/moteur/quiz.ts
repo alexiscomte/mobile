@@ -2,6 +2,7 @@
 // et « test » (points par clé, questions conditionnelles, résultat selon des règles). Données : assets/data/quiz-<langue>.json
 // du site (outils/gen/app_quiz.py), chargées ici et gardées 24 h. Scores gardés sur l'appareil (clé apq:<id>, comme le site).
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { pousser } from '../compte';
 import type { Langue } from '../i18n';
 import { SITE } from '../site';
 
@@ -89,4 +90,5 @@ export async function lireScores(): Promise<Record<string, Score>> {
 }
 export async function memoriserScore(id: string, s: number, n: number, t: string, u: string) {
   await AsyncStorage.setItem('apq:' + id, JSON.stringify({ s, n, d: new Date().toISOString().slice(0, 10), t, u }));
+  pousser();   // compte connecté : le score est renvoyé au compte (comme quiz.js du site, 06/10/2026)
 }

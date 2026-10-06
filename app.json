@@ -29,7 +29,10 @@
           "tr"
         ],
         "CFBundleDevelopmentRegion": "fr"
-      }
+      },
+      "scheme": [
+        "com.googleusercontent.apps.271367624923-5cr1gk0rs0q9r86uj7q5m7llkfp45tlf"
+      ]
     },
     "android": {
       "package": "com.affectionplus.app",

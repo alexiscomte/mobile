@@ -4,6 +4,7 @@ import { Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 
+import { pousser } from '@/compte';
 import type { Langue } from '@/i18n';
 import qdj from '@/moteur/qdj.json';
 import ui from '@/moteur/ui.json';
@@ -42,6 +43,7 @@ export default function QuestionDuJour() {
     const jours = [...etat.jours, cle(auj)].sort().slice(-400);
     const e = { jours, record: Math.max(etat.record, serie(jours, auj)) };
     setEtat(e); await AsyncStorage.setItem(CLE, JSON.stringify(e));
+    pousser();   // compte connecté : la série suit
   };
   const envoyer = () => {
     const u = SITE + page('qdj', lg).u;

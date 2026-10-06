@@ -16,10 +16,11 @@ const iso = (d: Date) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + p
 const fmt = (s: string, ...v: (string | number)[]) => { let i = 0; return s.replace(/%s/g, () => String(v[i++] ?? '')); };
 
 export default function Compteur() {
-  const { langue } = useProfil();
+  const { langue, profil, fusionnerProfil } = useProfil();
   const t = TXT[langue] || TXT.fr;
-  const [rencontre, setRencontre] = useState('');
-  const [mariage, setMariage] = useState('');
+  // dates gardées dans le profil (rencontre, mariage), comme compteur.js du site : elles suivent le compte (06/10/2026)
+  const [rencontre, setRencontre] = useState(profil.rencontre || '');
+  const [mariage, setMariage] = useState(profil.mariage || '');
   const [noms, setNoms] = useState('');
   const [res, setRes] = useState<{ n: number; y: number[]; caps: string[]; anniv: string; noces: string | null; texte: string } | null>(null);
   const [erreur, setErreur] = useState('');
@@ -45,6 +46,7 @@ export default function Compteur() {
     const a = new Date(); const auj = new Date(Date.UTC(a.getFullYear(), a.getMonth(), a.getDate()));
     if (deb > auj) { setErreur(t.futur); setRes(null); return; }
     setErreur('');
+    fusionnerProfil({ rencontre, ...(/^\d{4}-\d{2}-\d{2}$/.test(mariage) ? { mariage } : {}) }).catch(() => undefined);
     const n = jours(deb, auj), y = ymd(deb, auj);
     const caps = [100, 365, 500, 1000, 2000, 3000, 5000, 7500, 10000, 15000, 20000, 25000].filter((c) => c > n).slice(0, 4).map((c) => fmt(t.cap, loc(c), f(j(deb, c)), loc(c - n)));
     const pa = prochain(deb, auj);

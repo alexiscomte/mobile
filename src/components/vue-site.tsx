@@ -1,8 +1,9 @@
-// Vue web d'une page du site en mode application : profil injecté, retour du profil et des favoris tenus par le site,
+// Vue web d'une page du site en mode application : profil, favoris et compte injectés, retour du profil, des favoris et du compte tenus par le site,
 // liens externes ouverts dans le navigateur du téléphone, hors-ligne, barre de progression. Sur le web (aperçu), un iframe.
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { WebView, type WebViewMessageEvent, type WebViewNavigation } from 'react-native-webview';
+import { adopterCompte } from '../compte';
 import { TEXTES } from '../i18n';
 import { profilPourSite, useProfil } from '../profil';
 import { INJECTION_APRES, estExterne, injectionAvant, lireMessage } from '../site';
@@ -23,14 +24,14 @@ const APRES: Record<string, string> = {
 };
 
 export const VueSite = React.forwardRef<VueSiteRef, Props>(function VueSite({ url, apres, onTitre, onNavigation }, ref) {
-  const { profil, langue, fusionnerProfil, setFavoris } = useProfil();
+  const { profil, favoris, compte, langue, fusionnerProfil, setFavoris } = useProfil();
   const T = TEXTES[langue];
   const web = useRef<WebView>(null);
   const peutRevenir = useRef(false);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(false);
   const [cle, setCle] = useState(0);
-  const avant = injectionAvant(profilPourSite(profil));
+  const avant = injectionAvant(profilPourSite(profil), favoris, compte);
 
   React.useImperativeHandle(ref, () => ({
     revenir: () => { if (peutRevenir.current && web.current) { web.current.goBack(); return true; } return false; },
@@ -42,6 +43,7 @@ export const VueSite = React.forwardRef<VueSiteRef, Props>(function VueSite({ ur
     if (!m) return;
     try { if (m.profil) fusionnerProfil(JSON.parse(m.profil)); } catch { /* profil illisible */ }
     try { if (m.favoris) setFavoris(JSON.parse(m.favoris)); } catch { /* favoris illisibles */ }
+    if (m.compteChange) adopterCompte(m.compte ?? null).catch(() => undefined);   // connexion ou déconnexion faite dans la page
     if (m.titre && onTitre) onTitre(m.titre.replace(/\s*[—-]\s*AffectionPlus\s*$/, ''));
   }, [fusionnerProfil, setFavoris, onTitre]);
 

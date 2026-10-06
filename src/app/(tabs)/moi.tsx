@@ -1,4 +1,4 @@
-// Moi : prénom, date et heure de naissance, langue, favoris, effacement. Tout reste sur l'appareil.
+// Moi : prénom, date et heure de naissance, compte facultatif, langue, favoris, effacement. Sans compte, tout reste sur l'appareil.
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -7,13 +7,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Ligne, Titre } from '@/components/carte';
 import { ResumeSignes } from '@/components/resume-signes';
-import { LANGUES, NOMS_LANGUES, TEXTES, type Langue } from '@/i18n';
+import { LANGUES, NOMS_LANGUES, TEXTES, fmt, type Langue } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
+import { TEXTES4 } from '@/i18n4';
 import { toutTelecharger } from '@/moteur/contenu';
+import ui from '@/moteur/ui.json';
 import { ouvrir, ouvrirCle } from '@/nav';
-import { useProfil } from '@/profil';
-import { page, SITE, urlPage } from '@/site';
+import { useProfil, type Favori } from '@/profil';
+import { page, SITE, url, urlPage } from '@/site';
 import { COULEURS } from '@/theme';
+
+const UI_COMPTE = (ui as { compte: Record<string, Record<string, string>> }).compte;
 
 function dateDe(s?: string): Date {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
@@ -29,8 +33,10 @@ const isoDate = (d: Date) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-'
 const isoHeure = (d: Date) => pad(d.getHours()) + ':' + pad(d.getMinutes());
 
 export default function Moi() {
-  const { langue, profil, favoris, setProfil, setLangue, effacer } = useProfil();
+  const { langue, profil, favoris, compte, setProfil, setLangue, effacer } = useProfil();
   const T = TEXTES[langue];
+  const T4 = TEXTES4[langue];
+  const TC = UI_COMPTE[langue] || UI_COMPTE.fr;
   const router = useRouter();
   const [prenom, setPrenom] = useState(profil.prenom || '');
   const [naissance, setNaissance] = useState(profil.naissance || '');
@@ -53,9 +59,16 @@ export default function Moi() {
   };
   const confirmerEffacer = () => {
     if (Platform.OS === 'web') { effacer(); return; }
-    Alert.alert(T.effacer, T.effacerConfirm, [{ text: T.non, style: 'cancel' }, { text: T.oui, style: 'destructive', onPress: () => effacer() }]);
+    Alert.alert(T.effacer, T.effacerConfirm + (compte ? '\n\n' + T4.effacerCompte : ''), [{ text: T.non, style: 'cancel' }, { text: T.oui, style: 'destructive', onPress: () => effacer() }]);
   };
   const natif = Platform.OS !== 'web';
+  // favori = chemin du site (« /fr/….html ») : lu dans l'écran article (chemin relatif) ; un dossier (« / », « /fr/ » : index.html
+  // ramené à « / » par espace.js) s'ouvre dans la vue web
+  const lireFavori = (f: Favori) => {
+    const rel = f.url.replace(/^\//, '');
+    if (rel && !rel.endsWith('/')) router.push({ pathname: '/article', params: { u: rel } });
+    else ouvrir(router, url(rel), f.titre);
+  };
 
   return (
     <SafeAreaView style={styles.fond} edges={['top']}>
@@ -100,6 +113,12 @@ export default function Moi() {
           <Text style={styles.boutonSecTxt}>{T.lieuBouton}</Text>
         </Pressable>
 
+        <Titre>{TC.titre}</Titre>
+        <Text style={styles.aide}>{compte ? fmt(TC.connecte, compte.courriel) : T4.compteTxt}</Text>
+        <Pressable style={({ pressed }) => [styles.boutonSec, pressed && styles.presse]} onPress={() => router.push('/compte')}>
+          <Text style={styles.boutonSecTxt}>{compte ? T4.gerer : TC.connecter}</Text>
+        </Pressable>
+
         <Titre>{T.langue}</Titre>
         <View style={styles.langues}>
           {LANGUES.map((lg: Langue) => (
@@ -111,8 +130,9 @@ export default function Moi() {
 
         <Titre>{T.favoris}</Titre>
         {favoris.length ? favoris.map((f) => (
-          <Ligne key={f.u} titre={f.t} sf="star.fill" onPress={() => router.push({ pathname: '/article', params: { u: f.u.replace(SITE, '').split('#')[0].split('?')[0] } })} />
+          <Ligne key={f.url} titre={f.titre} sf="star.fill" onPress={() => lireFavori(f)} />
         )) : <Text style={styles.aide}>{T.aucunFavori}</Text>}
+        <Ligne titre={T4.mesSondages} texte={T4.mesSondagesTxt} sf="chart.bar.fill" onPress={() => router.push({ pathname: '/sondages', params: { mes: '1' } })} />
 
         <Titre>{T.infos}</Titre>
         <Text style={styles.aide}>{T3.horsLigneTxt}</Text>

@@ -61,6 +61,7 @@ export const TUILES: Record<string, Img> = {
   "famille": require('../assets/images/ia/tuiles/famille.webp'),
   "separation": require('../assets/images/ia/tuiles/separation.webp'),
   "situation": require('../assets/images/ia/tuiles/situation.webp'),
+  "compte": require('../assets/images/ia/tuiles/compte.webp'),
 };
 export const VIGNETTES: Record<string, Img> = {
   "vedique": require('../assets/images/ia/vignettes/vedique.webp'),

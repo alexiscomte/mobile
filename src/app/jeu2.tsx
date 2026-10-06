@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Illustration } from '@/components/illustration';
+import { pousser } from '@/compte';
 import type { Langue } from '@/i18n';
 import { JEU2 } from '@/images';
 import jeu2 from '@/moteur/jeu2.json';
@@ -34,8 +35,8 @@ async function api(methode: string, chemin: string, corps?: unknown): Promise<{ 
   return { ...x, statut: r.status };
 }
 async function parties(): Promise<Partie[]> { try { const p = JSON.parse((await AsyncStorage.getItem(CLE)) || '[]'); return Array.isArray(p) ? p : []; } catch { return []; } }
-async function garderPartie(p: Partie) { const l = (await parties()).filter((x) => x.code !== p.code); l.unshift(p); await AsyncStorage.setItem(CLE, JSON.stringify(l.slice(0, 20))); }
-async function oublierPartie(code: string) { await AsyncStorage.setItem(CLE, JSON.stringify((await parties()).filter((x) => x.code !== code))); }
+async function garderPartie(p: Partie) { const l = (await parties()).filter((x) => x.code !== p.code); l.unshift(p); await AsyncStorage.setItem(CLE, JSON.stringify(l.slice(0, 20))); pousser(); }
+async function oublierPartie(code: string) { await AsyncStorage.setItem(CLE, JSON.stringify((await parties()).filter((x) => x.code !== code))); pousser(); }
 
 type Mode = { m: 'accueil' } | { m: 'invite'; code: string; hote: string } | { m: 'quiz'; autre: string; suite: (moi: number[], devine: number[]) => void } | { m: 'suivi'; code: string; j: string } | { m: 'erreur'; msg: string };
 

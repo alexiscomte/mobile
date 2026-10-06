@@ -1,4 +1,4 @@
-// Jeux : jouer à deux, question du jour, sondages, quiz et tests.
+// Jeux : jouer à deux, question du jour, sondages (et « Mes sondages »), quiz et tests.
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Carte, Ligne, Titre } from '@/components/carte';
 import { TEXTES } from '@/i18n';
+import { TEXTES4 } from '@/i18n4';
 import { TUILES, VIGNETTES, type Img } from '@/images';
 import { questionDuJour, sondageDuJour } from '@/moteur/qdj';
 import { ouvrirCle } from '@/nav';
@@ -26,6 +27,7 @@ const AUTRES: { cle: Cle; sf: string; image?: Img }[] = [
 export default function Jeux() {
   const { langue } = useProfil();
   const T = TEXTES[langue];
+  const T4 = TEXTES4[langue];
   const router = useRouter();
   const go = (cle: Cle) => () => ouvrirCle(router, cle, langue);
   const sondage = sondageDuJour(langue);
@@ -39,6 +41,7 @@ export default function Jeux() {
           <Carte titre={page('qdj', langue).t} texte={questionDuJour(langue)} couleur={DEGRADES.compat[0]} sf="bubble.left.and.bubble.right.fill" image={TUILES.qdj} onPress={() => router.push('/qdj')} />
           <Carte titre={page('sondages', langue).t} texte={sondage ? sondage.q[langue] || sondage.q.fr : T.sondagesTxt} couleur={DEGRADES.sexualite[0]} sf="chart.bar.fill" image={TUILES.sondages} onPress={() => router.push('/sondages')} />
         </View>
+        <Ligne titre={T4.mesSondages} texte={T4.mesSondagesTxt} sf="chart.bar.fill" image={VIGNETTES['mes-sondages']} onPress={() => router.push({ pathname: '/sondages', params: { mes: '1' } })} />
         <Titre>{page('quiz', langue).t}</Titre>
         {AUTRES.map(({ cle, sf, image }) => {
           const p = page(cle, langue);

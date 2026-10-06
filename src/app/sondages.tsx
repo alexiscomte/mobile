@@ -1,10 +1,14 @@
 // Sondages « Et vous ? », natifs : les 32 questions du site, vote anonyme (même API que le site), résultats en direct.
+// « Mes sondages » (?mes=1 ou puce en tête) : seulement les sondages auxquels on a répondu, avec sa réponse (06/10/2026).
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import type { Langue } from '@/i18n';
+import { F, Puce } from '@/components/form';
+import { pousser, surCompte } from '@/compte';
+import { TEXTES, type Langue } from '@/i18n';
+import { TEXTES4 } from '@/i18n4';
 import sondages from '@/moteur/sondages.json';
 import ui from '@/moteur/ui.json';
 import { useProfil } from '@/profil';
@@ -46,7 +50,7 @@ function Barres({ opts, n, mien }: { opts: string[]; n: number[]; mien: number }
   );
 }
 
-function Item({ s, lg, t, res, vote, onVote }: { s: Sondage; lg: Langue; t: Record<string, string>; res?: Resultat; vote: number | null; onVote: (c: number) => Promise<boolean> }) {
+function Item({ s, lg, t, res, vote, onVote, mes }: { s: Sondage; lg: Langue; t: Record<string, string>; res?: Resultat; vote: number | null; onVote: (c: number) => Promise<boolean>; mes?: boolean }) {
   const [onglet, setOnglet] = useState(0);
   const [attente, setAttente] = useState(false);
   const [erreur, setErreur] = useState(false);
@@ -58,6 +62,7 @@ function Item({ s, lg, t, res, vote, onVote }: { s: Sondage; lg: Langue; t: Reco
   return (
     <View style={styles.item}>
       <Text style={styles.question}>{q}</Text>
+      {mes && vote !== null && opts[vote] && t.mesRepondu ? <Text style={styles.repondu}>{fmt(t.mesRepondu, opts[vote])}</Text> : null}
       {aVote ? (
         <>
           {groupes.length > 1 ? (
@@ -90,9 +95,12 @@ function Item({ s, lg, t, res, vote, onVote }: { s: Sondage; lg: Langue; t: Reco
 }
 
 export default function Sondages() {
-  const { langue } = useProfil();
+  const { langue, compte } = useProfil();
   const lg: Langue = langue;
   const t = UI[lg] || UI.fr;
+  const T4 = TEXTES4[lg];
+  const { mes } = useLocalSearchParams<{ mes?: string }>();
+  const [mesSeuls, setMesSeuls] = useState(mes === '1');
   const [res, setRes] = useState<Record<string, Resultat>>({});
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [chargement, setChargement] = useState(true);
@@ -108,11 +116,13 @@ export default function Sondages() {
   }, []);
   useEffect(() => {
     charger();
-    AsyncStorage.multiGet(CAT.map((s) => 'ap.sondage:' + s.id)).then((paires) => {
+    const lireVotes = () => AsyncStorage.multiGet(CAT.map((s) => 'ap.sondage:' + s.id)).then((paires) => {
       const v: Record<string, number> = {};
       for (const [k, val] of paires) if (val !== null && /^\d+$/.test(val)) v[k.replace('ap.sondage:', '')] = +val;
       setVotes(v);
-    });
+    }).catch(() => undefined);
+    lireVotes();
+    return surCompte((e) => { if (e === 'donnees') lireVotes(); });   // votes reçus du compte pendant que l'écran est ouvert
   }, [charger]);
 
   const voter = async (s: Sondage, c: number): Promise<boolean> => {
@@ -122,23 +132,35 @@ export default function Sondages() {
       const x = await r.json();
       if (!x || !x.ok) return false;
       await AsyncStorage.setItem('ap.sondage:' + s.id, String(c));
+      pousser();   // compte connecté : le vote suit (le serveur le relie au jeton de vote du compte)
       setVotes((v) => ({ ...v, [s.id]: c }));
       setRes((prev) => ({ ...prev, [s.id]: { t: x.r.t, l: { ...(prev[s.id] ? prev[s.id].l : {}), [lg]: x.r.l } } }));
       return true;
     } catch { return false; }
   };
 
-  const liste = CAT.filter((s) => s.q[lg]).map((s, i) => ({ s, i, n: res[s.id] ? somme(res[s.id].t) : 0 })).sort((a, b) => b.n - a.n || a.i - b.i);
-  const total = liste.reduce((x, y) => x + y.n, 0);
+  const tous = CAT.filter((s) => s.q[lg]).map((s, i) => ({ s, i, n: res[s.id] ? somme(res[s.id].t) : 0 })).sort((a, b) => b.n - a.n || a.i - b.i);
+  const total = tous.reduce((x, y) => x + y.n, 0);
+  const liste = mesSeuls ? tous.filter(({ s }) => votes[s.id] !== undefined) : tous;
   return (
     <>
-      <Stack.Screen options={{ title: t.tous ? (UI[lg] ? titre(lg) : 'Sondages') : 'Sondages' }} />
+      <Stack.Screen options={{ title: mesSeuls ? T4.mesSondages : t.tous ? (UI[lg] ? titre(lg) : 'Sondages') : 'Sondages' }} />
       <ScrollView contentContainerStyle={styles.contenu}>
+        <View style={[F.puces, styles.puces]}>
+          <Puce titre={t.mesTous || titre(lg)} actif={!mesSeuls} onPress={() => setMesSeuls(false)} />
+          <Puce titre={T4.mesSondages} actif={mesSeuls} onPress={() => setMesSeuls(true)} />
+        </View>
         {chargement ? <ActivityIndicator color={COULEURS.primaire} /> : null}
         {indispo ? <Text style={styles.erreur}>{t.indispo}</Text> : null}
         {!chargement ? <Text style={styles.total}>{total ? fmt(t.total, total) + ' · ' + t.maj : t.vide}</Text> : null}
+        {mesSeuls && !liste.length ? (
+          <View style={styles.vide}>
+            <Text style={styles.videTxt}>{t.mesVide}</Text>
+            {!compte ? <Text style={styles.total}>{fmt(T4.mesCompte, TEXTES[lg].moi)}</Text> : null}
+          </View>
+        ) : null}
         {liste.map(({ s }) => (
-          <Item key={s.id} s={s} lg={lg} t={t} res={res[s.id]} vote={votes[s.id] ?? null} onVote={(c) => voter(s, c)} />
+          <Item key={s.id} s={s} lg={lg} t={t} res={res[s.id]} vote={votes[s.id] ?? null} onVote={(c) => voter(s, c)} mes={mesSeuls} />
         ))}
       </ScrollView>
     </>
@@ -171,4 +193,8 @@ const styles = StyleSheet.create({
   barre: { height: 10, borderRadius: 5, backgroundColor: COULEURS.fondDoux, overflow: 'hidden', marginTop: 2 },
   barreFond: { height: '100%', borderRadius: 5 },
   changer: { color: COULEURS.secondaireFonce, textDecorationLine: 'underline', fontSize: 13, marginTop: 8 },
+  puces: { marginBottom: 12 },
+  repondu: { color: COULEURS.texte, fontSize: 14, marginBottom: 8 },
+  vide: { paddingVertical: 14, gap: 8 },
+  videTxt: { fontSize: 15, lineHeight: 21, color: COULEURS.texte },
 });
