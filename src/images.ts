@@ -87,3 +87,13 @@ export const VIGNETTES: Record<string, Img> = {
   "garde": require('../assets/images/ia/vignettes/garde.webp'),
   "distance": require('../assets/images/ia/vignettes/distance.webp'),
 };
+export const EXERCICES: Record<string, Img> = {
+};
+export const MAYA: Record<string, Img> = {
+};
+export const PLANETES: Record<string, Img> = {
+};
+export const JEU2: Record<string, Img> = {
+};
+export const COUPLE: Record<string, Img> = {
+};

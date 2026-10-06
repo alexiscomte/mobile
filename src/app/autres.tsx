@@ -2,9 +2,11 @@
 // à partir des infos personnelles.
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
-import { ScrollView, Text } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 
 import { Bandeau, F, fmt, Note } from '@/components/form';
+import { Illustration } from '@/components/illustration';
+import { MAYA as MAYA_IMG } from '@/images';
 import { TEXTES2 } from '@/i18n2';
 import { ASTRO } from '@/moteur/astro';
 import { AZT, MAYA, maya, NAK, RASHI, textesAutres, vedic } from '@/moteur/autres';
@@ -40,6 +42,8 @@ export default function Autres() {
         ) : estMaya ? (
           <>
             <Text style={F.h2}>{X.ui.titre_m}</Text>
+            {/* le signe du jour maya en image (src/images.ts, MAYA, une scène par signe) */}
+            <View style={{ alignItems: 'center', marginBottom: 12 }}><Illustration image={MAYA_IMG[String(r.my.sign)]} taille={160} alt={MAYA[r.my.sign]} /></View>
             <Text style={[F.texte, F.gras]}>{fmt(X.ui.maya_res, r.my.number, MAYA[r.my.sign], X.maya[r.my.sign])}</Text>
             <Text style={F.texte}>{fmt(X.ui.azt, AZT[r.my.sign])}</Text>
             <Note>{X.ui.maya_note}</Note>

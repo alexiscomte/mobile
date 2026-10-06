@@ -4,7 +4,9 @@ import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
 
+import { Illustration } from '@/components/illustration';
 import { GLYPHES, TEXTES2 } from '@/i18n2';
+import { LUNE, PLANETES } from '@/images';
 import { ASTRO, type Carte } from '@/moteur/astro';
 import { textes } from '@/moteur/horoscope';
 import { carteDe, elements, GLYPHES_PLANETES, lecture, positions } from '@/moteur/theme';
@@ -82,7 +84,11 @@ export default function Theme() {
               <View style={styles.tr}><Text style={[styles.th, { flex: 2 }]}>{U.planete}</Text><Text style={[styles.th, { flex: 2 }]}>{U.signe}</Text><Text style={styles.th}>{U.degre}</Text>{r.heureConnue ? <Text style={styles.th}>{U.maison}</Text> : null}</View>
               {positions(r.carte, langue).map((x) => (
                 <View key={x.k} style={styles.tr}>
-                  <Text style={[styles.td, { flex: 2 }]}>{x.glyphe} {x.nom}</Text>
+                  <View style={[styles.td, styles.planete, { flex: 2 }]}>
+                    {/* image astronomique de la planète (src/images.ts, PLANETES) ; la Lune : LUNE ; le glyphe reste le libellé */}
+                    {PLANETES[x.k] || (x.k === 'moon' && LUNE) ? <Illustration image={x.k === 'moon' ? LUNE : PLANETES[x.k]} taille={24} rond alt={x.glyphe} /> : <Text style={styles.td}>{x.glyphe}</Text>}
+                    <Text style={styles.td}> {x.nom}</Text>
+                  </View>
                   <Text style={[styles.td, { flex: 2 }]}>{x.signe}</Text>
                   <Text style={styles.td}>{x.degre}{x.retro ? ' R' : ''}</Text>
                   {r.heureConnue ? <Text style={styles.td}>{x.maison ?? ''}</Text> : null}
@@ -119,6 +125,7 @@ const styles = StyleSheet.create({
   tr: { flexDirection: 'row', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COULEURS.bordure, paddingVertical: 6, paddingHorizontal: 8 },
   th: { flex: 1, fontWeight: '700', color: COULEURS.primaireFonce, fontSize: 13 },
   td: { flex: 1, color: COULEURS.texte, fontSize: 14 },
+  planete: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   elements: { marginTop: 10, color: COULEURS.texte },
   gras: { fontWeight: '700' },
   sousTitre: { fontSize: 18, fontWeight: '700', color: COULEURS.primaireFonce, marginTop: 16, marginBottom: 6 },

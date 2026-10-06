@@ -4,7 +4,9 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { Illustration } from '@/components/illustration';
 import type { Langue } from '@/i18n';
+import { JEU2 } from '@/images';
 import jeu2 from '@/moteur/jeu2.json';
 import ui from '@/moteur/ui.json';
 import { useProfil } from '@/profil';
@@ -232,9 +234,12 @@ function Resultats({ Q, N, t, x, onNouveau }: { Q: Q[]; N: number; t: Record<str
   const nom = (i: number) => J[i].prenom || (i === moi ? t.vous : t.partenaire);
   const score = (qui: number, sur: number) => { let n = 0; for (let i = 0; i < N; i++) if (R.devine[qui][i] === R.moi[sur][i]) n++; return n; };
   const s1 = score(moi, lui), s2 = score(lui, moi), pc = Math.round(100 * (s1 + s2) / (2 * N));
-  const verdict = pc >= 80 ? t.v80 : pc >= 60 ? t.v60 : pc >= 40 ? t.v40 : t.v0;
+  const palier = pc >= 80 ? 'v80' : pc >= 60 ? 'v60' : pc >= 40 ? 'v40' : 'v0';
+  const verdict = t[palier];
   return (
     <>
+      {/* une scène de couple accordée au palier du verdict (src/images.ts, JEU2) */}
+      <Illustration image={JEU2[palier]} taille={300} style={styles.verdictImage} />
       <Text style={styles.score}>{pc} %</Text>
       <Text style={[styles.muet, { textAlign: 'center' }]}>{t.ensemble}</Text>
       <Text style={styles.verdict}>{verdict}</Text>
@@ -286,6 +291,7 @@ const styles = StyleSheet.create({
   erreur: { color: COULEURS.coeur, fontSize: 15, marginBottom: 10 },
   score: { fontSize: 52, fontWeight: '800', color: COULEURS.primaire, textAlign: 'center', marginTop: 10 },
   verdict: { fontSize: 17, fontWeight: '600', textAlign: 'center', color: COULEURS.texte, marginVertical: 10 },
+  verdictImage: { width: '100%', aspectRatio: 1.5, height: undefined, alignSelf: 'center', marginBottom: 12 },
   detail: { paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COULEURS.bordure },
   detailQ: { fontWeight: '700', color: COULEURS.primaireFonce, marginBottom: 2 },
   detailL: { fontSize: 14, lineHeight: 20, color: COULEURS.texte },

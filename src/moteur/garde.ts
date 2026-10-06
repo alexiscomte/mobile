@@ -11,7 +11,7 @@ export const textesGarde = (lg: Langue): TextesGarde => TXT[lg] || TXT.en || TXT
 
 export type Rythme = 'sem' | 'r223' | 'r2255' | 'we';
 export const RYTHMES: Rythme[] = ['sem', 'r223', 'r2255', 'we'];
-const MOTIFS: Record<Rythme, number[] | null> = { sem: [7, 7], r223: [2, 2, 3, 2, 2, 3], r2255: [2, 2, 5, 5], we: null };
+export const MOTIFS: Record<Rythme, number[] | null> = { sem: [7, 7], r223: [2, 2, 3, 2, 2, 3], r2255: [2, 2, 5, 5], we: null };
 
 export const cle = (d: Date) => d.toISOString().slice(0, 10);
 export const plusJours = (d: Date, n: number) => { const x = new Date(d.getTime()); x.setUTCDate(x.getUTCDate() + n); return x; };

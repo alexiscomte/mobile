@@ -6,6 +6,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Bouton, Erreur, F, Note } from '@/components/form';
 import { ChoixLieu, type LieuChoisi } from '@/components/lieu';
+import { Horloges } from '@/components/schemas';
 import { TEXTES3 } from '@/i18n3';
 import { rendu, textesDistance, type Rendu } from '@/moteur/distance';
 import { ouvrir, ouvrirArticle } from '@/nav';
@@ -46,6 +47,8 @@ export default function Distance() {
             <Text style={[F.texte, F.gras]}>{res.distance}</Text>
             {res.trajet ? <Text style={F.texte}>{res.trajet}</Text> : null}
             <Text style={F.texte}>{res.decalage}</Text>
+            {/* deux horloges : 20 h chez vous, l'heure chez l'autre (components/schemas.tsx) */}
+            {Math.abs(res.diff) >= 0.01 && a && b ? <Horloges decalage={res.diff} noms={[a.ville || a.nomPays, b.ville || b.nomPays]} /> : null}
             <View style={F.encadre}><Text style={F.texte}>{res.bande}</Text></View>
             {res.pays ? (
               <>

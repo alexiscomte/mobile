@@ -5,7 +5,8 @@ import React, { useState } from 'react';
 import { Platform, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 
 import { Bouton, Champ, ChampDate, Erreur, F, fmt, Note, Puce } from '@/components/form';
-import { attribution, compter, grille, ics, RYTHMES, textesGarde, type Case, type Rythme } from '@/moteur/garde';
+import { FriseGarde } from '@/components/schemas';
+import { attribution, compter, grille, ics, MOTIFS, RYTHMES, textesGarde, type Case, type Rythme } from '@/moteur/garde';
 import { useProfil } from '@/profil';
 import { page } from '@/site';
 import { COULEURS } from '@/theme';
@@ -87,6 +88,8 @@ export default function Garde() {
         <View style={F.puces}>
           {RYTHMES.map((r) => <Puce key={r} titre={T[LIB[r]]} actif={r === rythme} onPress={() => setRythme(r)} />)}
         </View>
+        {/* deux semaines du rythme choisi, dans les couleurs du calendrier (components/schemas.tsx) */}
+        <FriseGarde motif={MOTIFS[rythme]} jours={T.jours} couleurs={COUL} noms={[p1.trim() || T.p1, p2.trim() || T.p2]} />
         <ChampDate label={T.debut} value={debut} onChange={setDebut} langue={langue} min={new Date(2000, 0, 1)} max={new Date(2100, 0, 1)} />
         <Champ label={T.p1} value={p1} onChangeText={setP1} maxLength={30} autoCapitalize="words" />
         <Champ label={T.p2} value={p2} onChangeText={setP2} maxLength={30} autoCapitalize="words" />

@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { ScrollView, Share, Text, View } from 'react-native';
 
 import { Bouton, Champ, Erreur, F, Note } from '@/components/form';
+import { Illustration } from '@/components/illustration';
+import { COUPLE } from '@/images';
 import { lecture, nombreCouple, nombres, norm, textesEpoux, type Lecture } from '@/moteur/epoux';
 import { useProfil } from '@/profil';
 import { page, SITE } from '@/site';
@@ -59,6 +61,8 @@ export default function Epoux() {
             {res.c !== null ? (
               <>
                 <Text style={F.h2}>{T.couple} : {res.c}</Text>
+                {/* le portrait du couple en image (src/images.ts, COUPLE, une scène par nombre) */}
+                <Illustration image={COUPLE[String(res.c)]} taille={300} style={{ width: '100%', aspectRatio: 1.5, height: undefined, marginBottom: 10 }} />
                 <Text style={F.texte}>{T.C[String(res.c)] || ''}</Text>
               </>
             ) : null}

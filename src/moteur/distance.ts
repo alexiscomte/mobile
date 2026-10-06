@@ -44,7 +44,7 @@ export function horloge(h: number, lg: string): string {
 
 export type LieuD = { code: string; lat: number; lon: number; ville?: string | null; nom: string };
 export type Rendu = {
-  distance: string; trajet?: string; decalage: string; bande: string;
+  distance: string; trajet?: string; decalage: string; bande: string; diff: number;    // diff : décalage horaire en heures (b − a), pour les horloges
   pays?: { memes: boolean; table?: [string, string, string][]; langue?: string; religion?: string; fiches: { titre: string; slug: string }[]; comparer?: { titre: string; a: string; b: string }; horsSite: string[] };
   note: string;
 };
@@ -63,7 +63,7 @@ export function rendu(lg: Langue, a: LieuD, b: LieuD, quand: Date = new Date()):
   if (Math.abs(diff) < 0.01) decalage = T.tz0;
   else { const la = 20 + diff, suffixe = la >= 24 ? T.lendemain : la < 0 ? T.veille : ''; decalage = fmt(T.tz, (diff > 0 ? '+' : '') + heures(diff, lg), horloge(la, lg), suffixe); }
   let bande = T.bandes[0]; for (const bb of T.bandes) if (d >= bb[0]) bande = bb;
-  const out: Rendu = { distance: distanceTxt, trajet, decalage, bande: bande[1], note: T.note };
+  const out: Rendu = { distance: distanceTxt, trajet, decalage, bande: bande[1], note: T.note, diff };
   if (a.code && b.code) {
     if (a.code === b.code) out.pays = { memes: true, fiches: [], horsSite: [] };
     else out.pays = culturePays(lg, a.code, b.code, na, nb);

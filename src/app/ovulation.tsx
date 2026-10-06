@@ -4,6 +4,7 @@ import { Stack } from 'expo-router';
 import React, { useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { FriseCycle } from '@/components/schemas';
 import outils from '@/moteur/outils_txt.json';
 import { useProfil } from '@/profil';
 import { page } from '@/site';
@@ -52,6 +53,8 @@ export default function Ovulation() {
         {res ? (
           <View style={styles.resultat}>
             <Text style={styles.titre}>{t.titre}</Text>
+            {/* frise du premier cycle : règles, fenêtre fertile, jour d'ovulation (schéma exact, components/schemas.tsx) */}
+            <FriseCycle c={parseInt(cycle, 10)} legendes={{ regles: t.regles_s, fenetre: t.fenetre, ovulation: t.ovu }} />
             {res.map((r) => (
               <View key={r.n} style={styles.cycle}>
                 <Text style={styles.cycleTitre}>{t.cycle_n.replace('%d', String(r.n))}</Text>

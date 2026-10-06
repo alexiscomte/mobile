@@ -1,9 +1,12 @@
 // Résumé « vos signes » : signe · signe chinois · ascendant (si connu) · forme du jour — même règle que le bandeau du site (espace.js).
+// Depuis le 06/10/2026, deux médaillons (signe du zodiaque, animal chinois, images IA de src/images.ts) ouvrent la ligne.
 import { useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { Illustration } from '@/components/illustration';
 import { TEXTES2 } from '@/i18n2';
+import { CHINOIS, ZODIAQUE } from '@/images';
 import { biorythmes } from '@/moteur/biorythme';
 import { signesDe, textes } from '@/moteur/horoscope';
 import { useProfil } from '@/profil';
@@ -25,21 +28,30 @@ export function ResumeSignes({ clair }: { clair?: boolean }) {
   if (!r) return null;
   const c = clair ? styles.clair : styles.sombre;
   return (
-    <View style={styles.ligne}>
-      <Pressable onPress={() => router.push('/horoscope')} accessibilityHint={T2.tipHoroscope}>
-        <Text style={[styles.item, c]}>{TA.signes[r.s.soleil]} · {TA.chinois.animaux[r.s.chinois.animal]}{r.s.ascendant !== null ? ` · ${T2.ascendant.toLowerCase()} ${TA.signes[r.s.ascendant]}` : ''}</Text>
+    <View style={styles.bloc}>
+      <Pressable onPress={() => router.push('/horoscope')} accessibilityHint={T2.tipHoroscope} style={styles.medaillons}>
+        <Illustration image={ZODIAQUE[r.s.soleil]} taille={44} rond alt={TA.signes[r.s.soleil]} />
+        <Illustration image={CHINOIS[r.s.chinois.animal]} taille={44} rond style={styles.second} alt={TA.chinois.animaux[r.s.chinois.animal]} />
       </Pressable>
-      {r.forme >= 0 ? (
-        <Pressable onPress={() => router.push('/biorythme')} accessibilityHint={T2.tipBio}>
-          <Text style={[styles.item, c]}>· {T2.forme} : {T2.niveaux[r.forme]}</Text>
+      <View style={styles.ligne}>
+        <Pressable onPress={() => router.push('/horoscope')} accessibilityHint={T2.tipHoroscope}>
+          <Text style={[styles.item, c]}>{TA.signes[r.s.soleil]} · {TA.chinois.animaux[r.s.chinois.animal]}{r.s.ascendant !== null ? ` · ${T2.ascendant.toLowerCase()} ${TA.signes[r.s.ascendant]}` : ''}</Text>
         </Pressable>
-      ) : null}
+        {r.forme >= 0 ? (
+          <Pressable onPress={() => router.push('/biorythme')} accessibilityHint={T2.tipBio}>
+            <Text style={[styles.item, c]}>· {T2.forme} : {T2.niveaux[r.forme]}</Text>
+          </Pressable>
+        ) : null}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  ligne: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' },
+  bloc: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  medaillons: { flexDirection: 'row', alignItems: 'center' },
+  second: { marginLeft: -10, borderWidth: 2, borderColor: COULEURS.fondDoux },
+  ligne: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' },
   item: { fontSize: 15, textDecorationLine: 'underline', fontWeight: '600' },
   sombre: { color: COULEURS.primaire },
   clair: { color: '#fff' },

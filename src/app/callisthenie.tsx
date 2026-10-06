@@ -5,6 +5,9 @@ import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 
 import { Bouton, Champ, Erreur, F, Note } from '@/components/form';
+import { Illustration } from '@/components/illustration';
+import { Assiette } from '@/components/schemas';
+import { EXERCICES } from '@/images';
 import { consigne, dp, fmt, nom, nutrition, plan, QS, reposCle, textesCal, type Plan, type Reponses, type TextesCal } from '@/moteur/callisthenie';
 import { useProfil } from '@/profil';
 import { page } from '@/site';
@@ -14,6 +17,19 @@ function Choix({ titre, actif, onPress }: { titre: string; actif: boolean; onPre
   return (
     <Pressable style={({ pressed }) => [styles.choix, actif && styles.choixActif, pressed && styles.presse]} onPress={onPress} accessibilityRole="button" accessibilityState={{ selected: actif }}>
       <Text style={[styles.choixTxt, actif && styles.choixTxtActif]}>{titre}</Text>
+    </Pressable>
+  );
+}
+
+// Illustration d'un exercice (posture, vue de profil) : vignette 3:2 à gauche du texte, en grand sur toute la largeur après un appui ;
+// rien si l'exercice n'a pas d'image
+function ImageExo({ id, grand, petit, onPress }: { id: string; grand: boolean; petit?: boolean; onPress: () => void }) {
+  const image = EXERCICES[id];
+  if (!image) return null;
+  const largeur = grand ? 320 : petit ? 84 : 112;
+  return (
+    <Pressable onPress={onPress} accessibilityRole="imagebutton" style={grand ? styles.exoImageGrand : styles.exoImage}>
+      <Illustration image={image} taille={largeur} style={{ width: largeur, height: Math.round(largeur * 2 / 3) }} />
     </Pressable>
   );
 }
@@ -39,6 +55,7 @@ export default function Callisthenie() {
   const [r, setR] = useState<Reponses>({});
   const [corps, setCorps] = useState<{ sexe?: string; age: string; taille: string; poids: string }>({ age: '', taille: '', poids: '' });
   const [erreur, setErreur] = useState('');
+  const [grand, setGrand] = useState<string | null>(null);     // exercice dont l'image est affichée en grand
   const fini = etape >= QS.length;
   const P = useMemo(() => (fini ? plan(r, T) : null), [fini, r, T]);
   const N = useMemo(() => (fini ? nutrition(r, T) : null), [fini, r, T]);
@@ -95,18 +112,35 @@ export default function Callisthenie() {
                 <Text style={styles.sous}>{T.plan.corps}{s.circuit ? ' — ' + fmt(T.plan.circuit, [s.series]) : ''}</Text>
                 {s.exos.map((e, k) => (
                   <View key={k} style={styles.exo}>
-                    <Text style={styles.exoNom}>{k + 1}. {nom(T, e.id)}{e.duo ? <Text style={styles.badge}>  {T.cat.duo.toUpperCase()}</Text> : null} — <Text style={styles.charge}>{s.circuit ? e.charge : fmt(T.plan.series, [e.series, e.charge])}</Text></Text>
-                    <Text style={styles.consigne}>{consigne(T, e.id)}</Text>
+                    {/* illustration de la posture (src/images.ts, EXERCICES, une par exercice) ; appui = en grand */}
+                    <ImageExo id={e.id} grand={grand === e.id} onPress={() => setGrand(grand === e.id ? null : e.id)} />
+                    <View style={styles.exoTextes}>
+                      <Text style={styles.exoNom}>{k + 1}. {nom(T, e.id)}{e.duo ? <Text style={styles.badge}>  {T.cat.duo.toUpperCase()}</Text> : null} — <Text style={styles.charge}>{s.circuit ? e.charge : fmt(T.plan.series, [e.series, e.charge])}</Text></Text>
+                      <Text style={styles.consigne}>{consigne(T, e.id)}</Text>
+                    </View>
                   </View>
                 ))}
                 <Text style={styles.p}>{fmt(T.plan.repos, [T.plan[reposCle(s.circuit, r.obj!)]])}</Text>
-                {s.fin ? <Text style={styles.p}>{fmt(T.plan.finisher, [fmt(T.plan.intervalles, [s.fin.n, nom(T, s.fin.id)])])}</Text> : null}
+                {s.fin ? (() => { const fin = s.fin; return (
+                  <View style={styles.exo}>
+                    <ImageExo id={fin.id} grand={grand === fin.id} onPress={() => setGrand(grand === fin.id ? null : fin.id)} />
+                    <Text style={[styles.p, styles.exoTextes]}>{fmt(T.plan.finisher, [fmt(T.plan.intervalles, [fin.n, nom(T, fin.id)])])}</Text>
+                  </View>
+                ); })() : null}
                 <Text style={styles.p}><Text style={styles.gras}>{T.plan.retour}</Text> — {T.plan.retour_duree}{dp(T)}{s.retour.map((id) => nom(T, id)).join(', ')}.</Text>
+                <View style={styles.retourImages}>
+                  {s.retour.map((id) => <ImageExo key={id} id={id} petit grand={grand === id} onPress={() => setGrand(grand === id ? null : id)} />)}
+                </View>
               </View>
             ))}
             <Text style={styles.h3}>{T.plan.progression}</Text>
             <Text style={styles.p}>{T.plan.prog_regle}</Text>
-            {P.prog.map((p, k) => <Text key={k} style={styles.puce}>• {fmt(T.plan.prog_vers, [nom(T, p[0]), nom(T, p[1])])}</Text>)}
+            {P.prog.map((p, k) => (
+              <View key={k} style={styles.progLigne}>
+                <ImageExo id={p[1]} petit grand={grand === 'prog-' + p[1]} onPress={() => setGrand(grand === 'prog-' + p[1] ? null : 'prog-' + p[1])} />
+                <Text style={[styles.puce, styles.exoTextes]}>• {fmt(T.plan.prog_vers, [nom(T, p[0]), nom(T, p[1])])}</Text>
+              </View>
+            ))}
             <Text style={styles.h3}>{T.plan.semaines}</Text>
             {T.plan.sem.map((x, k) => <Text key={k} style={styles.puce}>{k + 1}. {x}</Text>)}
             {r.duo === 'duo' ? <><Text style={styles.h3}>{T.plan.duo_titre}</Text><Text style={styles.p}>{T.plan.duo_note}</Text></> : null}
@@ -120,7 +154,15 @@ export default function Callisthenie() {
                 <Text style={styles.p}>{fmt(T.nut.prot, [N.prot!, N.gkg_txt!])} {fmt(T.nut.eau, N.eau!)}</Text>
               </>
             ) : <Text style={styles.p}>{T.nut.sans_mesures}</Text>}
-            <Text style={styles.h3}>{T.nut.assiette_titre}</Text><Text style={styles.p}>{T.nut.assiette[r.obj!]}</Text>
+            <Text style={styles.h3}>{T.nut.assiette_titre}</Text>
+            {/* assiette des proportions selon l'objectif (schéma exact, components/schemas.tsx) : moitié légumes, un quart protéines,
+                un quart féculents ; en trois tiers pour la prise de muscle */}
+            <View style={styles.assiette}>
+              <Assiette secteurs={r.obj === 'muscle'
+                ? [{ angle: 120, couleur: '#9DBF8A' }, { angle: 120, couleur: '#D8A0A0' }, { angle: 120, couleur: '#E3C27A' }]
+                : [{ angle: 180, couleur: '#9DBF8A' }, { angle: 90, couleur: '#D8A0A0' }, { angle: 90, couleur: '#E3C27A' }]} taille={110} />
+              <Text style={[styles.p, styles.exoTextes]}>{T.nut.assiette[r.obj!]}</Text>
+            </View>
             <Text style={styles.h3}>{T.nut.sources_titre}</Text><Text style={styles.p}>{T.nut.sources[r.regime!]}</Text>
             <Text style={styles.h3}>{T.nut.journee}</Text><Text style={styles.p}>{T.nut.portions[N.bande]}</Text>
             {T.nut.repas.map((rep, k) => <Text key={k} style={styles.puce}><Text style={styles.gras}>{rep}</Text>{dp(T)}{T.nut.menus[r.regime!][k]}</Text>)}
@@ -153,7 +195,13 @@ const styles = StyleSheet.create({
   puce: { fontSize: 15, lineHeight: 22, color: COULEURS.texte, marginLeft: 6, marginBottom: 2 },
   gras: { fontWeight: '700' },
   seance: { backgroundColor: COULEURS.fondMuet, borderRadius: 12, padding: 12, marginTop: 10 },
-  exo: { marginBottom: 8 },
+  exo: { marginBottom: 10, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', gap: 10 },
+  exoTextes: { flex: 1, minWidth: 160 },
+  exoImage: { borderRadius: 10, overflow: 'hidden' },
+  exoImageGrand: { width: '100%', alignItems: 'center', borderRadius: 12, overflow: 'hidden', marginBottom: 4 },
+  retourImages: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
+  progLigne: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 4 },
+  assiette: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 6 },
   exoNom: { fontSize: 15, lineHeight: 22, color: COULEURS.texte, fontWeight: '700' },
   charge: { fontWeight: '400' },
   consigne: { fontSize: 13, lineHeight: 18, color: COULEURS.texteMuet },
