@@ -6,12 +6,13 @@
 // Ce module n'importe ni profil.tsx ni les écrans (pas de cycle) : il prévient le contexte par surCompte().
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SITE } from './site';
+import { fusionnerCompat, K_CT } from './compat_tests';
 
 export type Compte = { courriel: string; session: string; sync: string | null; depuis?: string };
 export type Reponse = { ok?: boolean; erreur?: string; statut: number; [k: string]: unknown };
 type Score = { s?: number; n?: number; d?: string; t?: string; u?: string };
 type FavoriBrut = { url?: unknown; date?: unknown; [k: string]: unknown };
-type Donnees = { profil?: Record<string, unknown>; favoris?: FavoriBrut[]; scores?: Record<string, Score>; qdj?: unknown; jeu2?: unknown };
+type Donnees = { profil?: Record<string, unknown>; favoris?: FavoriBrut[]; scores?: Record<string, Score>; qdj?: unknown; jeu2?: unknown; compat?: unknown[] };
 
 const K_COMPTE = 'ap.compte', K_PROFIL = 'ap.profil', K_FAVS = 'ap.favoris', K_SJ = 'ap.sondage.jeton', K_QDJ = 'ap.qdj', K_JEU2 = 'ap.jeu2';
 const DELAI = 15000;           // délai d'un appel à l'API
@@ -99,7 +100,7 @@ export async function api(chemin: string, corps?: unknown, methode?: string): Pr
 /* ---- état local envoyé au compte : { profil, favoris, scores (apq:*), qdj?, jeu2? } ---- */
 async function etatLocal(): Promise<Donnees> {
   const cles = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith('apq:'));
-  const paires = await AsyncStorage.multiGet([K_PROFIL, K_FAVS, K_QDJ, K_JEU2, ...cles]);
+  const paires = await AsyncStorage.multiGet([K_PROFIL, K_FAVS, K_QDJ, K_JEU2, K_CT, ...cles]);
   const v = new Map(paires);
   const profil = lireJson(v.get(K_PROFIL));
   const favoris = lireJson(v.get(K_FAVS));
@@ -112,6 +113,7 @@ async function etatLocal(): Promise<Donnees> {
   };
   const q = lireJson(v.get(K_QDJ)); if (q) o.qdj = q;
   const j = lireJson(v.get(K_JEU2)); if (j) o.jeu2 = j;
+  const ct = lireJson(v.get(K_CT)); if (Array.isArray(ct) && ct.length) o.compat = ct;   // tests de compatibilité enregistrés (06/10/2026)
   return o;
 }
 
@@ -130,7 +132,7 @@ async function appliquer(j: Reponse) {
   const dn = (j.donnees && typeof j.donnees === 'object' ? j.donnees : {}) as Donnees;
   const sc = dn.scores && typeof dn.scores === 'object' && !Array.isArray(dn.scores) ? dn.scores : {};
   const clesScores = Object.keys(sc).map((id) => 'apq:' + id);
-  const v = new Map(await AsyncStorage.multiGet([K_PROFIL, K_FAVS, K_QDJ, K_JEU2, ...clesScores]));
+  const v = new Map(await AsyncStorage.multiGet([K_PROFIL, K_FAVS, K_QDJ, K_JEU2, K_CT, ...clesScores]));
   const ecrire: [string, string][] = [];
   // profil : fusion, le compte gagne quand il sait
   ecrire.push([K_PROFIL, JSON.stringify(fusionnerProfils(lireJson(v.get(K_PROFIL)), dn.profil))]);
@@ -152,6 +154,8 @@ async function appliquer(j: Reponse) {
   // question du jour et parties à deux : seulement si l'appareil n'en a pas
   if (dn.qdj && !lireJson(v.get(K_QDJ))) ecrire.push([K_QDJ, JSON.stringify(dn.qdj)]);
   if (dn.jeu2 && !lireJson(v.get(K_JEU2))) ecrire.push([K_JEU2, JSON.stringify(dn.jeu2)]);
+  // tests de compatibilité : fusion par test, la version la plus récente gagne (comme le serveur et le site)
+  if (Array.isArray(dn.compat)) ecrire.push([K_CT, JSON.stringify(fusionnerCompat(dn.compat, lireJson(v.get(K_CT))))]);
   // sondages : le jeton de vote du compte, puis les votes (index du choix, en chaîne)
   if (typeof j.sondage_jeton === 'string' && j.sondage_jeton) ecrire.push([K_SJ, j.sondage_jeton]);
   const s = j.sondages && typeof j.sondages === 'object' ? (j.sondages as Record<string, unknown>) : {};
@@ -215,6 +219,13 @@ async function ouvrir(j: Reponse) {
   if (!session) return;
   await garderCompte({ courriel, session, sync: null, depuis: new Date().toISOString().slice(0, 10) });
   await appliquer(j);
+  // connexion Google : le prénom du compte Google remplit « Mes infos » seulement si l'appareil et le compte n'en ont pas (compte.js)
+  if (typeof j.prenom_google === 'string' && j.prenom_google) {
+    try {
+      const pf = (lireJson(await AsyncStorage.getItem(K_PROFIL)) || {}) as Record<string, unknown>;
+      if (!pf.prenom) { pf.prenom = j.prenom_google.slice(0, 40); await AsyncStorage.setItem(K_PROFIL, JSON.stringify(pf)); }
+    } catch { /* stockage indisponible */ }
+  }
   await garderCompte({ courriel, session, sync: new Date().toISOString(), depuis: actuel?.depuis });
   signaler('donnees');
   sale = true;

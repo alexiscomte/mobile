@@ -12,6 +12,7 @@ import { estLangue, langueAppareil, type Langue } from './i18n';
 export type Lieu = { code: string; ville?: string | null; lat?: number | null; lon?: number | null };
 export type Profil = {
   prenom?: string;
+  sexe?: string;             // 'f' ou 'm' (facultatif, 06/10/2026 : compatibilité amoureuse, lecture védique)
   naissance?: string;        // AAAA-MM-JJ
   heure?: string;            // HH:MM
   rencontre?: string;        // AAAA-MM-JJ (compteur de couple du site, 06/10/2026)
@@ -25,7 +26,7 @@ export type Favori = { url: string; titre: string; lang?: string; date?: string 
 export type { Compte };
 
 const K = { profil: 'ap.profil', favoris: 'ap.favoris', langue: 'ap.langue', compte: 'ap.compte' };
-const CHAMPS = ['prenom', 'naissance', 'heure', 'rencontre', 'mariage', 'naissance_lieu', 'residence', 'courriel'];
+const CHAMPS = ['prenom', 'sexe', 'naissance', 'heure', 'rencontre', 'mariage', 'naissance_lieu', 'residence', 'courriel'];
 const RX_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 type Etat = {
@@ -51,6 +52,7 @@ function nettoyer(p: unknown): Profil {
   const x = p as Record<string, unknown>;
   const out: Profil = {};
   if (typeof x.prenom === 'string') out.prenom = x.prenom.slice(0, 40);
+  if (x.sexe === 'f' || x.sexe === 'm') out.sexe = x.sexe;
   if (typeof x.naissance === 'string' && RX_DATE.test(x.naissance)) out.naissance = x.naissance;
   if (typeof x.heure === 'string' && /^\d{2}:\d{2}/.test(x.heure)) out.heure = x.heure.slice(0, 5);
   if (typeof x.rencontre === 'string' && RX_DATE.test(x.rencontre)) out.rencontre = x.rencontre;
@@ -220,6 +222,7 @@ export function useProfil(): Etat {
 export function profilPourSite(p: Profil): Profil {
   const out: Profil = {};
   if (p.prenom) out.prenom = p.prenom;
+  if (p.sexe) out.sexe = p.sexe;
   if (p.naissance) out.naissance = p.naissance;
   if (p.heure) out.heure = p.heure;
   if (p.rencontre) out.rencontre = p.rencontre;

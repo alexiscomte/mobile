@@ -1,14 +1,18 @@
 // Compatibilité amoureuse, native : les sept lectures du site (assets/js/compat.js) avec les textes du site (compat_txt.json).
-import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+// 06/10/2026 : sexe facultatif (sens traditionnel de la lecture védique), « Enregistrer ce test » (compat_tests.ts, clé ap.compat
+// synchronisée avec le compte), ouverture d'un test enregistré (paramètre id, depuis l'écran mes-compat), lien vers la liste.
+import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Bouton, Champ, ChampDate, ChampHeure, Erreur, F, Note } from '@/components/form';
+import { Bouton, Champ, ChampDate, ChampHeure, Erreur, F, Note, Puce } from '@/components/form';
+import { enregistrerTest, testParId, testsVisibles } from '@/compat_tests';
+import { pousser } from '@/compte';
 import { Illustration } from '@/components/illustration';
 import { TEXTES } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
 import { CHINOIS, ZODIAQUE } from '@/images';
-import { compatibilite, plat, textesCompat, type Personne, type Resultat, type Section } from '@/moteur/compat';
+import { compatibilite, plat, textesCompat, textesS, type Personne, type Resultat, type Section } from '@/moteur/compat';
 import { signesDe, textes as textesAstro } from '@/moteur/horoscope';
 import { ouvrirArticle, resoudre } from '@/nav';
 import { useProfil } from '@/profil';
@@ -62,17 +66,52 @@ export default function Compat() {
   const [n2, setN2] = useState('');
   const [d2, setD2] = useState('');
   const [h2, setH2] = useState('');
+  const [g1, setG1] = useState(profil.sexe || '');
+  const [g2, setG2] = useState('');
   const [res, setRes] = useState<Resultat | null>(null);
   const [erreur, setErreur] = useState('');
+  const [garde, setGarde] = useState('');           // '' | 'ok' | 'ko'
+  const [nbTests, setNbTests] = useState(0);
+  const S = textesS(langue);
+  const { id } = useLocalSearchParams<{ id?: string }>();
 
-  const calculer = () => {
-    const a = dateUTC(d1), b = dateUTC(d2), dates = !!(a && b), noms = !!(plat(n1) && plat(n2));
+  // nombre de tests enregistrés (lien « Mes tests enregistrés (N) »), relu au retour sur l'écran
+  useFocusEffect(useCallback(() => { testsVisibles().then((a) => setNbTests(a.length)).catch(() => undefined); }, []));
+
+  const calculerAvec = (v: { n1: string; d1: string; h1: string; g1: string; n2: string; d2: string; h2: string; g2: string }) => {
+    const a = dateUTC(v.d1), b = dateUTC(v.d2), dates = !!(a && b), noms = !!(plat(v.n1) && plat(v.n2));
     if (!dates && !noms) { setErreur(U.manque); setRes(null); return; }
-    setErreur('');
-    const p: Personne = { n: n1.trim() || U.p1, d: a || new Date(0), h: heureNum(h1), tz };
-    const q: Personne = { n: n2.trim() || U.p2, d: b || new Date(0), h: heureNum(h2), tz };
+    setErreur(''); setGarde('');
+    const p: Personne = { n: v.n1.trim() || U.p1, d: a || new Date(0), h: heureNum(v.h1), tz, g: v.g1 };
+    const q: Personne = { n: v.n2.trim() || U.p2, d: b || new Date(0), h: heureNum(v.h2), tz, g: v.g2 };
     setRes(compatibilite(langue, p, q, dates, noms));
   };
+  const calculer = () => calculerAvec({ n1, d1, h1, g1, n2, d2, h2, g2 });
+
+  // test enregistré ouvert depuis « Mes tests de compatibilité » : champs remplis, calcul immédiat
+  useEffect(() => {
+    if (!id) return;
+    testParId(String(id)).then((t) => {
+      if (!t || !t.p1 || !t.p2) return;
+      const v = { n1: t.p1.n || '', d1: t.p1.d || '', h1: t.p1.h || '', g1: t.p1.g || '', n2: t.p2.n || '', d2: t.p2.d || '', h2: t.p2.h || '', g2: t.p2.g || '' };
+      setN1(v.n1); setD1(v.d1); setH1(v.h1); setG1(v.g1); setN2(v.n2); setD2(v.d2); setH2(v.h2); setG2(v.g2);
+      calculerAvec(v);
+    }).catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  const garder = async () => {
+    if (!res) return;
+    const pers = (n: string, d: string, h: string, g: string) => ({ n: n.trim().slice(0, 40), d, ...(h ? { h } : {}), ...(g ? { g } : {}) });
+    const ok = await enregistrerTest({ lg: langue, s: res.total, r: res.r, z: res.z, c: res.c, p1: pers(n1, d1, h1, g1), p2: pers(n2, d2, h2, g2) });
+    setGarde(ok ? 'ok' : 'ko');
+    if (ok) { pousser(); setNbTests((await testsVisibles()).length); }
+  };
+  const choixSexe = (val: string, set: (v: string) => void) => (
+    <View style={styles.puces}>
+      {([['', S.np], ['f', S.f], ['m', S.m]] as [string, string][]).map(([v, t]) => <Puce key={v || 'np'} titre={t} actif={val === v} onPress={() => set(v)} />)}
+    </View>
+  );
   const ouvrir = (rel: string) => ouvrirArticle(router, resoudre(base, rel));
 
   return (
@@ -83,15 +122,20 @@ export default function Compat() {
           <>
             <Text style={F.h2}>{U.p1}</Text>
             <Champ label={U.prenom} value={n1} onChangeText={setN1} maxLength={40} autoCapitalize="words" />
+            <Text style={F.label}>{S.sexe}</Text>
+            {choixSexe(g1, setG1)}
             <ChampDate label={U.date} value={d1} onChange={setD1} langue={langue} max={new Date()} />
             <ChampHeure label={U.heure} inconnue={T1.heureInconnue} value={h1} onChange={setH1} langue={langue} />
             <Text style={F.h2}>{U.p2}</Text>
             <Champ label={U.prenom} value={n2} onChangeText={setN2} maxLength={40} autoCapitalize="words" />
+            <Text style={F.label}>{S.sexe}</Text>
+            {choixSexe(g2, setG2)}
             <ChampDate label={U.date} value={d2} onChange={setD2} langue={langue} max={new Date()} />
             <ChampHeure label={U.heure} inconnue={T1.heureInconnue} value={h2} onChange={setH2} langue={langue} />
             <Bouton titre={U.go} onPress={calculer} />
             <Erreur>{erreur}</Erreur>
             <Note>{U.note}</Note>
+            {nbTests ? <Pressable onPress={() => router.push('/mes-compat')}><Text style={F.lien}>{S.mes.replace('%s', String(nbTests))} →</Text></Pressable> : null}
           </>
         ) : (
           <>
@@ -130,6 +174,9 @@ export default function Compat() {
             <Text style={F.h2}>{T.fin.titre}</Text>
             <Text style={F.texte}>{T.fin.texte}</Text>
             {T.fin.liens.map(([t, u]) => <Pressable key={u} onPress={() => ouvrir(u)}><Text style={F.lien}>→ {t}</Text></Pressable>)}
+            <Bouton titre={garde === 'ok' ? '✓ ' + S.garde : S.garder} onPress={garder} disabled={garde === 'ok'} />
+            {garde === 'ko' ? <Erreur>{S.plein}</Erreur> : null}
+            {garde === 'ok' ? <Pressable onPress={() => router.push('/mes-compat')}><Text style={F.lien}>{S.voir} →</Text></Pressable> : null}
             <Bouton titre={U.refaire} onPress={() => setRes(null)} secondaire />
             <Note>{U.note}</Note>
           </>
@@ -160,4 +207,5 @@ const styles = StyleSheet.create({
   personneNom: { fontSize: 16, fontWeight: '700', color: COULEURS.primaireFonce },
   personneSignes: { fontSize: 12, color: COULEURS.texteMuet, textAlign: 'center' },
   coeur: { fontSize: 26, color: COULEURS.coeur, marginHorizontal: 6 },
+  puces: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 6 },
 });

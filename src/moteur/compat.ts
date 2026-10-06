@@ -4,6 +4,7 @@
 import type { Langue } from '../i18n';
 import { ASTRO } from './astro';
 import compatTxt from './compat_txt.json';
+import ui from './ui.json';
 
 type Verdict3 = [string, string, number];
 export type Textes = {
@@ -26,9 +27,10 @@ export function textesCompat(lg: Langue): { t: Textes; ny: [number, number, numb
   return D[lg] || D.en || D.fr;
 }
 
-export type Personne = { n: string; d: Date; h: number | null; tz: number };
+/** g : sexe facultatif ('f', 'm' ou '') : sens traditionnel de la lecture védique pour un couple femme-homme (06/10/2026). */
+export type Personne = { n: string; d: Date; h: number | null; tz: number; g?: string };
 export type Ligne = { gras: string; texte: string };
-export type Section = { titre: string; intro: string; lignes: Ligne[]; verdict?: { titre: string; texte: string }; extra?: string[]; score: number | null; caveat: string; lien?: string; tableau?: [string, string][] };
+export type Section = { k?: string; titre: string; intro: string; lignes: Ligne[]; verdict?: { titre: string; texte: string }; extra?: string[]; score: number | null; caveat: string; lien?: string; tableau?: [string, string][] };
 
 const fmt = (s: string, ...v: (string | number)[]) => { let i = 0; return String(s).replace(/%[sd]/g, () => String(v[i++] ?? '')); };
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -66,7 +68,7 @@ function lectureZodiac(T: Textes, p: Personne, q: Personne): Section {
     const type = pair === '0-2' || pair === '1-3' ? 'compl' : pair === '0-3' || pair === '1-2' ? 'tension' : 'voisin';
     txt = fmt(T.zod.elem_rel[type], cap(T.zod.elements_art[ea]), T.zod.elements_art[eb]);
   }
-  return { titre: T.zod.titre, intro: T.zod.intro, lignes: [
+  return { k: 'zod', titre: T.zod.titre, intro: T.zod.intro, lignes: [
       { gras: fmt(T.zod.signe_de, p.n, T.zod.noms[za], T.zod.elements[ea], T.zod.modes[za % 3]), texte: T.zod.profils[za] },
       { gras: fmt(T.zod.signe_de, q.n, T.zod.noms[zb], T.zod.elements[eb], T.zod.modes[zb % 3]), texte: T.zod.profils[zb] },
     ], verdict: { titre: asp[0], texte: asp[1] + ' ' + txt }, score: asp[2], caveat: T.zod.caveat, lien: T.liens.zod };
@@ -85,7 +87,7 @@ const ENGENDRE: Record<number, number> = { 2: 3, 3: 4, 4: 0, 0: 1, 1: 2 };
 const CONTROLE: Record<number, number> = { 2: 4, 4: 1, 1: 3, 3: 0, 0: 2 };
 function lectureChin(T: Textes, NY: [number, number, number][], p: Personne, q: Personne): Section {
   const ya = lunaire(NY, p.d), yb = lunaire(NY, q.d);
-  const base = { titre: T.chin.titre, intro: T.chin.intro };
+  const base = { k: 'chin', titre: T.chin.titre, intro: T.chin.intro };
   if (ya === null || yb === null) return { ...base, lignes: [], score: null, caveat: T.ui.hors };
   const aa = ((ya - 1924) % 12 + 12) % 12, ab = ((yb - 1924) % 12 + 12) % 12, ea = elemChin(ya), eb = elemChin(yb);
   const v = aa === ab ? 'meme' : SECRET[aa] === ab ? 'secret' : aa % 4 === ab % 4 ? 'trigone' : (aa + 6) % 12 === ab ? 'oppose' : 'neutre';
@@ -114,7 +116,7 @@ function lectureBio(T: Textes, p: Personne, q: Personne): Section {
   }
   const moy = Math.round(total / 3);
   let lot = T.bio.bilans[0]; for (const b of T.bio.bilans) if (moy >= b[0]) lot = b;
-  return { titre: T.bio.titre, intro: T.bio.intro, lignes: [], tableau, verdict: { titre: lot[1], texte: lot[2] + ' ' + fmt(T.bio.ecart, ecart) }, score: moy, caveat: T.bio.caveat, lien: T.liens.bio };
+  return { k: 'bio', titre: T.bio.titre, intro: T.bio.intro, lignes: [], tableau, verdict: { titre: lot[1], texte: lot[2] + ' ' + fmt(T.bio.ecart, ecart) }, score: moy, caveat: T.bio.caveat, lien: T.liens.bio };
 }
 
 /* ------------------------------------------------------ numérologie */
@@ -138,7 +140,7 @@ function descNombre(T: Textes, n: number): string {
 }
 function lectureNom(T: Textes, p: Personne, q: Personne): Section {
   const a = valeurs(p.n), b = valeurs(q.n), v = verdictNombres(T, a.expr, b.expr);
-  return { titre: T.nom.titre, intro: T.nom.intro, lignes: [
+  return { k: 'nom', titre: T.nom.titre, intro: T.nom.intro, lignes: [
       { gras: fmt(T.nom.de, p.n, a.expr, a.intime, a.real), texte: descNombre(T, a.expr) },
       { gras: fmt(T.nom.de, q.n, b.expr, b.intime, b.real), texte: descNombre(T, b.expr) },
     ], verdict: { titre: v[0], texte: v[1] }, score: v[2], caveat: T.nom.caveat, lien: T.liens.nom };
@@ -148,7 +150,7 @@ function chemin(d: Date): number {
 }
 function lectureVie(T: Textes, p: Personne, q: Personne): Section {
   const a = chemin(p.d), b = chemin(q.d), v = verdictNombres(T, a, b);
-  return { titre: T.vie.titre, intro: T.vie.intro, lignes: [
+  return { k: 'vie', titre: T.vie.titre, intro: T.vie.intro, lignes: [
       { gras: fmt(T.vie.de, p.n, a), texte: descNombre(T, a) }, { gras: fmt(T.vie.de, q.n, b), texte: descNombre(T, b) },
     ], verdict: { titre: v[0], texte: v[1] }, score: v[2], caveat: T.vie.caveat, lien: T.liens.vie };
 }
@@ -161,7 +163,7 @@ function lectureAge(T: Textes, p: Personne, q: Personne): Section {
   if (mois < 0) { ans -= 1; mois += 12; }
   const ecart = ans === 0 && mois === 0 ? T.age.meme_jour : ans + ' ' + T.ui.ans + (mois ? ' ' + T.ui.et + ' ' + mois + ' ' + T.ui.mois : '');
   let lot = T.age.bandes[0]; for (const k of T.age.bandes) if (ans >= k[0]) lot = k;
-  return { titre: T.age.titre, intro: fmt(T.age.intro, ecart), lignes: [], verdict: { titre: '', texte: lot[1] }, score: null, caveat: T.age.caveat, lien: T.liens.age };
+  return { k: 'age', titre: T.age.titre, intro: fmt(T.age.intro, ecart), lignes: [], verdict: { titre: '', texte: lot[1] }, score: null, caveat: T.age.caveat, lien: T.liens.age };
 }
 
 /* ------------------------------------------------------------- FLAMES */
@@ -170,7 +172,7 @@ function lectureFlames(T: Textes, p: Personne, q: Personne): Section {
   for (let i = 0; i < a.length; i++) { const j = b.indexOf(a[i]); if (j !== -1) { b.splice(j, 1); a.splice(i, 1); i -= 1; } }
   const n = a.length + b.length, lettres = ['F', 'L', 'A', 'M', 'E', 'S']; let pos = 0;
   while (lettres.length > 1 && n > 0) { pos = (pos + n - 1) % lettres.length; lettres.splice(pos, 1); if (pos >= lettres.length) pos = 0; }
-  return { titre: T.flames.titre, intro: T.flames.intro, lignes: [{ gras: '', texte: fmt(T.flames.restent, n) }], verdict: { titre: T.flames.resultats[lettres[0]], texte: '' }, score: null, caveat: T.flames.caveat };
+  return { k: 'flames', titre: T.flames.titre, intro: T.flames.intro, lignes: [{ gras: '', texte: fmt(T.flames.restent, n) }], verdict: { titre: T.flames.resultats[lettres[0]], texte: '' }, score: null, caveat: T.flames.caveat };
 }
 
 /* ------------------------------------------------- védique (guna milan) */
@@ -194,42 +196,55 @@ function moonSid(d: Date, h: number | null, tz: number) {
   const ay = 23.853 + 1.39697 * (j - 2451545.0) / 36525, lon = ASTRO.norm(ASTRO.moonLon(j) - ay);
   return { lon, r: Math.floor(lon / 30), deg: lon % 30, nak: Math.floor(lon / (360 / 27)), change: ASTRO.sign(ASTRO.norm(ASTRO.moonLon(j - 0.5) - ay)) !== ASTRO.sign(ASTRO.norm(ASTRO.moonLon(j + 0.5) - ay)) };
 }
-function kutas(a: ReturnType<typeof moonSid>, b: ReturnType<typeof moonSid>): number[] {
+/** sens : 1 si a est la femme et b l'homme, -1 l'inverse, 0 sans sexe précisé ou pour un couple de même sexe (même règle que compat.js). */
+function kutas(a: ReturnType<typeof moonSid>, b: ReturnType<typeof moonSid>, sens: number): number[] {
   const pts: number[] = [];
-  pts.push(VARNA[a.r] <= VARNA[b.r] || VARNA[b.r] <= VARNA[a.r] ? 1 : 0);
+  const vf = sens === 1 ? a : sens === -1 ? b : null, vm = sens === 1 ? b : sens === -1 ? a : null;
+  pts.push(vf && vm ? (VARNA[vm.r] <= VARNA[vf.r] ? 1 : 0) : 1);
   const va = vashya(a.r, a.deg), vb = vashya(b.r, b.deg); pts.push(Math.max(VASHYA_PTS[va][vb], VASHYA_PTS[vb][va]));
   const tara = (x: number, y: number) => { const c = ((y - x) % 27 + 27) % 27 + 1, m = c % 9; return m === 3 || m === 5 || m === 7 ? 0 : 1; };
   const t = tara(a.nak, b.nak) + tara(b.nak, a.nak); pts.push(t === 2 ? 3 : t === 1 ? 1.5 : 0);
   const ya = YONI[a.nak], yb = YONI[b.nak], key = Math.min(ya, yb) + '-' + Math.max(ya, yb); pts.push(ya === yb ? 4 : YONI_ENNEMI[key] ? 0 : 2);
   const ma = MAITRE[a.r], mb = MAITRE[b.r], f1 = AMIS[ma][mb], f2 = AMIS[mb][ma];
   pts.push(ma === mb || (f1 === 2 && f2 === 2) ? 5 : f1 + f2 === 3 ? 4 : f1 === 1 && f2 === 1 ? 3 : f1 + f2 === 2 && f1 !== f2 ? 1 : f1 + f2 === 1 ? 0.5 : 0);
-  const ga = GANA[a.nak], gb = GANA[b.nak]; pts.push(ga === gb ? 6 : ga + gb === 1 ? 6 : ga + gb === 2 && ga !== gb ? 1 : 0);
+  const ga = GANA[a.nak], gb = GANA[b.nak], dvMh = !!(vf && vm && GANA[vf.nak] === 0 && GANA[vm.nak] === 1);
+  pts.push(ga === gb ? 6 : ga + gb === 1 ? (dvMh ? 5 : 6) : ga + gb === 2 && ga !== gb ? 1 : 0);
   const dr = ((b.r - a.r) % 12 + 12) % 12; pts.push(dr === 1 || dr === 11 || dr === 4 || dr === 8 || dr === 5 || dr === 7 ? 0 : 7);
   pts.push(NADI[a.nak] === NADI[b.nak] ? 0 : 8);
   return pts;
 }
-function lectureVed(T: Textes, p: Personne, q: Personne): Section | null {
+function lectureVed(T: Textes, lg: Langue, p: Personne, q: Personne): Section | null {
   if (!T.ved) return null;
   const a = moonSid(p.d, p.h, p.tz), b = moonSid(q.d, q.h, q.tz);
-  const pts = kutas(a, b), total = pts.reduce((x, y) => x + y, 0);
+  const sens = p.g === 'f' && q.g === 'm' ? 1 : p.g === 'm' && q.g === 'f' ? -1 : 0;
+  const pts = kutas(a, b, sens), total = pts.reduce((x, y) => x + y, 0);
   let bilan = T.ved.bilans[0]; for (const bb of T.ved.bilans) if (total >= bb[0]) bilan = bb;
   const MAX = [1, 2, 3, 4, 5, 6, 7, 8];
   const extra: string[] = [];
   if ((typeof p.h !== 'number' && a.change) || (typeof q.h !== 'number' && b.change)) extra.push(T.ved.sans_heure);
-  return { titre: T.ved.titre, intro: T.ved.intro, lignes: [
+  const S = textesS(lg); if (S) extra.push(sens ? S.vedTrad : S.vedSym);
+  return { k: 'ved', titre: T.ved.titre, intro: T.ved.intro, lignes: [
       { gras: fmt(T.ved.lune_de, p.n, RASHI[a.r], T.zod.noms[a.r], NAK_NOMS[a.nak]), texte: '' },
       { gras: fmt(T.ved.lune_de, q.n, RASHI[b.r], T.zod.noms[b.r], NAK_NOMS[b.nak]), texte: '' },
     ], tableau: T.ved.kutas.map((k, i) => [k, String(pts[i]).replace('.', ',') + ' / ' + MAX[i]] as [string, string]),
     verdict: { titre: fmt(T.ved.total, String(total).replace('.', ',')), texte: bilan[1] }, extra, score: Math.round(total / 36 * 100), caveat: T.ved.caveat, lien: T.liens.ved };
 }
 
-export type Resultat = { total: number | null; sections: Section[]; avis: string[] };
+/** Textes ajoutés le 06/10/2026 (sexe, tests enregistrés) : var S de compat.js, exportés par app_moteurs.py (ui.json « compatS »). */
+export type TextesS = { sexe: string; np: string; f: string; m: string; garder: string; garde: string; voir: string; mes: string; plein: string; vedTrad: string; vedSym: string };
+export function textesS(lg: Langue): TextesS {
+  const S = (ui as unknown as { compatS: Record<string, TextesS> }).compatS;
+  return S[lg] || S.fr;
+}
+
+/** r : score de chaque lecture chiffrée (clé zod, chin, ved, bio, nom, vie) ; z, c : signes du zodiaque et animaux chinois des deux personnes. */
+export type Resultat = { total: number | null; sections: Section[]; avis: string[]; r: Record<string, number>; z: [number, number] | null; c: [number, number] | null };
 
 /** Le test complet. dates : les deux dates sont connues ; noms : les deux prénoms sont utilisables. */
 export function compatibilite(lg: Langue, p: Personne, q: Personne, dates: boolean, noms: boolean): Resultat {
   const { t: T, ny: NY } = textesCompat(lg);
   const parts: Section[] = [];
-  if (dates) { parts.push(lectureZodiac(T, p, q), lectureChin(T, NY, p, q)); const v = lectureVed(T, p, q); if (v) parts.push(v); parts.push(lectureBio(T, p, q)); }
+  if (dates) { parts.push(lectureZodiac(T, p, q), lectureChin(T, NY, p, q)); const v = lectureVed(T, lg, p, q); if (v) parts.push(v); parts.push(lectureBio(T, p, q)); }
   if (noms) parts.push(lectureNom(T, p, q));
   if (dates) parts.push(lectureVie(T, p, q), lectureAge(T, p, q));
   if (noms) parts.push(lectureFlames(T, p, q));
@@ -238,5 +253,13 @@ export function compatibilite(lg: Langue, p: Personne, q: Personne, dates: boole
   const avis: string[] = [];
   if (!dates) avis.push(T.ui.sans_dates);
   if (!noms) avis.push(T.ui.sans_prenoms);
-  return { total: nb ? Math.round(somme / nb) : null, sections: parts, avis };
+  const r: Record<string, number> = {};
+  for (const x of parts) if (x.k && x.score !== null) r[x.k] = x.score;
+  let z: [number, number] | null = null, c: [number, number] | null = null;
+  if (dates) {
+    z = [zodiac(p.d), zodiac(q.d)];
+    const ya = lunaire(NY, p.d), yb = lunaire(NY, q.d);
+    if (ya !== null && yb !== null) c = [((ya - 1924) % 12 + 12) % 12, ((yb - 1924) % 12 + 12) % 12];
+  }
+  return { total: nb ? Math.round(somme / nb) : null, sections: parts, avis, r, z, c };
 }
