@@ -1,13 +1,18 @@
 // Mes informations personnelles (espace membre, 07/10/2026) : le formulaire de l'onglet Moi, plus l'adresse électronique, les lieux de
 // naissance et de résidence (choix natif, comme lieu.js du site) et la case « Abonnement à la newsletter » (comme espace.js) :
 // connecté = abonnement direct (compte.ts lettre) ; sans compte = double opt-in (lettre.ts abonnerInvite). Sans compte, tout reste ici.
+// Ordre (07/10/2026 nuit, cahier specs/espace-membre-retouches-0710.md, décisions 2, 3 et 7 ; comme espace.js monterEspace) : d'abord le
+// FORMULAIRE, puis le rappel des signes (date connue), puis le texte selon l'état (infosCompte / infosLocal du site), puis « Mon compte »
+// (components/mon-compte.tsx : Changer mon mot de passe, Supprimer mon compte avec confirmation ; sans compte, Se connecter / Créer un
+// compte). Plus de « Connecté : … », de synchronisation à la main ni de « Se déconnecter » ici (l'onglet Moi les a).
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
-import { Puce } from '@/components/form';
+import { F, Puce } from '@/components/form';
 import { ChoixLieu, type LieuChoisi } from '@/components/lieu';
+import { MonCompte, texteInfos } from '@/components/mon-compte';
 import { ResumeSignes } from '@/components/resume-signes';
 import { lettre } from '@/compte';
 import { TEXTES, fmt } from '@/i18n';
@@ -140,11 +145,15 @@ export default function MesInfos() {
         </View>
         <Text style={styles.aide}>{note}</Text>
 
-        <Pressable style={({ pressed }) => [styles.bouton, pressed && styles.presse]} onPress={enregistrer}>
+        <Pressable style={({ pressed }) => [styles.bouton, pressed && styles.presse]} onPress={enregistrer} accessibilityRole="button">
           <Text style={styles.boutonTxt}>{T.enregistrer}</Text>
         </Pressable>
-        {message ? <Text style={styles.message}>{message}</Text> : null}
-        <View style={styles.resume}><ResumeSignes /></View>
+        {message ? <Text style={styles.message} accessibilityLiveRegion="polite">{message}</Text> : null}
+        {profil.naissance ? <View style={styles.resume}><ResumeSignes /></View> : null}
+
+        {/* le texte vient APRÈS le formulaire (décision 2), puis l'encadré du compte */}
+        <Text style={[F.texte, styles.explic]}>{texteInfos(langue, !!compte)}</Text>
+        <MonCompte />
       </ScrollView>
     </>
   );
@@ -166,4 +175,5 @@ const styles = StyleSheet.create({
   presse: { opacity: 0.8 },
   message: { color: COULEURS.vert, marginTop: 8, textAlign: 'center' },
   resume: { marginTop: 14, backgroundColor: COULEURS.fondDoux, borderRadius: 12, padding: 12 },
+  explic: { marginTop: 22, color: COULEURS.texteMuet },
 });

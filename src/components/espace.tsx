@@ -1,5 +1,7 @@
 // Briques communes des écrans de l'espace membre (07/10/2026, soir ; cahier specs/espace-membre-reduit-0710.md) : texte avec un lien
-// à la place de « %s », invitation à se connecter (Se connecter / Créer un compte), pastille de présence, liste des connexions, dates.
+// à la place de « %s » ou entre crochets, invitation à se connecter (Se connecter / Créer un compte), pastille de présence, liste des
+// connexions, dates ; écran « Mes outils » (PageOutils : « Mon astrologie » y est fusionnée depuis le 07/10/2026 nuit, cahier
+// specs/espace-membre-retouches-0710.md, décisions 5 et 7).
 // Tout texte venu d'un utilisateur ou du serveur est affiché tel quel dans un <Text> (jamais interprété).
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
@@ -22,15 +24,18 @@ import { COULEURS } from '@/theme';
 export type TX = Record<string, string>;
 /** Textes de messages.js (messagerie, présence, historique), exportés par app_moteurs.py. */
 export const UI_M = (ui as unknown as { messages: Record<string, TX> }).messages;
-/** Textes d'espace.js (ongAstro, astroVos, aime…). */
+/** Textes d'espace.js (ongOutils, astroVos, aime…). */
 export const UI_E = (ui as unknown as { espace: Record<string, TX> }).espace;
-/** Textes des pages du site « Mon astrologie », « Mes outils », « Mon historique de connexion » (espace_membre.P : lead, intro et note
- *  avec %s = lien vers « Mes informations personnelles », h2). */
-export type PageEspace = { lead: string; intro?: string; h2?: string; note?: string };
+/** Textes des pages du site reprises en écrans natifs (espace_membre.P, par app_moteurs.espace_pages) : « Mes outils » (lead, intro avec
+ *  %s = lien vers « Mes informations personnelles », h2_astro / h2_outils / h2_moi = titres des trois groupes), « Mon historique de
+ *  connexion » (lead, alerte avec [texte] = lien vers « Changer mon mot de passe »), « Changer mon mot de passe » (lead). */
+export type PageEspace = { lead: string; intro?: string; h2_astro?: string; h2_outils?: string; h2_moi?: string; alerte?: string };
 export const PAGES_ESPACE = (ui as unknown as { espacePages: Record<string, Record<string, PageEspace>> }).espacePages;
-/** Cartes de « Mon astrologie » et « Mes outils » (espace_membre.CARTES) : clé, adresse de la page et libellé dans chaque langue. */
+/** Cartes de « Mes outils » par groupe (espace_membre.CARTES et MOI) : clé, adresse de la page et libellé dans chaque langue. */
 type CarteEspace = { c: string; u: Record<string, string>; t: Record<string, string> };
 const CARTES_ESPACE = (ui as unknown as { espaceCartes: Record<string, CarteEspace[]> }).espaceCartes;
+/** Groupes de « Mes outils », dans l'ordre de la page du site (espace_membre.GROUPES) ; titre = h2_<groupe>. */
+const GROUPES = ['astro', 'outils', 'moi'] as const;
 /** Écran natif de chaque carte (sinon la page du site dans la vue web) ; images et symboles des onglets Astro et Infos. */
 const CIBLES: Record<string, { route?: string; params?: Record<string, string>; sf: string; image?: Img }> = {
   horoscope: { route: '/horoscope', sf: 'sparkles', image: TUILES.horoscope },
@@ -46,38 +51,50 @@ const CIBLES: Record<string, { route?: string; params?: Record<string, string>; 
   distance: { route: '/distance', sf: 'globe', image: VIGNETTES.distance },
   compteur: { route: '/compteur', sf: 'heart.circle.fill', image: VIGNETTES.compteur },
   noces: { sf: 'gift.fill', image: TUILES.mariage },                                        // pas d'écran natif : la page du site
+  // groupe « moi » (sous-pages de l'espace sorties du menu, 07/10/2026 nuit) : leurs écrans natifs
+  sondages: { route: '/sondages', params: { mes: '1' }, sf: 'chart.bar.fill', image: TUILES.sondages },
+  compat: { route: '/mes-compat', sf: 'heart.text.square.fill', image: VIGNETTES['amour-signes'] },
+  connexions: { route: '/connexions', sf: 'clock.arrow.circlepath' },                        // toujours affichée : l'écran invite à se connecter
 };
 
-/** Écrans « Mon astrologie » et « Mes outils » (pages du site espace_membre.py) : chapeau, intro avec le lien vers « Mes informations
- *  personnelles », rappel des signes (astro : si la date de naissance est connue, sinon invitation), puis les cartes. */
-export function PageCartes({ onglet }: { onglet: 'astro' | 'outils' }) {
+/** Écran « Mes outils » (page du site fr/mes-outils.html…, espace_membre.py) : chapeau, intro avec le lien vers « Mes informations
+ *  personnelles », rappel des signes SEULEMENT si la date de naissance est connue (sinon rien, comme le site), puis trois groupes de
+ *  cartes : astrologie (9), outils du couple et de la famille (4), Mes sondages / Mes compatibilités amoureuses / Mon historique de
+ *  connexion. Une carte sans page dans la langue est omise, comme sur le site. */
+export function PageOutils() {
   const { langue, profil } = useProfil();
   const router = useRouter();
   const E = UI_E[langue] || UI_E.fr;
-  const P = (PAGES_ESPACE[onglet] || {})[langue] || PAGES_ESPACE[onglet].fr;
+  const P = (PAGES_ESPACE.outils || {})[langue] || PAGES_ESPACE.outils.fr;
   const versInfos = () => router.push('/mes-infos');
   return (
     <>
-      <Stack.Screen options={{ title: onglet === 'astro' ? E.ongAstro : E.ongOutils }} />
+      <Stack.Screen options={{ title: E.ongOutils }} />
       <ScrollView contentContainerStyle={F.contenu}>
         <Text style={styles.lead}>{P.lead}</Text>
         {P.intro ? <TexteLien texte={P.intro} lien={E.ongInfos} onPress={versInfos} /> : null}
-        {onglet === 'astro' ? (
-          profil.naissance ? (
-            <View style={F.encadre}>
-              <Text style={[F.texte, F.gras]}>{E.astroVos}</Text>
-              <ResumeSignes />
-            </View>
-          ) : <View style={F.encadre}><TexteLien texte={E.astroSans} lien={E.ongInfos} onPress={versInfos} /></View>
+        {profil.naissance ? (
+          <View style={F.encadre}>
+            <Text style={[F.texte, F.gras]}>{E.astroVos}</Text>
+            <ResumeSignes />
+          </View>
         ) : null}
-        {P.h2 ? <Text style={F.h2}>{P.h2}</Text> : null}
-        {(CARTES_ESPACE[onglet] || []).map((k) => {
-          const u = k.u[langue], titre = k.t[langue] || k.t.fr, c = CIBLES[k.c];
-          if (!u) return null;                                // page absente dans cette langue : carte omise, comme sur le site
-          const aller = c && c.route
-            ? () => router.push((c.params ? { pathname: c.route, params: c.params } : c.route) as never)
-            : () => ouvrir(router, url(u), titre);
-          return <Ligne key={k.c} titre={titre} sf={c ? c.sf : 'link'} image={c ? c.image : undefined} onPress={aller} />;
+        {GROUPES.map((g) => {
+          const cartes = (CARTES_ESPACE[g] || []).filter((k) => !!k.u[langue]);
+          if (!cartes.length) return null;
+          const titre = (P as Record<string, string | undefined>)['h2_' + g];
+          return (
+            <View key={g}>
+              {titre ? <Text style={F.h2} accessibilityRole="header">{titre}</Text> : null}
+              {cartes.map((k) => {
+                const u = k.u[langue], t = k.t[langue] || k.t.fr, c = CIBLES[k.c];
+                const aller = c && c.route
+                  ? () => router.push((c.params ? { pathname: c.route, params: c.params } : c.route) as never)
+                  : () => ouvrir(router, url(u), t);
+                return <Ligne key={k.c} titre={t} sf={c ? c.sf : 'link'} image={c ? c.image : undefined} onPress={aller} />;
+              })}
+            </View>
+          );
         })}
       </ScrollView>
     </>
@@ -118,6 +135,20 @@ export function TexteLien({ texte, lien, onPress, style }: { texte: string; lien
       {texte.slice(0, i)}
       <Text style={styles.lien} onPress={onPress} accessibilityRole="link">{lien}</Text>
       {texte.slice(i + 2)}
+    </Text>
+  );
+}
+
+/** Un texte dont la partie entre crochets devient un lien (ex. « Une connexion que vous ne reconnaissez pas ? [Changez votre mot de
+ *  passe] sans attendre. », alerte de la page du site « Mon historique de connexion »). */
+export function TexteCrochet({ texte, onPress, style }: { texte: string; onPress: () => void; style?: StyleProp<TextStyle> }) {
+  const m = /^([\s\S]*?)\[([^\]]+)\]([\s\S]*)$/.exec(texte);
+  if (!m) return <Text style={[F.texte, style]}>{texte}</Text>;
+  return (
+    <Text style={[F.texte, style]}>
+      {m[1]}
+      <Text style={styles.lien} onPress={onPress} accessibilityRole="link">{m[2]}</Text>
+      {m[3]}
     </Text>
   );
 }

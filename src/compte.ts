@@ -3,15 +3,21 @@
 // vérifié par api/compte/oidc), ou par Google (api/compte/google). À la connexion, les données du compte
 // remplissent l'appareil (profil, favoris, réponses aux sondages, scores des quiz) ; ensuite chaque changement local est renvoyé
 // au compte (pousser(), appelé par profil.tsx, moteur/quiz.ts, sondages.tsx, qdj.tsx, jeu2.tsx). Sans compte, rien ne change :
-// tout reste sur l'appareil. Clé AsyncStorage « ap.compte » = { courriel, session, sync, mdp } (même forme que le localStorage du site).
+// tout reste sur l'appareil. Clé AsyncStorage « ap.compte » = { courriel, session, sync, tire, mdp } (même forme que le localStorage du site).
+// Synchronisation entièrement automatique depuis le 07/10/2026 (nuit, cahier specs/espace-membre-retouches-0710.md, décisions 3 et 7 :
+// plus de bouton « Synchroniser maintenant ») : mêmes règles que compte.js du site (voir « synchronisation » plus bas).
 // Ce module n'importe ni profil.tsx ni les écrans (pas de cycle) : il prévient le contexte par surCompte().
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SITE } from './site';
 import { fusionnerCompat, K_CT } from './compat_tests';
 
-export type Compte = { courriel: string; session: string; sync: string | null; depuis?: string; mdp?: boolean;
-  newsletter?: string | null;
-  admin?: boolean; messages_non_lus?: number };   // messagerie interne : compte ADMIN, fils non lus (badge de l'onglet Moi)   // état de la lettre pour l'adresse du compte ('confirme' | 'attente' | 'desinscrit' | null), donné par le serveur
+export type Compte = { courriel: string; session: string;
+  sync: string | null;               // dernier échange réussi avec le compte (envoi ou tirage)
+  tire?: string;                     // dernier tirage réussi (données du compte vers l'appareil)
+  depuis?: string;
+  mdp?: boolean;                     // le compte a un mot de passe (sinon l'écran « Changer mon mot de passe » n'en demande pas l'actuel)
+  newsletter?: string | null;        // état de la lettre pour l'adresse du compte ('confirme' | 'attente' | 'desinscrit' | null), donné par le serveur
+  admin?: boolean; messages_non_lus?: number };   // messagerie interne : compte ADMIN, fils non lus (badge de l'onglet Moi)
 export type Reponse = { ok?: boolean; erreur?: string; statut: number; [k: string]: unknown };
 type Score = { s?: number; n?: number; d?: string; t?: string; u?: string };
 type FavoriBrut = { url?: unknown; date?: unknown; [k: string]: unknown };
@@ -20,7 +26,9 @@ type Donnees = { profil?: Record<string, unknown>; favoris?: FavoriBrut[]; score
 const K_COMPTE = 'ap.compte', K_PROFIL = 'ap.profil', K_FAVS = 'ap.favoris', K_SJ = 'ap.sondage.jeton', K_QDJ = 'ap.qdj', K_JEU2 = 'ap.jeu2';
 const DELAI = 15000;           // délai d'un appel à l'API
 const ATTENTE_POUSSER = 1500;  // regroupement des envois (comme le site)
-const AGE_TIRER = 10 * 60 * 1000;
+const TIRAGE_MS = 2 * 60 * 1000;   // tirage au lancement et au retour au premier plan si le dernier date de plus de 2 min (comme le site)
+const ESSAIS = 6;              // nouveaux essais d'un envoi en échec : 30 s, 1, 2, 4, 8, 10 min, puis au prochain changement
+const ECHECS_SIGNALES = 3;     // échec durable : signalé discrètement dans « Mon compte » après 3 envois de suite en échec
 
 /** Page « Confidentialité » du site par langue (section #compte), comme CONF de compte.js. */
 export const CONF: Record<string, string> = {
@@ -32,10 +40,11 @@ export const RX_COURRIEL = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[a-z0-9-
 /* ---- état du compte en mémoire + abonnés (le contexte de profil.tsx) ---- */
 let actuel: Compte | null = null;
 let charge = false;
-type Evenement = 'compte' | 'donnees';
+type Evenement = 'compte' | 'donnees' | 'sync';
 const abonnes = new Set<(e: Evenement) => void>();
 
-/** S'abonne aux changements : « compte » (connexion, déconnexion, synchro), « donnees » (l'appareil a reçu les données du compte). */
+/** S'abonne aux changements : « compte » (connexion, déconnexion, synchro), « donnees » (l'appareil a reçu les données du compte),
+ *  « sync » (nombre d'envois en échec changé : echecsSynchro()). */
 export function surCompte(f: (e: Evenement) => void): () => void {
   abonnes.add(f);
   return () => { abonnes.delete(f); };
@@ -47,11 +56,12 @@ function nettoyerCompte(x: unknown): Compte | null {
   const c = x as Record<string, unknown>;
   if (typeof c.session !== 'string' || !c.session) return null;
   const out: Compte = { courriel: typeof c.courriel === 'string' ? c.courriel : '', session: c.session, sync: typeof c.sync === 'string' ? c.sync : null };
+  if (typeof c.tire === 'string') out.tire = c.tire;
   if (typeof c.depuis === 'string') out.depuis = c.depuis;
   if (typeof c.mdp === 'boolean') out.mdp = c.mdp;
   if (typeof c.newsletter === 'string') out.newsletter = c.newsletter;
   if (typeof c.admin === 'boolean') out.admin = c.admin;
-  if (typeof c.messages_non_lus === 'number') out.messages_non_lus = c.messages_non_lus;   // le compte a un mot de passe (sinon : « Créer un mot de passe »)
+  if (typeof c.messages_non_lus === 'number') out.messages_non_lus = c.messages_non_lus;
   return out;
 }
 function lireJson(v: string | null | undefined): unknown {
@@ -72,13 +82,6 @@ async function garderCompte(c: Compte | null) {
   actuel = c;
   try { if (c) await AsyncStorage.setItem(K_COMPTE, JSON.stringify(c)); else await AsyncStorage.removeItem(K_COMPTE); } catch { /* stockage indisponible */ }
   signaler('compte');
-}
-
-/** Vrai si la dernière synchronisation date de plus de 10 minutes (règle du site au chargement d'une page). */
-export function synchroAncienne(c: Compte | null = actuel): boolean {
-  if (!c) return false;
-  const t = c.sync ? new Date(c.sync).getTime() : NaN;
-  return isNaN(t) || Date.now() - t > AGE_TIRER;
 }
 
 /* ---- API ---- */
@@ -177,9 +180,28 @@ async function appliquer(j: Reponse) {
   try { await AsyncStorage.multiSet(ecrire); } catch { /* stockage indisponible */ }
 }
 
-/* ---- synchronisation ---- */
+/* ---- synchronisation automatique (07/10/2026 nuit, comme compte.js du site ; plus de bouton « Synchroniser maintenant ») ----
+   Envoi : 1,5 s après chaque changement local (pousser) ; tout de suite quand l'appli passe en arrière-plan (envoyerEnAttente, appelé
+   par profil.tsx) ; échec (réseau, serveur) : nouvel essai après 30 s, 1, 2, 4, 8 puis 10 min (6 au plus, puis au prochain changement
+   ou au retour au premier plan) ; après 3 échecs de suite, « Mon compte » (components/mon-compte.tsx) le dit discrètement (syncKo),
+   effacé au premier succès. Réception : au lancement et au retour au premier plan, si le dernier tirage date de plus de 2 min
+   (tirerSiVieux) ; un tirage à la fois ; après un tirage, l'union locale ne repart vers le compte que si elle diffère de ce qu'il a. */
 let minuteriePousser: ReturnType<typeof setTimeout> | null = null;
-let sale = false, enCours = false, rejouer = false;
+let minuterieReessai: ReturnType<typeof setTimeout> | null = null;
+let sale = false, enCours = false, rejouer = false, echecs = 0;
+let tirageEnCours: Promise<boolean> | null = null, dernierTirage = 0;
+
+/** Nombre d'envois de suite en échec (0 après un succès) ; « Mon compte » signale l'échec durable à partir de ECHEC_DURABLE. */
+export function echecsSynchro(): number { return echecs; }
+export const ECHEC_DURABLE = ECHECS_SIGNALES;
+function noterEchecs(n: number) { if (n !== echecs) { echecs = n; signaler('sync'); } }
+/** Déconnexion, suppression, session refusée : plus rien en attente ni en nouvel essai. */
+function arreterEnvois() {
+  if (minuteriePousser) { clearTimeout(minuteriePousser); minuteriePousser = null; }
+  if (minuterieReessai) { clearTimeout(minuterieReessai); minuterieReessai = null; }
+  sale = false; rejouer = false;
+  noterEchecs(0);
+}
 
 /** À appeler après chaque changement local : envoi regroupé (1,5 s) si un compte est connecté, rien sinon. */
 export function pousser(): void {
@@ -191,43 +213,91 @@ export function pousser(): void {
   minuteriePousser = setTimeout(() => { minuteriePousser = null; pousserMaintenant(); }, ATTENTE_POUSSER);
 }
 
+/** L'appli passe en arrière-plan (ou revient au premier plan) : un envoi en attente ou en échec part tout de suite. */
+export function envoyerEnAttente(): void {
+  if (actuel && sale && !enCours) pousserMaintenant();
+}
+
 async function pousserMaintenant(): Promise<void> {
   const c = actuel;
   if (!c || !sale || enCours) return;
+  if (minuteriePousser) { clearTimeout(minuteriePousser); minuteriePousser = null; }
+  if (minuterieReessai) { clearTimeout(minuterieReessai); minuterieReessai = null; }
   enCours = true; sale = false;
-  try {
-    const j = await api('donnees', { donnees: await etatLocal() });
-    if (j.ok) { if (actuel && actuel.session === c.session) await garderCompte({ ...actuel, sync: new Date().toISOString() }); }
-    else if (j.statut === 401) { if (actuel && actuel.session === c.session) await garderCompte(null); }
-    else sale = true;   // réseau : repartira au prochain changement ou à la prochaine synchro
-  } catch {
-    sale = true;
-  } finally {
-    enCours = false;
+  let j: Reponse;
+  try { j = await api('donnees', { donnees: await etatLocal() }); }
+  catch { j = { ok: false, erreur: 'reseau', statut: 0 }; }
+  enCours = false;
+  if (!actuel || actuel.session !== c.session) return;              // déconnecté (ou autre session) pendant l'envoi
+  if (j.ok) {
+    noterEchecs(0);
+    await garderCompte({ ...actuel, sync: new Date().toISOString() });
+    if (rejouer || sale) { rejouer = false; pousser(); }            // un changement est arrivé pendant l'envoi
+    return;
   }
-  if (rejouer) { rejouer = false; pousser(); }   // un changement est arrivé pendant l'envoi
+  if (j.statut === 401) { arreterEnvois(); await garderCompte(null); return; }   // session expirée ou fermée ailleurs
+  sale = true; rejouer = false;
+  const n = echecs + 1;
+  noterEchecs(n);
+  if (n <= ESSAIS && j.statut !== 400) {
+    minuterieReessai = setTimeout(() => { minuterieReessai = null; pousserMaintenant(); }, Math.min(30000 * Math.pow(2, n - 1), 600000));
+  }
 }
 
-/** Récupère les données du compte, les pose sur l'appareil, puis renvoie l'union au compte. Faux si impossible. */
-export async function tirer(): Promise<boolean> {
+/** Même contenu JSON, quel que soit l'ordre des clés (l'ordre des listes compte) : canon() de compte.js. */
+function canon(v: unknown): string {
+  if (Array.isArray(v)) return '[' + v.map(canon).join(',') + ']';
+  if (v && typeof v === 'object') {
+    const o = v as Record<string, unknown>;
+    return '{' + Object.keys(o).filter((k) => o[k] !== undefined).sort().map((k) => JSON.stringify(k) + ':' + canon(o[k])).join(',') + '}';
+  }
+  return JSON.stringify(v === undefined ? null : v);
+}
+function memes(local: Donnees, serveur: unknown): boolean {
+  const s = (serveur && typeof serveur === 'object' ? serveur : {}) as Record<string, unknown>;
+  const l = local as Record<string, unknown>;
+  return Object.keys(l).every((k) => canon(l[k]) === canon(s[k]));
+}
+
+/** Récupère les données du compte et les pose sur l'appareil (union), puis renvoie l'union au compte si elle diffère de ce qu'il a ;
+ *  un tirage à la fois. Faux si impossible. */
+export function tirer(): Promise<boolean> {
+  if (tirageEnCours) return tirageEnCours;
+  dernierTirage = Date.now();
+  const p = tirerMaintenant().catch(() => false).finally(() => { if (tirageEnCours === p) tirageEnCours = null; });
+  tirageEnCours = p;
+  return p;
+}
+
+async function tirerMaintenant(): Promise<boolean> {
   await assurer();
   const c = actuel;
   if (!c) return false;
   const j = await api('donnees', undefined, 'GET');
-  if (j.statut === 401) { if (actuel && actuel.session === c.session) await garderCompte(null); return false; }
+  if (j.statut === 401) { if (actuel && actuel.session === c.session) { arreterEnvois(); await garderCompte(null); } return false; }
   if (!j.ok) return false;
   if (!actuel || actuel.session !== c.session) return false;   // déconnecté entre-temps
   await appliquer(j);
-  await garderCompte({ ...actuel, courriel: typeof j.courriel === 'string' && j.courriel ? j.courriel : actuel.courriel, sync: new Date().toISOString(),
+  const maintenant = new Date().toISOString();
+  await garderCompte({ ...actuel, courriel: typeof j.courriel === 'string' && j.courriel ? j.courriel : actuel.courriel, sync: maintenant, tire: maintenant,
     ...(typeof j.mdp === 'boolean' ? { mdp: j.mdp } : {}),
     ...(j.newsletter !== undefined ? { newsletter: typeof j.newsletter === 'string' ? j.newsletter : null } : {}),
     ...(typeof j.admin === 'boolean' ? { admin: j.admin } : {}),
     ...(typeof j.messages_non_lus === 'number' ? { messages_non_lus: j.messages_non_lus } : {}) });
   signaler('donnees');
+  if (memes(await etatLocal(), j.donnees)) return true;            // le compte a déjà tout : rien à renvoyer
   sale = true;
-  if (enCours) rejouer = true;   // un envoi est en route : l'union repartira juste après
-  else await pousserMaintenant();   // l'union locale repart vers le compte
+  if (enCours) rejouer = true;                                     // un envoi est en route : l'union repartira juste après
+  else await pousserMaintenant();                                  // l'union locale repart vers le compte
   return true;
+}
+
+/** Lancement de l'appli et retour au premier plan : tirage si le dernier date de plus de 2 min (comme compte.js au chargement d'une page). */
+export function tirerSiVieux(): void {
+  const c = actuel;
+  if (!c) return;
+  const t = Math.max(dernierTirage, Date.parse(c.tire || '') || 0);
+  if (Date.now() - t >= TIRAGE_MS) tirer().catch(() => undefined);
 }
 
 /** Connexion réussie (service commun ou Google) : garde la session, remplit l'appareil, renvoie l'union (connecter de compte.js). */
@@ -246,7 +316,10 @@ async function ouvrir(j: Reponse) {
       if (!pf.prenom) { pf.prenom = j.prenom_google.slice(0, 40); await AsyncStorage.setItem(K_PROFIL, JSON.stringify(pf)); }
     } catch { /* stockage indisponible */ }
   }
-  await garderCompte({ courriel, session, sync: new Date().toISOString(), depuis: actuel?.depuis, mdp, newsletter, admin, messages_non_lus });
+  const maintenant = new Date().toISOString();
+  dernierTirage = Date.now();                                      // les données du compte viennent d'arriver : pas de tirage d'office
+  noterEchecs(0);
+  await garderCompte({ courriel, session, sync: maintenant, tire: maintenant, depuis: actuel?.depuis, mdp, newsletter, admin, messages_non_lus });
   signaler('donnees');
   sale = true;
   if (enCours) rejouer = true; else pousserMaintenant();
@@ -278,7 +351,7 @@ export async function noterNonLus(n: number, admin?: boolean): Promise<void> {
 /** Session refusée par le serveur (401 : expirée, supprimée) : le compte est oublié sur l'appareil s'il s'agit toujours de la même. */
 export async function oublierSession(session: string): Promise<void> {
   await assurer();
-  if (actuel && actuel.session === session) await garderCompte(null);
+  if (actuel && actuel.session === session) { arreterEnvois(); await garderCompte(null); }
 }
 
 /** Présence (activite_api.js, 07/10/2026 soir) : POST /api/presence {appareil:'appli'}, appelé toutes les 60 s par le contexte quand
@@ -290,7 +363,7 @@ export async function presence(): Promise<string | null> {
   if (!c) return null;
   const j = await appelApi('api/presence', { appareil: 'appli' });
   if (!actuel || actuel.session !== c.session) return null;   // déconnecté entre-temps
-  if (j.statut === 401) { await garderCompte(null); return null; }
+  if (j.statut === 401) { arreterEnvois(); await garderCompte(null); return null; }
   if (!j.ok) return null;
   if (typeof j.messages_non_lus === 'number' && j.messages_non_lus !== actuel.messages_non_lus) {
     await garderCompte({ ...actuel, messages_non_lus: j.messages_non_lus });
@@ -307,12 +380,20 @@ export async function lettre(abonne: boolean, langue: string): Promise<Reponse> 
   return j;
 }
 
-/** Change (ou crée) le mot de passe du compte connecté. Erreurs : court (400), actuel (401), session, trop, reseau. */
+/** Change (ou crée) le mot de passe du compte connecté (POST /api/compte/mot-de-passe, même route que le site). Erreurs : court (400),
+ *  actuel (401 : actuel faux, ou absent alors que le compte en a un), session (401), trop (429 : 5 essais faux par heure et par compte,
+ *  10 par adresse IP), reseau. */
 export async function changerMdp(ancien: string, nouveau: string): Promise<Reponse> {
   await assurer();
   const j = await api('mot-de-passe', { actuel: ancien, nouveau });
   if (j.ok && actuel) await garderCompte({ ...actuel, mdp: true });
   return j;
+}
+
+/** Le serveur dit que le compte a un mot de passe (posé ailleurs entre-temps) : l'écran « Changer mon mot de passe » demande l'actuel. */
+export async function noterMdp(): Promise<void> {
+  await assurer();
+  if (actuel && !actuel.mdp) await garderCompte({ ...actuel, mdp: true });
 }
 
 /** Connexion par le jeton d'identité Google. Erreurs : consentement (409, compte à créer), google (401), trop, reseau. */
@@ -330,23 +411,23 @@ export async function deconnecter(): Promise<void> {
   await assurer();
   if (!actuel) return;
   api('deconnexion', {}).catch(() => undefined);   // l'en-tête est lu avant l'effacement ci-dessous
-  if (minuteriePousser) { clearTimeout(minuteriePousser); minuteriePousser = null; }
-  sale = false; rejouer = false;
+  arreterEnvois();
   await garderCompte(null);
 }
 
-/** Suppression du compte sur le serveur (les données de l'appareil sont gardées). Vrai si c'est fait. */
-export async function supprimer(): Promise<boolean> {
+/** Suppression du compte sur le serveur (POST /api/compte/supprimer, après la confirmation de « Mon compte ») : tout ce que le compte
+ *  garde est effacé (informations, messages, j'aime, historique de connexion, abonnement à la lettre) ; les données de l'appareil
+ *  restent. { ok } si c'est fait (ou si la session n'existait déjà plus), sinon { ok: false, erreur: 'trop' | 'reseau' | … }. */
+export async function supprimer(): Promise<{ ok: boolean; erreur?: string }> {
   await assurer();
-  if (!actuel) return true;
+  if (!actuel) return { ok: true };
   const j = await api('supprimer', {});
   if (j.ok || j.statut === 401) {
-    if (minuteriePousser) { clearTimeout(minuteriePousser); minuteriePousser = null; }
-    sale = false; rejouer = false;
+    arreterEnvois();
     await garderCompte(null);
-    return true;
+    return { ok: true };
   }
-  return false;
+  return { ok: false, erreur: typeof j.erreur === 'string' ? j.erreur : 'reseau' };
 }
 
 /** La page du site ouverte dans l'appli a changé « ap.compte » (connexion, déconnexion) : l'appli reprend la session.
@@ -354,9 +435,11 @@ export async function supprimer(): Promise<boolean> {
 export async function adopterCompte(brut: string | null): Promise<void> {
   await assurer();
   const c = nettoyerCompte(lireJson(brut));
-  if (!c) { if (actuel) await garderCompte(null); return; }
+  if (!c) { if (actuel) { arreterEnvois(); await garderCompte(null); } return; }
   if (!actuel || actuel.session !== c.session) {   // connexion faite dans la page : l'appli récupère les données du compte
+    arreterEnvois();
     await garderCompte({ courriel: c.courriel, session: c.session, sync: null, depuis: c.depuis });
+    tirageEnCours = null;                           // un tirage de l'ancienne session ne compte pas pour la nouvelle
     tirer().catch(() => undefined);
     return;
   }

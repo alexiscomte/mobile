@@ -1,8 +1,11 @@
 // Moi = accueil de l'espace membre (Alexis, 07/10/2026 ; menu regroupé le soir, cahier specs/espace-membre-reduit-0710.md, point 8),
 // comme le menu de l'icône « Mes infos » du site : « Se connecter » (ou le nom de la personne, sinon son adresse, qui mène à « Mes
-// informations personnelles » ; vu par elle seule) en tête, puis les mêmes 8 entrées (table MENU d'espace.js, « k » = connecté
-// seulement) vers les écrans natifs, avec le nombre de favoris et de messages non lus, puis « Se déconnecter » ; langue, lecture hors
-// ligne, à propos, effacement ; « Suivez-nous sur les réseaux sociaux » en français. Sans compte, tout reste sur l'appareil.
+// informations personnelles » ; vu par elle seule) en tête, puis les mêmes entrées (table MENU d'espace.js : depuis le 07/10/2026 nuit,
+// cahier specs/espace-membre-retouches-0710.md, décisions 6 et 7, Mes informations personnelles, Mes messages, Mes favoris, Mes outils ;
+// Mes sondages, Mes compatibilités et Mon historique de connexion sont des cartes de Mes outils, « Mon astrologie » y est fusionnée)
+// vers les écrans natifs, avec le nombre de favoris et de messages non lus, puis « Se déconnecter » ; langue, lecture hors ligne,
+// à propos, effacement ; « Suivez-nous sur les réseaux sociaux » en français. Plus de « Gérer mon compte » : mot de passe et
+// suppression du compte sont dans « Mes informations personnelles » (encadré « Mon compte »). Sans compte, tout reste sur l'appareil.
 import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -32,11 +35,7 @@ const ECRANS: Record<string, { sf: string; cible: Cible }> = {
   infos: { sf: 'person.text.rectangle.fill', cible: { route: '/mes-infos' } },
   messages: { sf: 'bubble.left.and.bubble.right.fill', cible: { route: '/messages' } },
   favoris: { sf: 'hand.thumbsup.fill', cible: { route: '/favoris' } },
-  sondages: { sf: 'chart.bar.fill', cible: { route: '/sondages', params: { mes: '1' } } },
-  compat: { sf: 'heart.fill', cible: { route: '/mes-compat' } },
-  astro: { sf: 'moon.stars.fill', cible: { route: '/astrologie' } },
   outils: { sf: 'wrench.and.screwdriver.fill', cible: { route: '/outils' } },
-  connexions: { sf: 'clock.arrow.circlepath', cible: { route: '/connexions' } },
 };
 
 export default function Moi() {
@@ -81,9 +80,6 @@ export default function Moi() {
             <Pressable style={styles.flex} onPress={() => router.push('/mes-infos')} accessibilityRole="link">
               <Text style={styles.etatTxt} numberOfLines={2}>{[profil.prenom, profil.nom].filter(Boolean).join(' ').trim() || compte.courriel}</Text>
             </Pressable>
-            <Pressable onPress={() => router.push('/compte')} hitSlop={8} accessibilityRole="button">
-              <Text style={styles.lien}>{T4.gerer}</Text>
-            </Pressable>
           </View>
         ) : (
           <Pressable style={({ pressed }) => [styles.connexion, pressed && styles.presse]} onPress={AVEC_OIDC ? seConnecter : () => router.push('/compte')} accessibilityRole="button">
@@ -95,7 +91,7 @@ export default function Moi() {
 
         {MENU.map((m) => {
           const e = ECRANS[m.c]; const u = m.u[langue];
-          if (!e || !u || (m.k && !compte)) return null;            // « k » : seulement avec un compte connecté (historique)
+          if (!e || !u || (m.k && !compte)) return null;            // « k » : seulement avec un compte connecté
           const n = m.c === 'favoris' ? favoris.length : m.c === 'messages' ? (compte?.messages_non_lus || 0) : 0;
           const aller = () => {
             if (!e.cible) { ouvrir(router, url(u), m.t[langue] || m.t.fr); return; }
@@ -160,7 +156,6 @@ const styles = StyleSheet.create({
   pastille: { width: 10, height: 10, borderRadius: 5 },
   flex: { flex: 1 },
   etatTxt: { fontSize: 15, fontWeight: '600', color: COULEURS.texte, textDecorationLine: 'underline' },
-  lien: { color: COULEURS.secondaire, fontWeight: '600', textDecorationLine: 'underline' },
   connexion: { backgroundColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 13, alignItems: 'center' },
   connexionTxt: { color: '#fff', fontWeight: '700', fontSize: 16 },
   separateur: { height: StyleSheet.hairlineWidth, backgroundColor: COULEURS.bordure, marginVertical: 12 },

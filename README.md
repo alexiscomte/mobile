@@ -21,8 +21,13 @@ construisent dans le nuage d'Expo (EAS Build), sans Mac.
   distance, vol, décalage horaire du jour, repères culturels, fiches pays).
 - **Moi** = espace membre, même menu que l'icône « Mes infos » du site (table `MENU` d'espace.js, exportée dans `ui.json`) :
   « Se connecter » ou le nom (vers Mes informations personnelles), puis Mes informations personnelles, Mes messages (badge),
-  Mes favoris, Mes sondages, Mes compatibilités amoureuses, Mon astrologie (`astrologie`), Mes outils (`outils`), Mon
-  historique de connexion (`connexions`, connecté seulement), Se déconnecter ; langue, lecture hors ligne, effacement.
+  Mes favoris, Mes outils, Se déconnecter (connecté) ; langue, lecture hors ligne, effacement (07/10/2026 nuit, cahier
+  `specs/espace-membre-retouches-0710.md`). **Mes informations personnelles** (`mes-infos`) : le formulaire d'abord, puis le
+  rappel des signes, le texte selon l'état et l'encadré « Mon compte » (`components/mon-compte.tsx` : « Changer mon mot de
+  passe » vers l'écran `mot-de-passe`, « Supprimer mon compte » avec un panneau de confirmation) ; aucun « Connecté : … », ni
+  « Synchroniser maintenant », ni « Se déconnecter » ailleurs que dans Moi. **Mes outils** (`outils`) : rappel des signes (date
+  connue), cartes d'astrologie (« Mon astrologie » y est fusionnée), outils du couple et de la famille, puis Mes sondages, Mes
+  compatibilités amoureuses et Mon historique de connexion (`connexions`).
 - **Messagerie** (`messages`, 07/10/2026 soir) : avec l'admin seulement et pour les comptes connectés ; l'interlocuteur du
   membre s'appelle toujours « AffectionPlus » (aucun nom d'autre membre), présence, case « copie par courriel » ; l'admin
   voit le bloc « Informations administrateur ». **Présence** : `POST /api/presence {appareil:'appli'}` toutes les 60 s au
@@ -39,11 +44,15 @@ l'adresse de la page et un jeton aléatoire de l'appareil, haché par le serveur
 **Compte facultatif (06/10/2026)** : même système que le site (`assets/js/compte.js`, API `compte_api.js`, `/api/compte/…`).
 Identifiant = adresse électronique, prouvée par un code à 6 chiffres reçu par courriel ou par Google (expo-auth-session,
 client iOS de `src/compte_conf.json`, schéma d'URL inverse dans `app.json` → `ios.scheme`). À la connexion, les données du
-compte remplissent l'appareil (profil, favoris, votes, scores, question du jour, parties à deux) ; ensuite chaque changement
-local est renvoyé au compte (`pousser()` de `src/compte.ts`, regroupé 1,5 s). Session gardée sous `ap.compte`
-(`{ courriel, session, sync }`, même forme que le site) et injectée dans les pages du site ouvertes dans l'appli ; une
-connexion ou une déconnexion faite dans la page revient dans l'appli. « Effacer mes données » vide l'appareil et déconnecte,
-sans toucher au compte ; « Supprimer mon compte » est dans l'écran du compte.
+compte remplissent l'appareil (profil, favoris, votes, scores, question du jour, parties à deux) ; ensuite la synchronisation
+est automatique, comme sur le site (`src/compte.ts`) : envoi 1,5 s après chaque changement local (`pousser()`) et tout de suite
+quand l'appli passe en arrière-plan, nouvel essai après 30 s, 1, 2, 4, 8 puis 10 min en cas d'échec (signalé discrètement dans
+« Mon compte » après 3 échecs de suite), tirage au lancement et au retour au premier plan si le dernier date de plus de 2 min.
+Session gardée sous `ap.compte` (`{ courriel, session, sync, tire, mdp }`, même forme que le site) et injectée dans les pages du
+site ouvertes dans l'appli ; une connexion ou une déconnexion faite dans la page revient dans l'appli. « Effacer mes données »
+vide l'appareil et déconnecte, sans toucher au compte ; « Supprimer mon compte » (encadré « Mon compte » de Mes informations
+personnelles, avec confirmation) efface le compte sur le serveur ; « Changer mon mot de passe » est un écran à part (même route
+que le site, `/api/compte/mot-de-passe`).
 
 ## Structure
 
@@ -51,12 +60,13 @@ sans toucher au compte ; « Supprimer mon compte » est dans l'écran du compte.
 src/app/                 écrans (Expo Router) : (tabs)/index|astro|jeux|infos|moi ; page (vue web) ; article (hors ligne) ;
                          horoscope, signes, theme, compat, biorythme, chinois, autres (védique/maya), lune, qdj, sondages,
                          jeu2, quiz, ovulation, maternite, compteur, epoux, garde, newsletter, compte ; espace membre :
-                         mes-infos, messages, favoris, mes-compat, astrologie, outils, connexions
+                         mes-infos, mot-de-passe, messages, favoris, mes-compat, outils, connexions
 src/compte.ts            compte facultatif : appels /api/compte, synchronisation (tirer, pousser, appliquer), client commun
                          appelApi, présence
 src/messages.ts          messagerie avec l'admin (/api/messages) et historique des connexions (/api/compte/historique)
 src/aime.ts              pouce « j'aime » (/api/likes, jeton local ap.jaime.jeton) ; écran : components/pouce.tsx
-src/components/espace    briques de l'espace membre (pages à cartes, invitation à se connecter, présence, connexions)
+src/components/espace    briques de l'espace membre (écran Mes outils, invitation à se connecter, présence, connexions)
+src/components/mon-compte encadré « Mon compte » de Mes informations personnelles (mot de passe, suppression confirmée)
 src/components/vue-site  vue web d'une page du site (injection, messages, liens externes, hors-ligne)
 src/components/form      champs communs des outils (date, heure inconnue, boutons, notes, suggestions)
 src/moteur/              moteurs et données du site : astro.js, astro_txt.js, lieu.js (copies), compat.ts + compat_txt.json,

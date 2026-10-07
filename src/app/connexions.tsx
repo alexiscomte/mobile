@@ -1,25 +1,23 @@
 // Mon historique de connexion (espace membre, 07/10/2026 soir ; cahier specs/espace-membre-reduit-0710.md, point 4), comme la page du
 // site fr/mes-connexions.html… (messages.js historique) : date, pays (déduit de l'adresse IP) et navigateur des dernières connexions du
 // compte (GET /api/compte/historique). Jamais l'adresse IP ni le VPN pour un membre : le serveur ne les envoie qu'à l'admin.
-// Sans compte : invitation à se connecter. Note : une connexion inconnue → changer de mot de passe dans « Mon compte ».
+// Sans compte : invitation à se connecter. Alerte (texte du site, 07/10/2026 nuit) : une connexion inconnue → [Changez votre mot de
+// passe], lien vers l'écran « Changer mon mot de passe » (/mot-de-passe). Écran ouvert depuis une carte de « Mes outils » (plus dans le menu).
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { Invitation, ListeConnexions, PAGES_ESPACE, TexteLien, UI_E, UI_M, type TX } from '@/components/espace';
+import { Invitation, ListeConnexions, PAGES_ESPACE, TexteCrochet, UI_E, UI_M } from '@/components/espace';
 import { F } from '@/components/form';
 import { oublierSession } from '@/compte';
 import { historique, type Connexion } from '@/messages';
-import ui from '@/moteur/ui.json';
 import { useProfil } from '@/profil';
 import { COULEURS } from '@/theme';
-
-const UI_COMPTE = (ui as unknown as { compte: Record<string, TX> }).compte;
 
 export default function MesConnexions() {
   const { langue, compte } = useProfil();
   const router = useRouter();
-  const t = UI_M[langue] || UI_M.fr, E = UI_E[langue] || UI_E.fr, TC = UI_COMPTE[langue] || UI_COMPTE.fr;
+  const t = UI_M[langue] || UI_M.fr, E = UI_E[langue] || UI_E.fr;
   const P = PAGES_ESPACE.connexions[langue] || PAGES_ESPACE.connexions.fr;
   const [etat, setEtat] = useState<{ liste: Connexion[]; admin: boolean } | null>(null);
   const [msg, setMsg] = useState('');
@@ -45,7 +43,7 @@ export default function MesConnexions() {
             {etat === null && !msg ? <ActivityIndicator color={COULEURS.primaire} style={styles.attente} /> : null}
             {msg ? <Text style={styles.statut}>{msg}</Text> : null}
             {etat ? <ListeConnexions liste={etat.liste} admin={etat.admin} lg={langue} /> : null}
-            {P.note ? <TexteLien texte={P.note} lien={TC.titre} onPress={() => router.push('/compte')} style={styles.note} /> : null}
+            {P.alerte ? <TexteCrochet texte={P.alerte} onPress={() => router.push('/mot-de-passe')} style={styles.note} /> : null}
           </>
         )}
       </ScrollView>

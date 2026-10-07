@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
-import { chargerCompte, compteActuel, pousser, presence, surCompte, synchroAncienne, tirer, deconnecter, type Compte } from './compte';
+import { chargerCompte, compteActuel, envoyerEnAttente, pousser, presence, surCompte, tirerSiVieux, deconnecter, type Compte } from './compte';
 import { estLangue, langueAppareil, type Langue } from './i18n';
 import { paysParCode } from './moteur/lieux';
 
@@ -159,19 +159,23 @@ export function ProfilProvider({ children }: { children: React.ReactNode }) {
     try { await lireStockage(); } catch { /* stockage illisible */ }
   }, [lireStockage]);
 
-  // compte : suivi des connexions/déconnexions et des données reçues ; synchro au démarrage et au retour au premier plan
+  // compte : suivi des connexions/déconnexions et des données reçues (« sync » = état des envois, lu par « Mon compte » lui-même)
   useEffect(() => {
     const fin = surCompte((e) => {
       if (e === 'compte') setCompte(compteActuel());
-      else recharger();
+      else if (e === 'donnees') recharger();
     });
     return fin;
   }, [recharger]);
+  // synchronisation automatique (07/10/2026 nuit, comme le site) : tirage au lancement et au retour au premier plan si le dernier date
+  // de plus de 2 min ; au passage en arrière-plan, l'envoi en attente part tout de suite ; au retour, un envoi en échec repart
   useEffect(() => {
     if (!pret) return;
-    const verifier = () => { const c = compteActuel(); if (c && synchroAncienne(c)) tirer().catch(() => undefined); };
-    const minuterie = setTimeout(verifier, 800);
-    const abo = AppState.addEventListener('change', (s) => { if (s === 'active') verifier(); });
+    const minuterie = setTimeout(tirerSiVieux, 800);
+    const abo = AppState.addEventListener('change', (s) => {
+      if (s === 'active') { tirerSiVieux(); envoyerEnAttente(); }
+      else envoyerEnAttente();                       // 'background' ou 'inactive'
+    });
     return () => { clearTimeout(minuterie); abo.remove(); };
   }, [pret]);
 

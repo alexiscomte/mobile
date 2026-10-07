@@ -49,9 +49,9 @@ function Pile() {
       <Stack.Screen name="mes-infos" options={{ title: '' }} />
       <Stack.Screen name="favoris" options={{ title: '' }} />
       <Stack.Screen name="messages" options={{ title: '' }} />
-      <Stack.Screen name="astrologie" options={{ title: '' }} />
       <Stack.Screen name="outils" options={{ title: '' }} />
       <Stack.Screen name="connexions" options={{ title: '' }} />
+      <Stack.Screen name="mot-de-passe" options={{ title: '' }} />
     </Stack>
   );
 }
