@@ -168,7 +168,8 @@ export function ProfilProvider({ children }: { children: React.ReactNode }) {
     return fin;
   }, [recharger]);
   // synchronisation automatique (07/10/2026 nuit, comme le site) : tirage au lancement et au retour au premier plan si le dernier date
-  // de plus de 2 min ; au passage en arrière-plan, l'envoi en attente part tout de suite ; au retour, un envoi en échec repart
+  // de plus de 2 min ; au passage en arrière-plan, l'envoi en attente part tout de suite (pas pendant une série d'échecs : les nouveaux
+  // essais gardent leur calendrier, revue du 07/10/2026 nuit) ; au retour, le tirage renvoie l'union si elle diffère
   useEffect(() => {
     if (!pret) return;
     const minuterie = setTimeout(tirerSiVieux, 800);

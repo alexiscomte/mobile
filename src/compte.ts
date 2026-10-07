@@ -213,9 +213,11 @@ export function pousser(): void {
   minuteriePousser = setTimeout(() => { minuteriePousser = null; pousserMaintenant(); }, ATTENTE_POUSSER);
 }
 
-/** L'appli passe en arrière-plan (ou revient au premier plan) : un envoi en attente ou en échec part tout de suite. */
+/** L'appli passe en arrière-plan (ou revient au premier plan) : un envoi en attente part tout de suite. Pas pendant une série d'échecs
+ *  (revue du 07/10/2026 nuit : sur iPhone, chaque passage active / inactive / arrière-plan relançait l'envoi en échec, hors calendrier) :
+ *  les nouveaux essais gardent leur calendrier (30 s → 10 min) et le tirage du retour au premier plan renvoie l'union si elle diffère. */
 export function envoyerEnAttente(): void {
-  if (actuel && sale && !enCours) pousserMaintenant();
+  if (actuel && sale && !enCours && echecs === 0) pousserMaintenant();
 }
 
 async function pousserMaintenant(): Promise<void> {
@@ -288,6 +290,7 @@ async function tirerMaintenant(): Promise<boolean> {
   if (memes(await etatLocal(), j.donnees)) return true;            // le compte a déjà tout : rien à renvoyer
   sale = true;
   if (enCours) rejouer = true;                                     // un envoi est en route : l'union repartira juste après
+  else if (minuterieReessai) { /* série d'échecs : le prochain essai prévu emportera l'union (pas d'envoi hors calendrier) */ }
   else await pousserMaintenant();                                  // l'union locale repart vers le compte
   return true;
 }
@@ -417,15 +420,17 @@ export async function deconnecter(): Promise<void> {
 
 /** Suppression du compte sur le serveur (POST /api/compte/supprimer, après la confirmation de « Mon compte ») : tout ce que le compte
  *  garde est effacé (informations, messages, j'aime, historique de connexion, abonnement à la lettre) ; les données de l'appareil
- *  restent. { ok } si c'est fait (ou si la session n'existait déjà plus), sinon { ok: false, erreur: 'trop' | 'reseau' | … }. */
+ *  restent. { ok } si c'est fait ; { ok: false, erreur: 'session' } si la session n'existait déjà plus (compte oublié sur l'appareil, rien
+ *  de supprimé : il faut se reconnecter) ; sinon { ok: false, erreur: 'trop' | 'reseau' | … }. */
 export async function supprimer(): Promise<{ ok: boolean; erreur?: string }> {
   await assurer();
-  if (!actuel) return { ok: true };
+  if (!actuel) return { ok: false, erreur: 'session' };
   const j = await api('supprimer', {});
   if (j.ok || j.statut === 401) {
     arreterEnvois();
     await garderCompte(null);
-    return { ok: true };
+    // 401 : la session était déjà fermée (expirée, mot de passe changé ailleurs) : RIEN n'a été supprimé (revue du 07/10/2026 nuit)
+    return j.ok ? { ok: true } : { ok: false, erreur: 'session' };
   }
   return { ok: false, erreur: typeof j.erreur === 'string' ? j.erreur : 'reseau' };
 }

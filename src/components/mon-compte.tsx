@@ -84,8 +84,11 @@ export function MonCompte() {
     garderMsg.current = true;                            // la session va disparaître : le message doit rester
     const r = await supprimer();
     setOccupe(false);
-    if (r.ok) {
-      setOuvert(false); setMsg({ t: t.supprime, ok: true }); annoncer(t.supprime);
+    // session déjà fermée (401 : expirée, mot de passe changé ailleurs) : rien n'a été supprimé ; le compte est oublié sur l'appareil
+    // et le message invite à se reconnecter (revue du 07/10/2026 nuit : avant, « Compte supprimé. » s'affichait à tort)
+    if (r.ok || r.erreur === 'session') {
+      const texte = r.ok ? t.supprime : t.supprSession;
+      setOuvert(false); setMsg({ t: texte, ok: !!r.ok }); annoncer(texte);
       setTimeout(() => focaliser(refMsg.current), 50);
       return;
     }
@@ -97,8 +100,9 @@ export function MonCompte() {
     if (!AVEC_OIDC) { router.push('/compte'); return; }  // aperçu web : pas de service commun, l'écran du compte
     setMsg(null);
     const r = await connexionOidc(langue, ecran);
-    if (r === 'ok') setMsg({ t: t.connexionOk, ok: true });
-    else if (r === 'invite') setMsg({ t: t.invitePasse, ok: true });
+    // réussite : l'encadré « Mon compte » et le texte « enregistrées dans votre compte » le montrent ; pas de « Vous êtes connecté »
+    // (revue du 07/10/2026 nuit : l'information « connecté » est dans l'onglet Moi)
+    if (r === 'invite') setMsg({ t: t.invitePasse, ok: true });
     else if (r === 'echec') setMsg({ t: t.oidcKo, ok: false });
   };
 

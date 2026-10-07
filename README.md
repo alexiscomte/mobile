@@ -48,6 +48,9 @@ compte remplissent l'appareil (profil, favoris, votes, scores, question du jour,
 est automatique, comme sur le site (`src/compte.ts`) : envoi 1,5 s après chaque changement local (`pousser()`) et tout de suite
 quand l'appli passe en arrière-plan, nouvel essai après 30 s, 1, 2, 4, 8 puis 10 min en cas d'échec (signalé discrètement dans
 « Mon compte » après 3 échecs de suite), tirage au lancement et au retour au premier plan si le dernier date de plus de 2 min.
+Pendant une série d'échecs, ni le passage en arrière-plan ni un tirage n'envoient hors de ce calendrier (pas de rafale : essai
+`C:\Claude\Claude\outils\tests\appli_synchro.js`, compte.ts transpilé, appels comptés sur 10 min simulées). « Supprimer mon compte »
+refusé par 401 (session déjà fermée) = rien de supprimé : message `supprSession`, jamais « Compte supprimé. ».
 Session gardée sous `ap.compte` (`{ courriel, session, sync, tire, mdp }`, même forme que le site) et injectée dans les pages du
 site ouvertes dans l'appli ; une connexion ou une déconnexion faite dans la page revient dans l'appli. « Effacer mes données »
 vide l'appareil et déconnecte, sans toucher au compte ; « Supprimer mon compte » (encadré « Mon compte » de Mes informations

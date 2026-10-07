@@ -64,16 +64,16 @@ export default function CompteEcran() {
     setOccupe(true); setMsg(null);
     const r = await connexionOidc(langue, ecran);
     setOccupe(false);
-    if (r === 'ok') setMsg({ t: t.connexionOk, ok: true });
-    else if (r === 'invite') setMsg({ t: t.invitePasse, ok: true });
+    // connexion réussie : pas de message « Vous êtes connecté » (revue du 07/10/2026 nuit : l'état connecté est dans l'onglet Moi, et
+    // l'écran passe de lui-même à l'encadré « Mon compte »)
+    if (r === 'invite') setMsg({ t: t.invitePasse, ok: true });
     else if (r === 'echec') setMsg({ t: t.oidcKo, ok: false });
   };
   const viaGoogle = async (jeton: string) => {
     setOccupe(true); setMsg(null);
     const j = await connecterGoogle(jeton, langue, consent);
     setOccupe(false);
-    if (j.ok) setMsg({ t: t.connexionOk, ok: true });
-    else setMsg({ t: j.erreur === 'consentement' ? t.consentKo : j.erreur === 'trop' ? t.trop : j.erreur === 'reseau' ? t.reseau : t.googleKo, ok: false });
+    if (!j.ok) setMsg({ t: j.erreur === 'consentement' ? t.consentKo : j.erreur === 'trop' ? t.trop : j.erreur === 'reseau' ? t.reseau : t.googleKo, ok: false });
   };
 
   const [avantLien, apresLien] = (t.consent || '%s').split('%s');

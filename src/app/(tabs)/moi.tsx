@@ -48,7 +48,8 @@ export default function Moi() {
 
   const seConnecter = useCallback(async () => {
     const r = await connexionOidc(langue);
-    if (r === 'ok') setMsg({ t: TC.connexionOk, ok: true });
+    // réussite : le nom remplace « Se connecter » en tête, pas de message « Vous êtes connecté » en plus (revue du 07/10/2026 nuit)
+    if (r === 'ok') setMsg(null);
     else if (r === 'invite') setMsg({ t: TC.invitePasse, ok: true });
     else if (r === 'echec') setMsg({ t: TC.oidcKo, ok: false });
   }, [langue, TC]);
