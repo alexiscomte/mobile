@@ -7,8 +7,12 @@
 // - admin : pas de formulaire ; par fil, nom donné, adresse et présence du membre, réponse (toujours dans la messagerie), clore /
 //   rouvrir, bloc repliable « Informations administrateur » (numéro, adresse, date de création, dernières connexions avec IP, VPN
 //   probable, fournisseur : GET /api/compte/historique?u=<compte>).
+// « Enregistrer le brouillon » (07/10/2026 nuit, cahier specs/admin-cle-0710.md, pour tous) : à côté de « Envoyer », dans le formulaire du
+// membre et dans chaque fil (membre et admin) ; le brouillon gardé sur le serveur revient dans le champ (GET /api/messages : brouillon_nouveau,
+// brouillon de chaque fil) et s'efface à l'envoi. Admin : « Réponses à valider (N) » ouvre la page de validation du site
+// (admin/reponses.html, vue web avec la session) : la validation des réponses préparées reste sur le site.
 // Textes : ui.json messages (messages.js du site, app_moteurs.py).
-import { Stack, useFocusEffect } from 'expo-router';
+import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
@@ -16,9 +20,11 @@ import { Bouton, Champ, F } from '@/components/form';
 import { Invitation, ListeConnexions, Pastille, Repliable, UI_M, dateHeure, dateJour, type TX } from '@/components/espace';
 import { noterNonLus, oublierSession } from '@/compte';
 import { fmt } from '@/i18n';
-import { changerEtat, envoyer, fils as lireFils, historique, marquerLu, oublierTrace, preferenceMail, repondre, type Connexion, type Fil, type Rep } from '@/messages';
+import { changerEtat, envoyer, fils as lireFils, garderBrouillon, historique, marquerLu, oublierTrace, preferenceMail, repondre, type Brouillon, type Connexion, type Fil, type Rep } from '@/messages';
 import ui from '@/moteur/ui.json';
+import { ouvrir } from '@/nav';
 import { useProfil } from '@/profil';
+import { url } from '@/site';
 import { COULEURS } from '@/theme';
 
 const UI_E = (ui as unknown as { espace: Record<string, TX> }).espace;
@@ -64,7 +70,8 @@ function BlocAdmin({ f, t, lg, sessionFinie }: { f: Fil; t: TX; lg: string; sess
 /** Un fil : en-tête (interlocuteur et présence, état, date), messages en bulles, réponse ; pour l'admin, clôture et bloc d'informations. */
 function CarteFil({ f, admin, t, lg, recharger, sessionFinie }: { f: Fil; admin: boolean; t: TX; lg: string; recharger: () => void; sessionFinie: () => void }) {
   const [ouvert, setOuvert] = useState(false);
-  const [texte, setTexte] = useState('');
+  const [texte, setTexte] = useState(f.brouillon?.texte || '');      // son brouillon de ce fil, rechargé
+  const [noteB, setNoteB] = useState(f.brouillon?.maj ? fmt(t.brouillonDu, dateHeure(f.brouillon.maj, lg)) : '');
   const [statut, setStatut] = useState('');
   const [nonLu, setNonLu] = useState(f.non_lu);
   const [ajouts, setAjouts] = useState<Fil['messages']>([]);       // réponses envoyées d'ici, en attendant le prochain chargement
@@ -81,9 +88,16 @@ function CarteFil({ f, admin, t, lg, recharger, sessionFinie }: { f: Fil; admin:
     const j = await repondre(f.id, x);
     if (j.statut === 401) { sessionFinie(); return; }
     if (!j.ok) { setStatut(erreur(t, j)); return; }
-    setTexte('');
+    setTexte(''); setNoteB('');                    // le serveur a effacé le brouillon de ce fil
     setStatut(t.repEnvoyee + (admin && j.mailDemande ? ' ' + (j.mail ? t.mailEnvoye : t.mailNon) : ''));
     setAjouts((a) => [...a, { auteur: admin ? 'admin' : 'membre', texte: x, cree: new Date().toISOString() }]);
+  };
+  const enregistrer = async () => {
+    setStatut('…');
+    const j = await garderBrouillon({ fil: f.id, texte });
+    if (j.statut === 401) { sessionFinie(); return; }
+    if (!j.ok) { setStatut(erreur(t, j)); return; }
+    setNoteB(''); setStatut(j.id ? t.brouillonOk : t.brouillonVide);
   };
   return (
     <View style={[styles.fil, nonLu && styles.filNonLu]}>
@@ -114,7 +128,9 @@ function CarteFil({ f, admin, t, lg, recharger, sessionFinie }: { f: Fil; admin:
           })}
           <Text style={F.label}>{t.repondre}</Text>
           <TextInput style={styles.zone} value={texte} onChangeText={setTexte} multiline maxLength={5000} textAlignVertical="top" accessibilityLabel={t.repondre} />
+          {noteB ? <Text style={F.muet}>{noteB}</Text> : null}
           <Bouton titre={t.envoyerRep} onPress={envoyerReponse} />
+          <Bouton titre={t.brouillon} secondaire onPress={() => { enregistrer(); }} />
           {admin ? (
             <Bouton titre={f.etat === 'clos' ? t.rouvrir : t.clore} secondaire
               onPress={() => { changerEtat(f.id, f.etat === 'clos' ? 'ouvert' : 'clos').then((j) => { if (j.ok) recharger(); else setStatut(erreur(t, j)); }); }} />
@@ -142,6 +158,9 @@ export default function Messages() {
   const [noteMail, setNoteMail] = useState('');
   const [nonLusSeuls, setNonLusSeuls] = useState(false);
   const [fin, setFin] = useState(false);       // session refusée par le serveur : l'invitation le dit
+  const [brouillon, setBrouillon] = useState<Brouillon | null>(null);   // brouillon du nouveau message gardé sur le serveur
+  const [noteB, setNoteB] = useState('');
+  const router = useRouter();
   const session = compte ? compte.session : '';
 
   useEffect(() => { oublierTrace(); }, []);
@@ -154,10 +173,24 @@ export default function Messages() {
     const r = await lireFils();
     if (r.statut === 401) { sessionFinie(); return; }
     if (!r.ok) { setErreurListe(erreur(t, r as unknown as Rep)); setListe([]); return; }
-    setErreurListe(''); setListe(r.fils); setAdmin(r.admin); setMail(r.mail);
+    setErreurListe(''); setListe(r.fils); setAdmin(r.admin); setMail(r.mail); setBrouillon(r.brouillonNouveau);
     noterNonLus(r.fils.filter((f) => f.non_lu).length, r.admin).catch(() => undefined);
   }, [session, sessionFinie, t]);
   useFocusEffect(useCallback(() => { recharger(); }, [recharger]));
+  // brouillon du nouveau message (cet appareil ou un autre) : repris seulement si la personne n'a encore rien écrit
+  useEffect(() => {
+    if (!brouillon || sujet.trim() || texte.trim()) return;
+    setSujet(brouillon.sujet || ''); setTexte(brouillon.texte || '');
+    setNoteB(brouillon.maj ? fmt(t.brouillonDu, dateHeure(brouillon.maj, langue)) : '');
+  }, [brouillon]);   // eslint-disable-line react-hooks/exhaustive-deps
+
+  const enregistrer = async () => {
+    setStatut('…');
+    const j = await garderBrouillon({ sujet: sujet.trim(), texte });
+    if (j.statut === 401) { setStatut(''); sessionFinie(); return; }
+    if (!j.ok) { setStatut(erreur(t, j)); return; }
+    setNoteB(''); setStatut(j.id ? t.brouillonOk : t.brouillonVide);
+  };
 
   const envoyerMessage = async () => {
     const s = sujet.trim(), x = texte.trim();
@@ -169,7 +202,7 @@ export default function Messages() {
     if (j.statut === 401) { setStatut(''); sessionFinie(); return; }
     if (j.statut === 403 && j.erreur === 'admin') { setStatut(t.adminEcrire); return; }
     if (!j.ok) { setStatut(erreur(t, j)); return; }
-    setSujet(''); setTexte('');
+    setSujet(''); setTexte(''); setNoteB(''); setBrouillon(null);     // le serveur a effacé le brouillon du nouveau message
     setStatut(t.envoye);
     recharger();
   };
@@ -179,6 +212,7 @@ export default function Messages() {
   };
 
   const visibles = (liste || []).filter((f) => !nonLusSeuls || f.non_lu);
+  const aValider = admin ? (liste || []).filter((f) => f.a_valider).length : 0;     // réponses préparées : page de validation du site
   return (
     <>
       <Stack.Screen options={{ title: (UI_E[langue] || UI_E.fr).ongMessages }} />
@@ -195,7 +229,9 @@ export default function Messages() {
             <Champ label={t.sujet} value={sujet} onChangeText={setSujet} maxLength={150} />
             <Text style={F.label}>{t.message}</Text>
             <TextInput style={styles.zone} value={texte} onChangeText={setTexte} multiline maxLength={5000} textAlignVertical="top" accessibilityLabel={t.message} />
+            {noteB ? <Text style={F.muet}>{noteB}</Text> : null}
             <Bouton titre={t.envoyer} onPress={envoyerMessage} disabled={envoi} />
+            <Bouton titre={t.brouillon} secondaire onPress={() => { enregistrer(); }} disabled={envoi} />
             {statut ? <Text style={styles.statut} accessibilityLiveRegion="polite">{statut}</Text> : null}
             <Text style={[F.muet, styles.note]}>{t.confid}</Text>
           </>
@@ -204,6 +240,7 @@ export default function Messages() {
         {compte ? (
           <>
             <Text style={F.h2}>{admin ? t.boite : t.vosFils}</Text>
+            {aValider ? <Bouton titre={fmt(t.aValider, String(aValider))} onPress={() => ouvrir(router, url('admin/reponses.html'), fmt(t.aValider, String(aValider)))} /> : null}
             <View style={styles.option}>
               <Text style={[F.texte, styles.flex]}>{admin ? t.nonLusSeuls : t.prefMail}</Text>
               <Switch value={admin ? nonLusSeuls : mail} trackColor={{ true: COULEURS.secondaire }} accessibilityLabel={admin ? t.nonLusSeuls : t.prefMail}

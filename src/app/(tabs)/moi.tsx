@@ -29,7 +29,9 @@ const UI_COMPTE = (ui as { compte: Record<string, TX> }).compte;
 const UI_E = (ui as unknown as { espace: Record<string, TX> }).espace;
 const RESEAUX = (ui as unknown as { reseaux: { titre: TX; texte: TX; liens: [string, string][] } }).reseaux;
 // menu de l'icône « Mes infos » du site (espace_menu.py) : mêmes entrées, mêmes libellés ; ici chaque entrée ouvre son écran natif
-const MENU = (ui as unknown as { menu: { c: string; t: TX; u: TX; k?: number }[] }).menu;
+// (« a » : entrée de l'administrateur seulement, « Réponses à valider » vers la page de validation du site : pas d'écran natif, elle n'est
+// pas montrée ici ; l'écran Messages de l'admin a son lien)
+const MENU = (ui as unknown as { menu: { c: string; t: TX; u: TX; k?: number; a?: number }[] }).menu;
 type Cible = { route: string; params?: Record<string, string> } | null;   // null : la page du site dans la vue web
 const ECRANS: Record<string, { sf: string; cible: Cible }> = {
   infos: { sf: 'person.text.rectangle.fill', cible: { route: '/mes-infos' } },
@@ -92,7 +94,7 @@ export default function Moi() {
 
         {MENU.map((m) => {
           const e = ECRANS[m.c]; const u = m.u[langue];
-          if (!e || !u || (m.k && !compte)) return null;            // « k » : seulement avec un compte connecté
+          if (!e || !u || (m.k && !compte) || m.a) return null;     // « k » : seulement avec un compte connecté ; « a » : site seulement
           const n = m.c === 'favoris' ? favoris.length : m.c === 'messages' ? (compte?.messages_non_lus || 0) : 0;
           const aller = () => {
             if (!e.cible) { ouvrir(router, url(u), m.t[langue] || m.t.fr); return; }

@@ -9,11 +9,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { appelApi, type Reponse } from './compte';
 
 export type Message = { id?: number; auteur: 'membre' | 'admin'; texte: string; cree: string; verifie?: boolean };
+/** Brouillon gardé sur le serveur (« Enregistrer le brouillon », 07/10/2026 nuit) : vu par son auteur seul, effacé à l'envoi. */
+export type Brouillon = { texte: string; maj: string; sujet?: string };
 /** Un fil. Membre : en_ligne / derniere = présence d'AffectionPlus. Admin : en plus compte_id, nom (donné par le membre), courriel,
- *  invite (ancien fil écrit sans compte) et la présence du membre. */
+ *  invite (ancien fil écrit sans compte), la présence du membre et a_valider (une réponse préparée attend sur la page de validation du
+ *  site). brouillon : celui du lecteur pour ce fil. */
 export type Fil = { id: number; sujet: string; etat: string; cree: string; maj: string; langue?: string; non_lu: boolean;
   en_ligne?: boolean; derniere?: string | null; compte_id?: number | null; nom?: string; courriel?: string; invite?: boolean;
-  messages: Message[] };
+  a_valider?: boolean; brouillon?: Brouillon | null; messages: Message[] };
 export type Rep = Reponse;
 /** Une connexion du compte : date, pays, navigateur ; pour l'admin seulement, adresse IP, User-Agent, VPN probable, fournisseur. */
 export type Connexion = { quand: string; pays: string | null; pays_nom: string | null; navigateur: string;
@@ -28,10 +31,14 @@ function appel(chemin: string, corps?: unknown, methode?: string): Promise<Rep> 
 export function envoyer(m: { nom: string; sujet: string; texte: string; langue: string }): Promise<Rep> {
   return appel('/envoyer', { ...m, site: '' });
 }
-export async function fils(): Promise<{ ok: boolean; admin: boolean; mail: boolean; fils: Fil[]; erreur?: string; statut: number }> {
+export async function fils(): Promise<{ ok: boolean; admin: boolean; mail: boolean; fils: Fil[]; brouillonNouveau: Brouillon | null; erreur?: string; statut: number }> {
   const j = await appel('', undefined, 'GET');
-  return { ok: !!j.ok, admin: !!j.admin, mail: !!j.mail, fils: Array.isArray(j.fils) ? (j.fils as Fil[]) : [], erreur: j.erreur, statut: j.statut };
+  const bn = j.brouillon_nouveau && typeof j.brouillon_nouveau === 'object' ? (j.brouillon_nouveau as Brouillon) : null;
+  return { ok: !!j.ok, admin: !!j.admin, mail: !!j.mail, fils: Array.isArray(j.fils) ? (j.fils as Fil[]) : [], brouillonNouveau: bn, erreur: j.erreur, statut: j.statut };
 }
+/** « Enregistrer le brouillon » : membre { sujet, texte } (nouveau message) ou { fil, texte } (réponse dans son fil) ; admin { fil, texte }.
+ *  Texte (et sujet) vides = brouillon effacé -> { ok, id: null }. Jamais envoyé : seul son auteur le relit (GET /api/messages). */
+export function garderBrouillon(corps: { fil?: number; sujet?: string; texte: string }): Promise<Rep> { return appel('/brouillon', corps); }
 /** Réponse dans un fil (toujours dans la messagerie ; copie par courriel si le membre l'a demandée) -> {ok, mail, mailDemande}. */
 export function repondre(fil: number, texte: string): Promise<Rep> { return appel('/repondre', { fil, texte }); }
 export function marquerLu(fil: number): Promise<Rep> { return appel('/lu', { fil }); }
