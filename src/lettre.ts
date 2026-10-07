@@ -1,11 +1,13 @@
 // État de la lettre d'information dans l'appli (espace membre, 07/10/2026), comme espace.js du site :
 // connecté = état du serveur (compte.newsletter, abonnement direct par compte.ts lettre()) ; sans compte = double opt-in
-// (POST /api/newsletter, courriel de confirmation) et état approché gardé sur l'appareil (« ap.lettre », même clé que le site).
+// (POST /api/newsletter, courriel de confirmation, avec la preuve anti-robot de robot.ts) et état approché gardé sur l'appareil
+// (« ap.lettre », même clé que le site).
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 
 import type { Compte } from './compte';
+import { preuveRobot } from './robot';
 import { SITE } from './site';
 
 export const K_LETTRE = 'ap.lettre';
@@ -18,11 +20,15 @@ async function lireLocal(): Promise<Local> {
 }
 function etatDe(e: unknown): EtatLettre { return e === 'confirme' || e === 'attente' ? e : null; }
 
-/** Sans compte : inscription en double opt-in ; l'état est gardé sur l'appareil. Réponse de l'API { ok, etat | erreur }. */
-export async function abonnerInvite(courriel: string, langue: string): Promise<{ ok?: boolean; etat?: string; erreur?: string }> {
+/** Sans compte : inscription en double opt-in ; l'état est gardé sur l'appareil. Réponse de l'API { ok, etat | erreur }.
+ *  Preuve de travail anti-robot (robot.ts, 07/10/2026 nuit) jointe à l'envoi ; sans elle : { ok: false, erreur: 'robot', robot: raison }
+ *  (ou 'trop' quand le serveur refuse le défi au plafond). */
+export async function abonnerInvite(courriel: string, langue: string): Promise<{ ok?: boolean; etat?: string; erreur?: string; robot?: string }> {
+  const pr = await preuveRobot();
+  if (!pr.altcha) return { ok: false, erreur: pr.erreur === 'trop' ? 'trop' : 'robot', robot: pr.erreur };
   try {
     const r = await fetch(SITE + 'api/newsletter', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ courriel, langue, consentement: 'oui', site: '', page: 'app' }) });
+      body: JSON.stringify({ courriel, langue, consentement: 'oui', site: '', page: 'app', altcha: pr.altcha }) });
     const d = (await r.json()) as { ok?: boolean; etat?: string; erreur?: string };
     if (d.ok) {
       const loc: Local = { etat: d.etat === 'attente' ? 'attente' : 'confirme', courriel, date: new Date().toISOString().slice(0, 10) };

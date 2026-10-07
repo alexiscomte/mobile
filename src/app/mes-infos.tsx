@@ -26,6 +26,7 @@ type TX = Record<string, string>;
 const UI_E = (ui as unknown as { espace: Record<string, TX> }).espace;
 const UI_S = (ui as unknown as { compatS: Record<string, TX> }).compatS;
 const UI_SYN = (ui as unknown as { compatSyn: Record<string, { nomFam: string }> }).compatSyn;
+const UI_R = (ui as unknown as { robot?: Record<string, TX> }).robot || {};
 
 function dateDe(s?: string): Date {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
@@ -85,7 +86,9 @@ export default function MesInfos() {
         const c = courriel.trim().toLowerCase();
         if (!RX_COURRIEL.test(c)) { setNoteLettre(E.newsSansCourriel); return; }
         const d = await abonnerInvite(c, langue);
-        setNoteLettre(d.ok ? (d.etat === 'attente' ? fmt(E.newsAttente, c) : fmt(E.newsAbonne, c)) : E.newsErreur);
+        const R = UI_R[langue] || UI_R.fr || {};           // preuve anti-robot impossible : texte de robot.js (comme espace.js erreurLettre)
+        setNoteLettre(d.ok ? (d.etat === 'attente' ? fmt(E.newsAttente, c) : fmt(E.newsAbonne, c))
+          : d.erreur === 'robot' ? ((d.robot === 'reseau' ? R.reseau : R.ko) || E.newsErreur) : E.newsErreur);
       } else if (etat === 'attente') {
         await oublierInvite(); setNoteLettre(E.newsCaseNote);
       } else {

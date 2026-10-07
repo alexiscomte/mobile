@@ -1,8 +1,9 @@
 // Newsletter (espace membre) : même API que le site. Connecté (07/10/2026) : état du serveur et abonnement direct ou désabonnement
 // (compte.ts lettre, /api/compte/newsletter : adresse prouvée par la session) ; sans compte : inscription en double opt-in
 // (/api/newsletter, courriel de confirmation ; état gardé sur l'appareil, lettre.ts). Messages du site (outils_txt.json, ui.json espace).
+// Sans compte, la preuve anti-robot (robot.ts) se prépare dès que le formulaire est affiché ; échec : texte de robot.js (ui.json robot).
 import { Stack } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Linking, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { Bouton, Champ, F } from '@/components/form';
@@ -12,12 +13,14 @@ import { abonnerInvite, useLettre } from '@/lettre';
 import outils from '@/moteur/outils_txt.json';
 import ui from '@/moteur/ui.json';
 import { useProfil } from '@/profil';
+import { preparerRobot } from '@/robot';
 import { SITE } from '@/site';
 import { COULEURS } from '@/theme';
 
 type TN = Record<string, string>;
 const TXT = (outils as unknown as { newsletter: Record<string, TN> }).newsletter;
 const UI_E = (ui as unknown as { espace: Record<string, TN> }).espace;
+const UI_R = (ui as unknown as { robot?: Record<string, TN> }).robot || {};
 
 export default function Newsletter() {
   const { langue, profil, compte, fusionnerProfil } = useProfil();
@@ -39,7 +42,9 @@ export default function Newsletter() {
       setMsg(j.ok ? { t: fmt(E.newsAbonne, compte.courriel), ok: true } : { t: E.newsErreur, ok: false });
     } else {
       const d = await abonnerInvite(c, langue);
+      const R = UI_R[langue] || UI_R.fr || {};
       if (d.ok) { setMsg({ t: T[d.etat || 'attente'] || T.attente, ok: true }); fusionnerProfil({ courriel: c }); }
+      else if (d.erreur === 'robot') setMsg({ t: (d.robot === 'reseau' ? R.reseau : R.ko) || T.indisponible, ok: false });
       else setMsg({ t: T[d.erreur || 'indisponible'] || T.indisponible, ok: false });
     }
     await recharger(); setEnvoi(false);
@@ -53,6 +58,7 @@ export default function Newsletter() {
 
   const etatTxt = etat === 'confirme' ? fmt(E.newsAbonne, courrielLettre) : etat === 'attente' ? fmt(E.newsAttente, courrielLettre) : E.newsNon;
   const formulaire = !etat || (!compte && etat === 'attente');
+  useEffect(() => { if (formulaire && !compte) preparerRobot(); }, [formulaire, compte]);
   return (
     <>
       <Stack.Screen options={{ title: T.titre }} />
