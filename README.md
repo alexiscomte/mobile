@@ -47,11 +47,18 @@ client iOS de `src/compte_conf.json`, schéma d'URL inverse dans `app.json` → 
 compte remplissent l'appareil (profil, favoris, votes, scores, question du jour, parties à deux) ; ensuite la synchronisation
 est automatique, comme sur le site (`src/compte.ts`) : envoi 1,5 s après chaque changement local (`pousser()`) et tout de suite
 quand l'appli passe en arrière-plan, nouvel essai après 30 s, 1, 2, 4, 8 puis 10 min en cas d'échec (signalé discrètement dans
-« Mon compte » après 3 échecs de suite), tirage au lancement et au retour au premier plan si le dernier date de plus de 2 min.
-Pendant une série d'échecs, ni le passage en arrière-plan ni un tirage n'envoient hors de ce calendrier (pas de rafale : essai
-`C:\Claude\Claude\outils\tests\appli_synchro.js`, compte.ts transpilé, appels comptés sur 10 min simulées). « Supprimer mon compte »
+« Mon compte » après 3 échecs de suite). **« Le local gagne » (07/10/2026 nuit, cahier `specs/synchro-local-0710.md`)** : toute
+modification faite sur l'appareil gagne, même hors ligne et après une fermeture de l'appli, jusqu'à ce qu'elle soit envoyée
+(marqueur persistant `ap.compte.sale`) ; seul ce qui a été modifié ici part (envoi partiel, champ par champ) : une valeur non
+touchée n'écrase jamais ce qui a changé sur un autre appareil. L'empreinte (`ap.compte.empreinte`, hachage de la base
+`ap.compte.base`) est comparée au lancement (`synchroAuLancement`) et à chaque changement d'état de l'appli : rien n'a changé =
+aucun appel. Les données du compte n'arrivent QU'À LA CONNEXION (plus de tirage au lancement ni au retour au premier plan) : un
+changement fait sur un autre appareil arrive à la connexion suivante. « Effacer mes données » oublie aussi les modifications
+non envoyées (`oublierSynchro`). Pendant une série d'échecs, ni le passage en arrière-plan ni une relance n'envoient hors de ce
+calendrier (`ap.compte.essai` ; pas de rafale : essai `C:\Claude\Claude\outils\tests\appli_synchro.js`, compte.ts transpilé,
+faux serveur = vraie fusion de `compte_api.js`, appels comptés sur 10 min simulées, 30 / 30). « Supprimer mon compte »
 refusé par 401 (session déjà fermée) = rien de supprimé : message `supprSession`, jamais « Compte supprimé. ».
-Session gardée sous `ap.compte` (`{ courriel, session, sync, tire, mdp }`, même forme que le site) et injectée dans les pages du
+Session gardée sous `ap.compte` (`{ courriel, session, sync, depuis, mdp, newsletter, admin, messages_non_lus }`, même forme que le site) et injectée dans les pages du
 site ouvertes dans l'appli ; une connexion ou une déconnexion faite dans la page revient dans l'appli. « Effacer mes données »
 vide l'appareil et déconnecte, sans toucher au compte ; « Supprimer mon compte » (encadré « Mon compte » de Mes informations
 personnelles, avec confirmation) efface le compte sur le serveur ; « Changer mon mot de passe » est un écran à part (même route
@@ -64,7 +71,7 @@ src/app/                 écrans (Expo Router) : (tabs)/index|astro|jeux|infos|m
                          horoscope, signes, theme, compat, biorythme, chinois, autres (védique/maya), lune, qdj, sondages,
                          jeu2, quiz, ovulation, maternite, compteur, epoux, garde, newsletter, compte ; espace membre :
                          mes-infos, mot-de-passe, messages, favoris, mes-compat, outils, connexions
-src/compte.ts            compte facultatif : appels /api/compte, synchronisation (tirer, pousser, appliquer), client commun
+src/compte.ts            compte facultatif : appels /api/compte, synchronisation « le local gagne » (pousser, noter, appliquer), client commun
                          appelApi, présence
 src/messages.ts          messagerie avec l'admin (/api/messages) et historique des connexions (/api/compte/historique)
 src/aime.ts              pouce « j'aime » (/api/likes, jeton local ap.jaime.jeton) ; écran : components/pouce.tsx

@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
-import { chargerCompte, compteActuel, envoyerEnAttente, pousser, presence, surCompte, tirerSiVieux, deconnecter, type Compte } from './compte';
+import { chargerCompte, compteActuel, envoyerEnAttente, pousser, presence, surCompte, synchroAuLancement, deconnecter, oublierSynchro, type Compte } from './compte';
 import { estLangue, langueAppareil, type Langue } from './i18n';
 import { paysParCode } from './moteur/lieux';
 
@@ -167,16 +167,15 @@ export function ProfilProvider({ children }: { children: React.ReactNode }) {
     });
     return fin;
   }, [recharger]);
-  // synchronisation automatique (07/10/2026 nuit, comme le site) : tirage au lancement et au retour au premier plan si le dernier date
-  // de plus de 2 min ; au passage en arrière-plan, l'envoi en attente part tout de suite (pas pendant une série d'échecs : les nouveaux
-  // essais gardent leur calendrier, revue du 07/10/2026 nuit) ; au retour, le tirage renvoie l'union si elle diffère
+  // synchronisation automatique (07/10/2026 nuit, comme le site ; « le local gagne », cahier specs/synchro-local-0710.md) : au lancement,
+  // contrôle de l'empreinte et envoi d'abord de ce qui reste à envoyer ; à chaque changement d'état de l'appli (arrière-plan surtout),
+  // contrôle de l'empreinte et envoi tout de suite de ce qui attend (pas pendant une série d'échecs : les nouveaux essais gardent leur
+  // calendrier, revue du 07/10/2026 nuit). Plus aucun tirage au lancement ni au retour au premier plan : les données du compte n'arrivent
+  // qu'à la connexion (décision du 07/10/2026 nuit).
   useEffect(() => {
     if (!pret) return;
-    const minuterie = setTimeout(tirerSiVieux, 800);
-    const abo = AppState.addEventListener('change', (s) => {
-      if (s === 'active') { tirerSiVieux(); envoyerEnAttente(); }
-      else envoyerEnAttente();                       // 'background' ou 'inactive'
-    });
+    const minuterie = setTimeout(() => { synchroAuLancement().catch(() => undefined); }, 800);
+    const abo = AppState.addEventListener('change', () => { envoyerEnAttente(); });   // 'active', 'inactive' ou 'background'
     return () => { clearTimeout(minuterie); abo.remove(); };
   }, [pret]);
 
@@ -242,6 +241,7 @@ export function ProfilProvider({ children }: { children: React.ReactNode }) {
   /** Efface profil et favoris de l'appareil ; un compte connecté est seulement déconnecté (ses données restent sur le compte). */
   const effacer = useCallback(async () => {
     await deconnecter();
+    await oublierSynchro();   // les modifications non envoyées sont oubliées aussi : elles ne doivent pas vider le compte à la prochaine connexion
     profilRef.current = {}; extras.current = {}; favorisRef.current = [];
     setProfilEtat({}); setFavorisEtat([]);
     await AsyncStorage.multiRemove([K.profil, K.favoris, 'ap.lettre']);   // ap.lettre : lettre d'un invité (lettre.ts, 07/10/2026)

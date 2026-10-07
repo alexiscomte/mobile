@@ -44,9 +44,10 @@ export function urlPropre(u: string): string {
 /** Script injecté AVANT le chargement : mode application + profil de l'appareil vers le stockage du site (fusion) ;
  *  favoris de l'appareil ajoutés à ceux de la page (union par url, comme compte.js), pour que la page ne renvoie pas une liste
  *  plus courte que celle du compte ; compte (06/10/2026) : la session de l'appli est posée dans « ap.compte » (page connectée
- *  elle aussi), ou retirée si l'appli n'a pas de compte. La page garde sa propre date de synchro : une session nouvelle pour
- *  elle est posée avec sync = null, pour que compte.js tire d'abord les données du compte dans la vue web avant d'y renvoyer
- *  quoi que ce soit (sinon la page enverrait ses scores apq:*, vides dans la vue web, à la place de ceux du compte). */
+ *  elle aussi), ou retirée si l'appli n'a pas de compte. La page garde sa propre date de synchro (sync = null pour une session
+ *  nouvelle pour elle). Depuis le 07/10/2026 nuit (« le local gagne », cahier specs/synchro-local-0710.md), compte.js ne tire plus
+ *  rien hors connexion : à son premier chargement avec cette session, l'état de la vue web devient sa base, et elle n'envoie
+ *  ensuite QUE ce qui y change (envoi partiel) ; ses scores apq:*, vides dans la vue web, ne remplacent donc jamais ceux du compte. */
 export function injectionAvant(profil: Profil | null, favoris?: Favori[] | null, compte?: Compte | null): string {
   const p = JSON.stringify(profil || {});
   const f = JSON.stringify(favoris || []);
