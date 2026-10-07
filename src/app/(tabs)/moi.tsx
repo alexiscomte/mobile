@@ -6,6 +6,9 @@
 // vers les écrans natifs, avec le nombre de favoris et de messages non lus, puis « Se déconnecter » ; langue, lecture hors ligne,
 // à propos, effacement ; « Suivez-nous sur les réseaux sociaux » en français. Plus de « Gérer mon compte » : mot de passe et
 // suppression du compte sont dans « Mes informations personnelles » (encadré « Mon compte »). Sans compte, tout reste sur l'appareil.
+// Administrateur seulement (07/10/2026 nuit, cahier specs/admin-cle-0710.md ; entrée « a » du menu du site) : après un trait, « Réponses à
+// valider » avec le nombre ap.compte.a_valider (présence, messagerie, page de validation) ; elle ouvre la page de validation du site
+// (admin/reponses.html) dans la vue web avec la session : la validation reste sur le site.
 import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -28,9 +31,8 @@ type TX = Record<string, string>;
 const UI_COMPTE = (ui as { compte: Record<string, TX> }).compte;
 const UI_E = (ui as unknown as { espace: Record<string, TX> }).espace;
 const RESEAUX = (ui as unknown as { reseaux: { titre: TX; texte: TX; liens: [string, string][] } }).reseaux;
-// menu de l'icône « Mes infos » du site (espace_menu.py) : mêmes entrées, mêmes libellés ; ici chaque entrée ouvre son écran natif
-// (« a » : entrée de l'administrateur seulement, « Réponses à valider » vers la page de validation du site : pas d'écran natif, elle n'est
-// pas montrée ici ; l'écran Messages de l'admin a son lien)
+// menu de l'icône « Mes infos » du site (espace_menu.py) : mêmes entrées, mêmes libellés ; ici chaque entrée ouvre son écran natif,
+// sauf « Réponses à valider » (« a » : administrateur seulement), page de validation du site ouverte dans la vue web (cible null)
 const MENU = (ui as unknown as { menu: { c: string; t: TX; u: TX; k?: number; a?: number }[] }).menu;
 type Cible = { route: string; params?: Record<string, string> } | null;   // null : la page du site dans la vue web
 const ECRANS: Record<string, { sf: string; cible: Cible }> = {
@@ -38,6 +40,7 @@ const ECRANS: Record<string, { sf: string; cible: Cible }> = {
   messages: { sf: 'bubble.left.and.bubble.right.fill', cible: { route: '/messages' } },
   favoris: { sf: 'hand.thumbsup.fill', cible: { route: '/favoris' } },
   outils: { sf: 'wrench.and.screwdriver.fill', cible: { route: '/outils' } },
+  reponses: { sf: 'checkmark.circle.fill', cible: null },
 };
 
 export default function Moi() {
@@ -94,14 +97,17 @@ export default function Moi() {
 
         {MENU.map((m) => {
           const e = ECRANS[m.c]; const u = m.u[langue];
-          if (!e || !u || (m.k && !compte) || m.a) return null;     // « k » : seulement avec un compte connecté ; « a » : site seulement
-          const n = m.c === 'favoris' ? favoris.length : m.c === 'messages' ? (compte?.messages_non_lus || 0) : 0;
+          // « k » : seulement avec un compte connecté ; « a » : seulement pour l'administrateur (ap.compte.admin)
+          if (!e || !u || (m.k && !compte) || (m.a && !(compte && compte.admin))) return null;
+          const n = m.c === 'favoris' ? favoris.length : m.c === 'messages' ? (compte?.messages_non_lus || 0) : m.c === 'reponses' ? (compte?.a_valider || 0) : 0;
           const aller = () => {
             if (!e.cible) { ouvrir(router, url(u), m.t[langue] || m.t.fr); return; }
             // routes typées : les écrans du menu existent tous (_layout.tsx) ; la cible vient d'une table fixe
             router.push((e.cible.params ? { pathname: e.cible.route, params: e.cible.params } : e.cible.route) as never);
           };
-          return <Ligne key={m.c} titre={m.t[langue] || m.t.fr} texte={n ? String(n) : undefined} sf={e.sf} onPress={aller} />;
+          const ligne = <Ligne key={m.c} titre={m.t[langue] || m.t.fr} texte={n ? String(n) : undefined} sf={e.sf} onPress={aller} />;
+          // entrée de l'administrateur : séparée des autres par un trait, comme dans le menu du site
+          return m.a ? <View key={m.c}><View style={styles.separateur} />{ligne}</View> : ligne;
         })}
         {compte ? <Ligne titre={E.seDeconnecter} sf="rectangle.portrait.and.arrow.right" onPress={() => { seDeconnecter(); }} /> : null}
 

@@ -22,7 +22,10 @@ construisent dans le nuage d'Expo (EAS Build), sans Mac.
 - **Moi** = espace membre, même menu que l'icône « Mes infos » du site (table `MENU` d'espace.js, exportée dans `ui.json`) :
   « Se connecter » ou le nom (vers Mes informations personnelles), puis Mes informations personnelles, Mes messages (badge),
   Mes favoris, Mes outils, Se déconnecter (connecté) ; langue, lecture hors ligne, effacement (07/10/2026 nuit, cahier
-  `specs/espace-membre-retouches-0710.md`). **Mes informations personnelles** (`mes-infos`) : le formulaire d'abord, puis le
+  `specs/espace-membre-retouches-0710.md`). Pour l'administrateur seulement (entrée « a » du menu, même nuit, cahier
+  `specs/admin-cle-0710.md`) : après un trait, « Réponses à valider » avec le nombre `ap.compte.a_valider` (rendu par la présence, la
+  messagerie et la page de validation elle-même), qui ouvre la page de validation du site `admin/reponses.html` dans la vue web avec la
+  session : la validation des réponses préparées reste sur le site. **Mes informations personnelles** (`mes-infos`) : le formulaire d'abord, puis le
   rappel des signes, le texte selon l'état et l'encadré « Mon compte » (`components/mon-compte.tsx` : « Changer mon mot de
   passe » vers l'écran `mot-de-passe`, « Supprimer mon compte » avec un panneau de confirmation) ; aucun « Connecté : … », ni
   « Synchroniser maintenant », ni « Se déconnecter » ailleurs que dans Moi. **Mes outils** (`outils`) : rappel des signes (date
@@ -30,8 +33,16 @@ construisent dans le nuage d'Expo (EAS Build), sans Mac.
   compatibilités amoureuses et Mon historique de connexion (`connexions`).
 - **Messagerie** (`messages`, 07/10/2026 soir) : avec l'admin seulement et pour les comptes connectés ; l'interlocuteur du
   membre s'appelle toujours « AffectionPlus » (aucun nom d'autre membre), présence, case « copie par courriel » ; l'admin
-  voit le bloc « Informations administrateur ». **Présence** : `POST /api/presence {appareil:'appli'}` toutes les 60 s au
-  premier plan quand un compte est connecté (badge, pays de résidence vide rempli une fois). **Pouce « j'aime »** sous le
+  voit le bloc « Informations administrateur ». **« Enregistrer le brouillon »** (07/10/2026 nuit, pour tous) à côté de « Envoyer »,
+  dans le formulaire du membre et dans chaque fil (membre et admin) : `POST /api/messages/brouillon`, vu par son auteur seul, rechargé
+  depuis `GET /api/messages` (`brouillon_nouveau`, `brouillon` de chaque fil) seulement si le champ est vide, effacé à l'envoi. Admin :
+  bouton « Réponses à valider (N) » vers la page de validation du site. **Présence** : `POST /api/presence {appareil:'appli'}` toutes
+  les 60 s au premier plan quand un compte est connecté (badge, pays de résidence vide rempli une fois ; `a_valider` pour l'admin).
+- **Protection anti-robot** (07/10/2026 nuit, cahier `specs/anti-robot-0710.md`) : l'inscription à la lettre sans compte joint une
+  preuve de travail invisible (`src/robot.ts`, protocole ALTCHA du site : défi `GET /api/robot/defi`, empreintes natives expo-crypto),
+  préparée à l'affichage de l'écran Newsletter et dès qu'on approche l'adresse ou la case de Mes informations personnelles ; échec =
+  textes de `robot.js` du site (`ui.json robot` : ko, reseau, trop). « Créer un compte » et « Mot de passe oublié » se font sur les écrans
+  du service commun, qui calculent eux-mêmes la preuve. **Pouce « j'aime »** sous le
   chapeau des articles (`/api/likes`, compteur sans liste de personnes ; la page entre dans les favoris). Aucune photo.
 
 Les outils et les articles sont les pages du site, affichées dans une vue web en **mode application**
@@ -58,8 +69,9 @@ non envoyées (`oublierSynchro`). Pendant une série d'échecs, ni le passage en
 calendrier (`ap.compte.essai` ; pas de rafale : essai `C:\Claude\Claude\outils\tests\appli_synchro.js`, compte.ts transpilé,
 faux serveur = vraie fusion de `compte_api.js`, appels comptés sur 10 min simulées, 30 / 30). « Supprimer mon compte »
 refusé par 401 (session déjà fermée) = rien de supprimé : message `supprSession`, jamais « Compte supprimé. ».
-Session gardée sous `ap.compte` (`{ courriel, session, sync, depuis, mdp, newsletter, admin, messages_non_lus }`, même forme que le site) et injectée dans les pages du
-site ouvertes dans l'appli ; une connexion ou une déconnexion faite dans la page revient dans l'appli. « Effacer mes données »
+Session gardée sous `ap.compte` (`{ courriel, session, sync, depuis, mdp, newsletter, admin, messages_non_lus, a_valider }`, même forme que le site) et injectée dans
+les pages du site ouvertes dans l'appli (avec `admin` pour l'admin) ; une connexion ou une déconnexion faite dans la page revient dans l'appli, ainsi que
+les compteurs posés par la page avec la même session (messages non lus, `a_valider` de la page de validation : `adopterCompte`). « Effacer mes données »
 vide l'appareil et déconnecte, sans toucher au compte ; « Supprimer mon compte » (encadré « Mon compte » de Mes informations
 personnelles, avec confirmation) efface le compte sur le serveur ; « Changer mon mot de passe » est un écran à part (même route
 que le site, `/api/compte/mot-de-passe`).
@@ -73,7 +85,8 @@ src/app/                 écrans (Expo Router) : (tabs)/index|astro|jeux|infos|m
                          mes-infos, mot-de-passe, messages, favoris, mes-compat, outils, connexions
 src/compte.ts            compte facultatif : appels /api/compte, synchronisation « le local gagne » (pousser, noter, appliquer), client commun
                          appelApi, présence
-src/messages.ts          messagerie avec l'admin (/api/messages) et historique des connexions (/api/compte/historique)
+src/messages.ts          messagerie avec l'admin (/api/messages), brouillons (garderBrouillon) et historique des connexions (/api/compte/historique)
+src/robot.ts             preuve anti-robot (preparerRobot, preuveRobot) ; src/lettre.ts : lettre d'information sans compte (abonnerInvite)
 src/aime.ts              pouce « j'aime » (/api/likes, jeton local ap.jaime.jeton) ; écran : components/pouce.tsx
 src/components/espace    briques de l'espace membre (écran Mes outils, invitation à se connecter, présence, connexions)
 src/components/mon-compte encadré « Mon compte » de Mes informations personnelles (mot de passe, suppression confirmée)
@@ -94,7 +107,7 @@ src/theme.ts             couleurs du site
 
 ## Développer et tester (Windows)
 
-Node 22 portable : `D:\dvt_git\Claude\outils\node\current` (à mettre en tête du PATH ; le Node 18 du système sert au site).
+Node 22 portable : `C:\Claude\Claude\outils\node\current` (à mettre en tête du PATH ; le Node 18 du système sert au site).
 
 ```bash
 npx expo start
@@ -103,7 +116,8 @@ npx expo start
 Puis, sur l'iPhone, l'application **Expo Go** (App Store, gratuite) : scanner le QR code affiché (même Wi-Fi).
 Dans un navigateur : `npx expo start --web` (les pages du site s'affichent alors dans un iframe).
 
-Vérifications : `npx tsc --noEmit` et `npx expo-doctor`.
+Vérifications : `npx tsc --noEmit` et `npx expo-doctor`. Essais sans téléphone (dans `C:\Claude\Claude\outils\tests`, Node 22 portable) :
+`appli_synchro.js` (synchronisation et compteurs du compte, 37 / 37 au 07/10/2026 nuit) et `appli_robot.js` (preuve anti-robot, 11 / 11).
 
 ## Construire pour l'App Store (sans Mac)
 
@@ -119,4 +133,4 @@ Identifiant de l'application : `com.affectionplus.app` (app.json). Icône et éc
 ## Mettre à jour le catalogue des pages
 
 Quand une page outil change d'adresse ou de titre sur le site :
-`python D:\dvt_git\Claude\outils\gen\app_catalogue.py` puis commit ici.
+`python C:\Claude\Claude\outils\gen\app_catalogue.py` puis commit ici.

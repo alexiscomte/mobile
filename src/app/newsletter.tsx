@@ -44,7 +44,8 @@ export default function Newsletter() {
       const d = await abonnerInvite(c, langue);
       const R = UI_R[langue] || UI_R.fr || {};
       if (d.ok) { setMsg({ t: T[d.etat || 'attente'] || T.attente, ok: true }); fusionnerProfil({ courriel: c }); }
-      else if (d.erreur === 'robot') setMsg({ t: (d.robot === 'reseau' ? R.reseau : R.ko) || T.indisponible, ok: false });
+      // preuve impossible (calcul, réseau, plafond du défi) : texte de robot.js selon la raison, comme nl_form.js (APROBOT.message)
+      else if (d.robot) setMsg({ t: (d.robot === 'trop' ? R.trop : d.robot === 'reseau' ? R.reseau : R.ko) || T.indisponible, ok: false });
       else setMsg({ t: T[d.erreur || 'indisponible'] || T.indisponible, ok: false });
     }
     await recharger(); setEnvoi(false);

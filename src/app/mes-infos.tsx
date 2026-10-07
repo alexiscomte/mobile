@@ -1,6 +1,7 @@
 // Mes informations personnelles (espace membre, 07/10/2026) : le formulaire de l'onglet Moi, plus l'adresse électronique, les lieux de
 // naissance et de résidence (choix natif, comme lieu.js du site) et la case « Abonnement à la newsletter » (comme espace.js) :
-// connecté = abonnement direct (compte.ts lettre) ; sans compte = double opt-in (lettre.ts abonnerInvite). Sans compte, tout reste ici.
+// connecté = abonnement direct (compte.ts lettre) ; sans compte = double opt-in (lettre.ts abonnerInvite, avec la preuve anti-robot de
+// robot.ts préparée dès qu'on approche l'adresse ou la case, 07/10/2026 nuit). Sans compte, tout reste ici.
 // Ordre (07/10/2026 nuit, cahier specs/espace-membre-retouches-0710.md, décisions 2, 3 et 7 ; comme espace.js monterEspace) : d'abord le
 // FORMULAIRE, puis le rappel des signes (date connue), puis le texte selon l'état (infosCompte / infosLocal du site), puis « Mon compte »
 // (components/mon-compte.tsx : Changer mon mot de passe, Supprimer mon compte avec confirmation ; sans compte, Se connecter / Créer un
@@ -20,6 +21,7 @@ import { TEXTES3 } from '@/i18n3';
 import { abonnerInvite, oublierInvite, useLettre } from '@/lettre';
 import ui from '@/moteur/ui.json';
 import { useProfil, type Lieu } from '@/profil';
+import { preparerRobot } from '@/robot';
 import { COULEURS } from '@/theme';
 
 type TX = Record<string, string>;
@@ -27,6 +29,11 @@ const UI_E = (ui as unknown as { espace: Record<string, TX> }).espace;
 const UI_S = (ui as unknown as { compatS: Record<string, TX> }).compatS;
 const UI_SYN = (ui as unknown as { compatSyn: Record<string, { nomFam: string }> }).compatSyn;
 const UI_R = (ui as unknown as { robot?: Record<string, TX> }).robot || {};
+/** Preuve anti-robot impossible : texte de robot.js du site selon la raison (comme espace.js erreurLettre → APROBOT.message). */
+function texteRobot(lg: string, raison?: string): string | undefined {
+  const R = UI_R[lg] || UI_R.fr || {};
+  return raison === 'trop' ? R.trop : raison === 'reseau' ? R.reseau : R.ko;
+}
 
 function dateDe(s?: string): Date {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
@@ -75,6 +82,9 @@ export default function MesInfos() {
     setMessage(T.enregistre); setTimeout(() => setMessage(''), 2000);
   };
 
+  // sans compte, cocher la case inscrit par courriel : la preuve anti-robot (robot.ts) se prépare dès qu'on approche l'adresse ou la case
+  // (comme espace.js brancherCaseLettre : focus / pointerdown), pas à chaque affichage de l'écran
+  const preparer = () => { if (!compte && !etat) preparerRobot(); };
   const note = noteLettre || (etat === 'confirme' ? fmt(E.newsAbonne, courrielLettre) : etat === 'attente' ? fmt(E.newsAttente, courrielLettre) : E.newsCaseNote);
   const basculerLettre = async (oui: boolean) => {
     setOccupe(true); setNoteLettre('…');
@@ -86,9 +96,9 @@ export default function MesInfos() {
         const c = courriel.trim().toLowerCase();
         if (!RX_COURRIEL.test(c)) { setNoteLettre(E.newsSansCourriel); return; }
         const d = await abonnerInvite(c, langue);
-        const R = UI_R[langue] || UI_R.fr || {};           // preuve anti-robot impossible : texte de robot.js (comme espace.js erreurLettre)
+        // preuve anti-robot impossible (calcul, réseau, plafond du défi) : texte de robot.js (comme espace.js erreurLettre)
         setNoteLettre(d.ok ? (d.etat === 'attente' ? fmt(E.newsAttente, c) : fmt(E.newsAbonne, c))
-          : d.erreur === 'robot' ? ((d.robot === 'reseau' ? R.reseau : R.ko) || E.newsErreur) : E.newsErreur);
+          : d.robot ? (texteRobot(langue, d.robot) || E.newsErreur) : E.newsErreur);
       } else if (etat === 'attente') {
         await oublierInvite(); setNoteLettre(E.newsCaseNote);
       } else {
@@ -141,10 +151,11 @@ export default function MesInfos() {
 
         <Text style={styles.label}>{E.newsAdresse}</Text>
         <TextInput style={styles.entree} value={courriel} onChangeText={setCourriel} maxLength={254} keyboardType="email-address" autoCapitalize="none"
-          autoCorrect={false} autoComplete="email" textContentType="emailAddress" />
+          autoCorrect={false} autoComplete="email" textContentType="emailAddress" onFocus={preparer} />
         <View style={styles.ligneOption}>
           <Text style={[styles.label, styles.flex]}>{E.newsCase}</Text>
-          <Switch value={!!etat} disabled={occupe} onValueChange={basculerLettre} trackColor={{ true: COULEURS.secondaire }} accessibilityLabel={E.newsCase} />
+          <Switch value={!!etat} disabled={occupe} onValueChange={basculerLettre} trackColor={{ true: COULEURS.secondaire }} accessibilityLabel={E.newsCase}
+            onTouchStart={preparer} />
         </View>
         <Text style={styles.aide}>{note}</Text>
 

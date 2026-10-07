@@ -9,8 +9,9 @@
 //   probable, fournisseur : GET /api/compte/historique?u=<compte>).
 // « Enregistrer le brouillon » (07/10/2026 nuit, cahier specs/admin-cle-0710.md, pour tous) : à côté de « Envoyer », dans le formulaire du
 // membre et dans chaque fil (membre et admin) ; le brouillon gardé sur le serveur revient dans le champ (GET /api/messages : brouillon_nouveau,
-// brouillon de chaque fil) et s'efface à l'envoi. Admin : « Réponses à valider (N) » ouvre la page de validation du site
-// (admin/reponses.html, vue web avec la session) : la validation des réponses préparées reste sur le site.
+// brouillon de chaque fil) et s'efface à l'envoi ; celui d'un fil revient aussi après un rechargement de la liste si le champ est vide.
+// Admin : « Réponses à valider (N) » ouvre la page de validation du site (admin/reponses.html, vue web avec la session) : la validation
+// des réponses préparées reste sur le site ; N est gardé dans ap.compte.a_valider (entrée de l'onglet Moi, comme le menu du site).
 // Textes : ui.json messages (messages.js du site, app_moteurs.py).
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -73,9 +74,17 @@ function CarteFil({ f, admin, t, lg, recharger, sessionFinie }: { f: Fil; admin:
   const [texte, setTexte] = useState(f.brouillon?.texte || '');      // son brouillon de ce fil, rechargé
   const [noteB, setNoteB] = useState(f.brouillon?.maj ? fmt(t.brouillonDu, dateHeure(f.brouillon.maj, lg)) : '');
   const [statut, setStatut] = useState('');
+  const [occupe, setOccupe] = useState(false);                         // envoi ou enregistrement en cours (boutons désactivés, comme le site)
   const [nonLu, setNonLu] = useState(f.non_lu);
   const [ajouts, setAjouts] = useState<Fil['messages']>([]);       // réponses envoyées d'ici, en attendant le prochain chargement
   useEffect(() => { setAjouts([]); setNonLu(f.non_lu); }, [f.messages, f.non_lu]);
+  // brouillon relu à chaque rechargement de la liste (retour sur l'écran, autre appareil : nouvel objet) : repris seulement si le champ est
+  // vide, comme messages.js qui redessine les fils ; un texte en cours de saisie n'est jamais écrasé
+  useEffect(() => {
+    const b = f.brouillon;
+    if (!b || !b.texte || texte.trim()) return;
+    setTexte(b.texte); setNoteB(b.maj ? fmt(t.brouillonDu, dateHeure(b.maj, lg)) : '');
+  }, [f.brouillon]);   // eslint-disable-line react-hooks/exhaustive-deps
   const ETATS: TX = { ouvert: t.etatOuvert, repondu: t.etatRepondu, clos: t.etatClos };
   const basculer = () => {
     const o = !ouvert; setOuvert(o);
@@ -84,8 +93,9 @@ function CarteFil({ f, admin, t, lg, recharger, sessionFinie }: { f: Fil; admin:
   const envoyerReponse = async () => {
     const x = texte.trim();
     if (x.length < 2) { setStatut(t.errTexte); return; }
-    setStatut('…');
+    setStatut('…'); setOccupe(true);
     const j = await repondre(f.id, x);
+    setOccupe(false);
     if (j.statut === 401) { sessionFinie(); return; }
     if (!j.ok) { setStatut(erreur(t, j)); return; }
     setTexte(''); setNoteB('');                    // le serveur a effacé le brouillon de ce fil
@@ -93,8 +103,9 @@ function CarteFil({ f, admin, t, lg, recharger, sessionFinie }: { f: Fil; admin:
     setAjouts((a) => [...a, { auteur: admin ? 'admin' : 'membre', texte: x, cree: new Date().toISOString() }]);
   };
   const enregistrer = async () => {
-    setStatut('…');
+    setStatut('…'); setOccupe(true);
     const j = await garderBrouillon({ fil: f.id, texte });
+    setOccupe(false);
     if (j.statut === 401) { sessionFinie(); return; }
     if (!j.ok) { setStatut(erreur(t, j)); return; }
     setNoteB(''); setStatut(j.id ? t.brouillonOk : t.brouillonVide);
@@ -129,8 +140,8 @@ function CarteFil({ f, admin, t, lg, recharger, sessionFinie }: { f: Fil; admin:
           <Text style={F.label}>{t.repondre}</Text>
           <TextInput style={styles.zone} value={texte} onChangeText={setTexte} multiline maxLength={5000} textAlignVertical="top" accessibilityLabel={t.repondre} />
           {noteB ? <Text style={F.muet}>{noteB}</Text> : null}
-          <Bouton titre={t.envoyerRep} onPress={envoyerReponse} />
-          <Bouton titre={t.brouillon} secondaire onPress={() => { enregistrer(); }} />
+          <Bouton titre={t.envoyerRep} onPress={envoyerReponse} disabled={occupe} />
+          <Bouton titre={t.brouillon} secondaire onPress={() => { enregistrer(); }} disabled={occupe} />
           {admin ? (
             <Bouton titre={f.etat === 'clos' ? t.rouvrir : t.clore} secondaire
               onPress={() => { changerEtat(f.id, f.etat === 'clos' ? 'ouvert' : 'clos').then((j) => { if (j.ok) recharger(); else setStatut(erreur(t, j)); }); }} />
@@ -174,7 +185,8 @@ export default function Messages() {
     if (r.statut === 401) { sessionFinie(); return; }
     if (!r.ok) { setErreurListe(erreur(t, r as unknown as Rep)); setListe([]); return; }
     setErreurListe(''); setListe(r.fils); setAdmin(r.admin); setMail(r.mail); setBrouillon(r.brouillonNouveau);
-    noterNonLus(r.fils.filter((f) => f.non_lu).length, r.admin).catch(() => undefined);
+    // badge de Mes messages et, pour l'admin, nombre de « Réponses à valider » de l'onglet Moi (comme messages.js : ap.compte.a_valider)
+    noterNonLus(r.fils.filter((f) => f.non_lu).length, r.admin, r.admin ? r.fils.filter((f) => f.a_valider).length : undefined).catch(() => undefined);
   }, [session, sessionFinie, t]);
   useFocusEffect(useCallback(() => { recharger(); }, [recharger]));
   // brouillon du nouveau message (cet appareil ou un autre) : repris seulement si la personne n'a encore rien écrit
@@ -185,8 +197,9 @@ export default function Messages() {
   }, [brouillon]);   // eslint-disable-line react-hooks/exhaustive-deps
 
   const enregistrer = async () => {
-    setStatut('…');
+    setStatut('…'); setEnvoi(true);
     const j = await garderBrouillon({ sujet: sujet.trim(), texte });
+    setEnvoi(false);
     if (j.statut === 401) { setStatut(''); sessionFinie(); return; }
     if (!j.ok) { setStatut(erreur(t, j)); return; }
     setNoteB(''); setStatut(j.id ? t.brouillonOk : t.brouillonVide);

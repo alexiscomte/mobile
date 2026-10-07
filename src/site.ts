@@ -51,7 +51,9 @@ export function urlPropre(u: string): string {
 export function injectionAvant(profil: Profil | null, favoris?: Favori[] | null, compte?: Compte | null): string {
   const p = JSON.stringify(profil || {});
   const f = JSON.stringify(favoris || []);
-  const c = JSON.stringify(compte ? { courriel: compte.courriel, session: compte.session, sync: null, ...(compte.depuis ? { depuis: compte.depuis } : {}) } : null);
+  // admin : comme ap.compte.admin du site (messages.js : pas de formulaire « Nous écrire » pour l'admin dès le premier affichage)
+  const c = JSON.stringify(compte ? { courriel: compte.courriel, session: compte.session, sync: null, ...(compte.depuis ? { depuis: compte.depuis } : {}),
+    ...(compte.admin ? { admin: true } : {}) } : null);
   return `(function(){try{document.documentElement.classList.add('app');sessionStorage.setItem('ap.app','1');
 var n=${p};var a={};try{a=JSON.parse(localStorage.getItem('ap.profil')||'{}')||{};}catch(e){}
 var ch=false;for(var k in n){if(n[k]!==null&&n[k]!==undefined&&n[k]!==''&&JSON.stringify(a[k])!==JSON.stringify(n[k])){a[k]=n[k];ch=true;}}
@@ -67,7 +69,8 @@ if(c){if(!ao||ao.session!==c.session){localStorage.setItem('ap.compte',JSON.stri
 
 /** Script injecté APRÈS le chargement : renvoie à l'application le profil et les favoris tenus par le site (postMessage) ;
  *  « compteChange » quand la page a changé « ap.compte » (connexion, déconnexion faites dans la page ; une synchro de la page
- *  ne change que sa propre date, que l'appli ignore). */
+ *  ne change que sa propre date, que l'appli ignore ; les compteurs du serveur, messages non lus et, pour l'admin, réponses à valider
+ *  de la page de validation, sont repris par compte.ts adopterCompte). */
 export const INJECTION_APRES = `(function(){function envoyer(cc){try{window.ReactNativeWebView.postMessage(JSON.stringify({type:'etat',profil:localStorage.getItem('ap.profil'),favoris:localStorage.getItem('ap.favoris'),compte:localStorage.getItem('ap.compte'),compteChange:!!cc,titre:document.title,url:location.href}));}catch(e){}}
 envoyer();var S=Storage.prototype,set=S.setItem,del=S.removeItem;
 function local(o){try{return o===window.localStorage;}catch(e){return false;}}
