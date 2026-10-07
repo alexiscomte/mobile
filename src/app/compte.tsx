@@ -3,7 +3,6 @@
 // dans une session web privée (code + PKCE, rien n'est gardé dans Safari), ou « Se connecter avec Google » (natif). Connecté : état de la
 // synchronisation, « Synchroniser maintenant », mot de passe (changer / créer), « Se déconnecter », « Supprimer mon compte ».
 // Textes : ui.json → compte (générés depuis le site).
-import * as AuthSession from 'expo-auth-session';
 import * as Google from 'expo-auth-session/providers/google';
 import { Stack } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
@@ -12,7 +11,8 @@ import { ActivityIndicator, Alert, Linking, Platform, Pressable, ScrollView, Sty
 
 import { Bouton, Champ, F } from '@/components/form';
 import { Banniere } from '@/components/illustration';
-import { CONF, OIDC, changerMdp, connecterGoogle, connecterOidc, deconnecter, supprimer, tirer, type Reponse } from '@/compte';
+import { CONF, changerMdp, connecterGoogle, deconnecter, supprimer, tirer, type Reponse } from '@/compte';
+import { AVEC_OIDC, connexionOidc, marquerInvite } from '@/connexion';
 import conf from '@/compte_conf.json';
 import { TEXTES, fmt, type Langue } from '@/i18n';
 import { TEXTES4 } from '@/i18n4';
@@ -31,8 +31,6 @@ const GOOGLE = conf as { googleIos?: string; googleWeb?: string };
 const ID_GOOGLE = Platform.OS === 'ios' ? GOOGLE.googleIos || '' : Platform.OS === 'web' ? GOOGLE.googleWeb || '' : '';
 // iOS : retour de Google par le schéma d'URL inverse du client (déclaré dans app.json, ios.scheme)
 const RETOUR_IOS = GOOGLE.googleIos ? 'com.googleusercontent.apps.' + GOOGLE.googleIos.replace(/\.apps\.googleusercontent\.com$/, '') + ':/oauthredirect' : undefined;
-// service commun : retour par le schéma com.affectionplus.app (app.json), déclaré pour le client affectionplus-appli ; pas dans l'aperçu web
-const AVEC_OIDC = Platform.OS !== 'web';
 
 function dateTexte(iso: string | null, lg: Langue, jamais: string): string {
   if (!iso) return jamais;
@@ -40,26 +38,6 @@ function dateTexte(iso: string | null, lg: Langue, jamais: string): string {
   if (isNaN(d.getTime())) return jamais;
   try { return d.toLocaleString(lg, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
   catch { return iso.slice(0, 16).replace('T', ' '); }
-}
-
-/** « Se connecter » ou « Créer un compte » (ecran = 'inscription') : écran du service commun, puis échange du code contre le jeton d'identité. */
-function BoutonOidc({ titre, ecran, langue, secondaire, occupe, onJeton, onEchec }:
-  { titre: string; ecran?: string; langue: Langue; secondaire?: boolean; occupe: boolean; onJeton: (j: string) => void; onEchec: () => void }) {
-  const [requete, reponse, demander] = AuthSession.useAuthRequest({
-    clientId: OIDC.client, redirectUri: OIDC.retour, scopes: ['openid', 'email', 'profile'], usePKCE: true,
-    responseType: AuthSession.ResponseType.Code, extraParams: ecran ? { ui_locales: langue, ecran } : { ui_locales: langue },
-  }, OIDC.decouverte);
-  useEffect(() => {
-    if (!reponse || !requete) return;
-    if (reponse.type === 'success' && reponse.params.code) {
-      AuthSession.exchangeCodeAsync({ clientId: OIDC.client, code: reponse.params.code, redirectUri: OIDC.retour,
-        extraParams: { code_verifier: requete.codeVerifier || '' } }, OIDC.decouverte)
-        .then((tok) => { if (tok.idToken) onJeton(tok.idToken); else onEchec(); })
-        .catch(onEchec);
-    } else if (reponse.type === 'error') onEchec();
-  }, [reponse]); // eslint-disable-line react-hooks/exhaustive-deps
-  // session privée : pas de cookie gardé dans Safari ni d'alerte « … veut utiliser affectionplus.com pour se connecter »
-  return <Bouton titre={titre} secondaire={secondaire} disabled={!requete || occupe} onPress={() => { demander({ preferEphemeralSession: true }).catch(onEchec); }} />;
 }
 
 /** Bouton « Se connecter avec Google » : jeton d'identité Google (expo-auth-session), envoyé ensuite à api/compte/google. */
@@ -91,11 +69,14 @@ export default function CompteEcran() {
   const [nouveau, setNouveau] = useState('');
   const [confirme, setConfirme] = useState('');
 
-  const viaOidc = async (jeton: string) => {
+  // service commun (src/connexion.ts) : « Continuer en invité » n'est pas un échec
+  const viaOidc = async (ecran?: string) => {
     setOccupe(true); setMsg(null);
-    const j = await connecterOidc(jeton);
+    const r = await connexionOidc(langue, ecran);
     setOccupe(false);
-    setMsg(j.ok ? { t: t.connexionOk, ok: true } : { t: j.erreur === 'trop' ? t.trop : j.erreur === 'reseau' ? t.reseau : t.oidcKo, ok: false });
+    if (r === 'ok') setMsg({ t: t.connexionOk, ok: true });
+    else if (r === 'invite') setMsg({ t: t.invitePasse, ok: true });
+    else if (r === 'echec') setMsg({ t: t.oidcKo, ok: false });
   };
   const viaGoogle = async (jeton: string) => {
     setOccupe(true); setMsg(null);
@@ -122,6 +103,7 @@ export default function CompteEcran() {
   };
   const seDeconnecter = async () => {
     await deconnecter();
+    marquerInvite();   // pas de connexion proposée d'office juste après (onglet Moi), pendant ce lancement
     setMdpOuvert(false); setAncien(''); setNouveau(''); setConfirme('');
     setMsg({ t: t.deconnecte, ok: true });
   };
@@ -142,7 +124,6 @@ export default function CompteEcran() {
 
   const [avantLien, apresLien] = (t.consent || '%s').split('%s');
   const lienConf = SITE + (CONF[langue] || CONF.fr) + '#compte';
-  const echecOidc = () => { setOccupe(false); setMsg({ t: t.oidcKo, ok: false }); };
 
   return (
     <>
@@ -182,8 +163,8 @@ export default function CompteEcran() {
             <Text style={F.texte}>{t.introOidc + ' ' + T4.sansCompte}</Text>
             {AVEC_OIDC ? (
               <>
-                <BoutonOidc titre={t.seConnecter} langue={langue} occupe={occupe} onJeton={viaOidc} onEchec={echecOidc} />
-                <BoutonOidc titre={t.creerCompte} ecran="inscription" secondaire langue={langue} occupe={occupe} onJeton={viaOidc} onEchec={echecOidc} />
+                <Bouton titre={t.seConnecter} onPress={() => { viaOidc(); }} disabled={occupe} />
+                <Bouton titre={t.creerCompte} secondaire onPress={() => { viaOidc('inscription'); }} disabled={occupe} />
               </>
             ) : null}
             {ID_GOOGLE ? (

@@ -9,7 +9,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SITE } from './site';
 import { fusionnerCompat, K_CT } from './compat_tests';
 
-export type Compte = { courriel: string; session: string; sync: string | null; depuis?: string; mdp?: boolean };
+export type Compte = { courriel: string; session: string; sync: string | null; depuis?: string; mdp?: boolean;
+  newsletter?: string | null };   // état de la lettre pour l'adresse du compte ('confirme' | 'attente' | 'desinscrit' | null), donné par le serveur
 export type Reponse = { ok?: boolean; erreur?: string; statut: number; [k: string]: unknown };
 type Score = { s?: number; n?: number; d?: string; t?: string; u?: string };
 type FavoriBrut = { url?: unknown; date?: unknown; [k: string]: unknown };
@@ -46,7 +47,8 @@ function nettoyerCompte(x: unknown): Compte | null {
   if (typeof c.session !== 'string' || !c.session) return null;
   const out: Compte = { courriel: typeof c.courriel === 'string' ? c.courriel : '', session: c.session, sync: typeof c.sync === 'string' ? c.sync : null };
   if (typeof c.depuis === 'string') out.depuis = c.depuis;
-  if (typeof c.mdp === 'boolean') out.mdp = c.mdp;   // le compte a un mot de passe (sinon : « Créer un mot de passe »)
+  if (typeof c.mdp === 'boolean') out.mdp = c.mdp;
+  if (typeof c.newsletter === 'string') out.newsletter = c.newsletter;   // le compte a un mot de passe (sinon : « Créer un mot de passe »)
   return out;
 }
 function lireJson(v: string | null | undefined): unknown {
@@ -207,7 +209,8 @@ export async function tirer(): Promise<boolean> {
   if (!actuel || actuel.session !== c.session) return false;   // déconnecté entre-temps
   await appliquer(j);
   await garderCompte({ ...actuel, courriel: typeof j.courriel === 'string' && j.courriel ? j.courriel : actuel.courriel, sync: new Date().toISOString(),
-    ...(typeof j.mdp === 'boolean' ? { mdp: j.mdp } : {}) });
+    ...(typeof j.mdp === 'boolean' ? { mdp: j.mdp } : {}),
+    ...(j.newsletter !== undefined ? { newsletter: typeof j.newsletter === 'string' ? j.newsletter : null } : {}) });
   signaler('donnees');
   sale = true;
   if (enCours) rejouer = true;   // un envoi est en route : l'union repartira juste après
@@ -220,8 +223,8 @@ async function ouvrir(j: Reponse) {
   const courriel = typeof j.courriel === 'string' ? j.courriel : '';
   const session = typeof j.session === 'string' ? j.session : '';
   if (!session) return;
-  const mdp = !!j.mdp;
-  await garderCompte({ courriel, session, sync: null, depuis: new Date().toISOString().slice(0, 10), mdp });
+  const mdp = !!j.mdp, newsletter = typeof j.newsletter === 'string' ? j.newsletter : null;
+  await garderCompte({ courriel, session, sync: null, depuis: new Date().toISOString().slice(0, 10), mdp, newsletter });
   await appliquer(j);
   // connexion Google : le prénom du compte Google remplit « Mes infos » seulement si l'appareil et le compte n'en ont pas (compte.js)
   if (typeof j.prenom_google === 'string' && j.prenom_google) {
@@ -230,7 +233,7 @@ async function ouvrir(j: Reponse) {
       if (!pf.prenom) { pf.prenom = j.prenom_google.slice(0, 40); await AsyncStorage.setItem(K_PROFIL, JSON.stringify(pf)); }
     } catch { /* stockage indisponible */ }
   }
-  await garderCompte({ courriel, session, sync: new Date().toISOString(), depuis: actuel?.depuis, mdp });
+  await garderCompte({ courriel, session, sync: new Date().toISOString(), depuis: actuel?.depuis, mdp, newsletter });
   signaler('donnees');
   sale = true;
   if (enCours) rejouer = true; else pousserMaintenant();
@@ -248,6 +251,15 @@ export async function connecterOidc(idToken: string): Promise<Reponse> {
   const jetonLocal = (await AsyncStorage.getItem(K_SJ).catch(() => null)) || '';
   const j = await api('oidc', { id_token: idToken, client_id: OIDC.client, jeton_local: jetonLocal, appareil: 'appli' });
   if (j.ok) await ouvrir(j);
+  return j;
+}
+
+/** La lettre pour l'adresse du compte connecté : abonnement direct (adresse prouvée par la session, case cochée par la personne) ou
+ *  désabonnement ; POST /api/compte/newsletter. Erreurs : consentement, session, trop, indisponible, reseau. */
+export async function lettre(abonne: boolean, langue: string): Promise<Reponse> {
+  await assurer();
+  const j = await api('newsletter', abonne ? { abonne: true, consentement: 'oui', langue, page: 'appli' } : { abonne: false });
+  if (j.ok && actuel) await garderCompte({ ...actuel, newsletter: typeof j.newsletter === 'string' ? j.newsletter : null });
   return j;
 }
 

@@ -206,7 +206,7 @@ export function ProfilProvider({ children }: { children: React.ReactNode }) {
     await deconnecter();
     profilRef.current = {}; extras.current = {}; favorisRef.current = [];
     setProfilEtat({}); setFavorisEtat([]);
-    await AsyncStorage.multiRemove([K.profil, K.favoris]);
+    await AsyncStorage.multiRemove([K.profil, K.favoris, 'ap.lettre']);   // ap.lettre : lettre d'un invité (lettre.ts, 07/10/2026)
   }, []);
 
   const valeur = useMemo<Etat>(() => ({ pret, profil, favoris, langue, compte, setProfil, fusionnerProfil, setFavoris, setLangue, effacer, recharger }),
