@@ -10,7 +10,8 @@ import { SITE } from './site';
 import { fusionnerCompat, K_CT } from './compat_tests';
 
 export type Compte = { courriel: string; session: string; sync: string | null; depuis?: string; mdp?: boolean;
-  newsletter?: string | null };   // état de la lettre pour l'adresse du compte ('confirme' | 'attente' | 'desinscrit' | null), donné par le serveur
+  newsletter?: string | null;
+  admin?: boolean; messages_non_lus?: number };   // messagerie interne : compte ADMIN, fils non lus (badge de l'onglet Moi)   // état de la lettre pour l'adresse du compte ('confirme' | 'attente' | 'desinscrit' | null), donné par le serveur
 export type Reponse = { ok?: boolean; erreur?: string; statut: number; [k: string]: unknown };
 type Score = { s?: number; n?: number; d?: string; t?: string; u?: string };
 type FavoriBrut = { url?: unknown; date?: unknown; [k: string]: unknown };
@@ -48,7 +49,9 @@ function nettoyerCompte(x: unknown): Compte | null {
   const out: Compte = { courriel: typeof c.courriel === 'string' ? c.courriel : '', session: c.session, sync: typeof c.sync === 'string' ? c.sync : null };
   if (typeof c.depuis === 'string') out.depuis = c.depuis;
   if (typeof c.mdp === 'boolean') out.mdp = c.mdp;
-  if (typeof c.newsletter === 'string') out.newsletter = c.newsletter;   // le compte a un mot de passe (sinon : « Créer un mot de passe »)
+  if (typeof c.newsletter === 'string') out.newsletter = c.newsletter;
+  if (typeof c.admin === 'boolean') out.admin = c.admin;
+  if (typeof c.messages_non_lus === 'number') out.messages_non_lus = c.messages_non_lus;   // le compte a un mot de passe (sinon : « Créer un mot de passe »)
   return out;
 }
 function lireJson(v: string | null | undefined): unknown {
@@ -210,7 +213,9 @@ export async function tirer(): Promise<boolean> {
   await appliquer(j);
   await garderCompte({ ...actuel, courriel: typeof j.courriel === 'string' && j.courriel ? j.courriel : actuel.courriel, sync: new Date().toISOString(),
     ...(typeof j.mdp === 'boolean' ? { mdp: j.mdp } : {}),
-    ...(j.newsletter !== undefined ? { newsletter: typeof j.newsletter === 'string' ? j.newsletter : null } : {}) });
+    ...(j.newsletter !== undefined ? { newsletter: typeof j.newsletter === 'string' ? j.newsletter : null } : {}),
+    ...(typeof j.admin === 'boolean' ? { admin: j.admin } : {}),
+    ...(typeof j.messages_non_lus === 'number' ? { messages_non_lus: j.messages_non_lus } : {}) });
   signaler('donnees');
   sale = true;
   if (enCours) rejouer = true;   // un envoi est en route : l'union repartira juste après
@@ -224,7 +229,8 @@ async function ouvrir(j: Reponse) {
   const session = typeof j.session === 'string' ? j.session : '';
   if (!session) return;
   const mdp = !!j.mdp, newsletter = typeof j.newsletter === 'string' ? j.newsletter : null;
-  await garderCompte({ courriel, session, sync: null, depuis: new Date().toISOString().slice(0, 10), mdp, newsletter });
+  const admin = !!j.admin, messages_non_lus = typeof j.messages_non_lus === 'number' ? j.messages_non_lus : 0;
+  await garderCompte({ courriel, session, sync: null, depuis: new Date().toISOString().slice(0, 10), mdp, newsletter, admin, messages_non_lus });
   await appliquer(j);
   // connexion Google : le prénom du compte Google remplit « Mes infos » seulement si l'appareil et le compte n'en ont pas (compte.js)
   if (typeof j.prenom_google === 'string' && j.prenom_google) {
@@ -233,7 +239,7 @@ async function ouvrir(j: Reponse) {
       if (!pf.prenom) { pf.prenom = j.prenom_google.slice(0, 40); await AsyncStorage.setItem(K_PROFIL, JSON.stringify(pf)); }
     } catch { /* stockage indisponible */ }
   }
-  await garderCompte({ courriel, session, sync: new Date().toISOString(), depuis: actuel?.depuis, mdp, newsletter });
+  await garderCompte({ courriel, session, sync: new Date().toISOString(), depuis: actuel?.depuis, mdp, newsletter, admin, messages_non_lus });
   signaler('donnees');
   sale = true;
   if (enCours) rejouer = true; else pousserMaintenant();
@@ -252,6 +258,14 @@ export async function connecterOidc(idToken: string): Promise<Reponse> {
   const j = await api('oidc', { id_token: idToken, client_id: OIDC.client, jeton_local: jetonLocal, appareil: 'appli' });
   if (j.ok) await ouvrir(j);
   return j;
+}
+
+/** Nombre de fils non lus après une lecture de la messagerie (badge de l'onglet Moi). */
+export async function noterNonLus(n: number, admin?: boolean): Promise<void> {
+  await assurer();
+  if (actuel && (actuel.messages_non_lus !== n || (admin !== undefined && actuel.admin !== admin))) {
+    await garderCompte({ ...actuel, messages_non_lus: n, ...(admin !== undefined ? { admin } : {}) });
+  }
 }
 
 /** La lettre pour l'adresse du compte connecté : abonnement direct (adresse prouvée par la session, case cochée par la personne) ou

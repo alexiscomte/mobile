@@ -1943,47 +1943,47 @@
    "fr": {
     "u": "fr/contact.html",
     "t": "Nous écrire",
-    "d": "Une question, une correction, une suggestion, une proposition commerciale, un partenariat, un signalement : une seule adresse, et nous lisons tout."
+    "d": "Une question, une correction, une suggestion, une proposition commerciale, un partenariat, un signalement : écrivez-nous ci-dessous, nous lisons tout."
    },
    "en": {
     "u": "en/contact.html",
     "t": "Contact us",
-    "d": "A question, a correction, a suggestion, a commercial proposal, a partnership, a report: one address, and we read everything."
+    "d": "A question, a correction, a suggestion, a commercial proposal, a partnership, a report: write to us below, we read everything."
    },
    "de": {
     "u": "de/kontakt.html",
     "t": "Kontakt",
-    "d": "Eine Frage, eine Korrektur, ein Vorschlag, ein kommerzielles Angebot, eine Partnerschaft, eine Meldung: eine Adresse, und wir lesen alles."
+    "d": "Eine Frage, eine Korrektur, ein Vorschlag, ein kommerzielles Angebot, eine Partnerschaft, eine Meldung: Schreiben Sie uns unten, wir lesen alles."
    },
    "es": {
     "u": "es/contacto.html",
     "t": "Escríbanos",
-    "d": "Una sola dirección para las preguntas, las correcciones, las sugerencias, las propuestas comerciales, la prensa y las solicitudes sobre datos personales."
+    "d": "Para todo, escríbanos con el formulario de abajo. Las correcciones se tratan primero."
    },
    "it": {
     "u": "it/contatti.html",
     "t": "Scrivici",
-    "d": "Un solo indirizzo per le domande, le correzioni, i suggerimenti, le proposte commerciali, la stampa e le richieste sui dati personali."
+    "d": "Per tutto, scriveteci con il modulo qui sotto. Le correzioni si trattano per prime."
    },
    "pt": {
     "u": "pt/contacto.html",
     "t": "Escreva-nos",
-    "d": "Um só endereço para as perguntas, as correções, as sugestões, as propostas comerciais, a imprensa e os pedidos sobre dados pessoais."
+    "d": "Para tudo, escreva-nos com o formulário abaixo. As correções tratam-se primeiro."
    },
    "nl": {
     "u": "nl/contact.html",
     "t": "Schrijf ons",
-    "d": "Eén adres voor de vragen, de correcties, de suggesties, de commerciële voorstellen, de pers en de verzoeken over persoonsgegevens."
+    "d": "Voor alles: schrijf ons via het formulier hieronder. De correcties worden het eerst behandeld."
    },
    "pl": {
     "u": "pl/kontakt.html",
     "t": "Napisz do nas",
-    "d": "Jeden adres na pytania, poprawki, sugestie, propozycje handlowe, prasę i wnioski dotyczące danych osobowych."
+    "d": "W każdej sprawie napisz do nas przez formularz poniżej. Poprawki załatwia się najpierw."
    },
    "tr": {
     "u": "tr/iletisim.html",
     "t": "Bize yazın",
-    "d": "Sorular, düzeltmeler, öneriler, ticari teklifler, basın ve kişisel verilere ilişkin talepler için tek adres."
+    "d": "Her şey için aşağıdaki formla bize yazın. Düzeltmeler önce ele alınır."
    }
   },
   "confidentialite": {

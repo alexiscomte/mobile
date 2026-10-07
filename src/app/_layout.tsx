@@ -48,6 +48,7 @@ function Pile() {
       <Stack.Screen name="mes-compat" options={{ title: '' }} />
       <Stack.Screen name="mes-infos" options={{ title: '' }} />
       <Stack.Screen name="favoris" options={{ title: '' }} />
+      <Stack.Screen name="messages" options={{ title: '' }} />
     </Stack>
   );
 }

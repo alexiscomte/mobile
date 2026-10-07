@@ -1,38 +1,55 @@
-// Moi = accueil de l'espace membre (Alexis, 07/10/2026), comme le cadre des sous-pages du site (espace_membre.py, espace.js cadre) :
-// sans compte ni choix « invité » pendant ce lancement, l'arrivée sur l'onglet ouvre directement l'écran de connexion (avec
-// « Continuer en invité ») ; état « Connecté : … » ou « Mode hors ligne » + « Se connecter » ; bandeau « Tenez-vous informé » si la
-// personne n'est pas abonnée ; les cinq sous-écrans (infos, sondages, favoris, compatibilités, newsletter) ; langue, lecture hors
-// ligne, à propos, effacement ; « Suivez-nous sur les réseaux sociaux » en français. Sans compte, tout reste sur l'appareil.
-import { useFocusEffect, useRouter } from 'expo-router';
+// Moi = accueil de l'espace membre (Alexis, 07/10/2026), comme le menu de l'icône « Mes infos » du site : « Se connecter » (ou le nom
+// de la personne, sinon son adresse) en tête, puis les mêmes entrées (table MENU d'espace.js) vers les écrans natifs, avec le nombre de
+// favoris et de messages non lus ; langue, lecture hors ligne, à propos, effacement ; « Suivez-nous sur les réseaux sociaux » en
+// français. Sans compte, tout reste sur l'appareil.
+import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Ligne, Titre } from '@/components/carte';
-import { Bandeau } from '@/components/form';
-import { AVEC_OIDC, connexionOidc, dejaPropose, estInvite } from '@/connexion';
+import { AVEC_OIDC, connexionOidc } from '@/connexion';
 import { LANGUES, NOMS_LANGUES, TEXTES, fmt, type Langue } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
 import { TEXTES4 } from '@/i18n4';
-import { useLettre } from '@/lettre';
 import { toutTelecharger } from '@/moteur/contenu';
 import ui from '@/moteur/ui.json';
-import { ouvrirCle } from '@/nav';
+import { ouvrir, ouvrirCle } from '@/nav';
 import { useProfil } from '@/profil';
-import { page, SITE } from '@/site';
+import { page, SITE, url } from '@/site';
 import { COULEURS } from '@/theme';
 
 type TX = Record<string, string>;
 const UI_COMPTE = (ui as { compte: Record<string, TX> }).compte;
 const UI_E = (ui as unknown as { espace: Record<string, TX> }).espace;
 const RESEAUX = (ui as unknown as { reseaux: { titre: TX; texte: TX; liens: [string, string][] } }).reseaux;
+// menu de l'icône « Mes infos » du site (espace_menu.py) : mêmes entrées, mêmes libellés ; ici chaque entrée ouvre son écran natif
+const MENU = (ui as unknown as { menu: { c: string; t: TX; u: TX }[] }).menu;
+type Cible = { route: string; params?: Record<string, string> } | null;   // null : la page du site dans la vue web
+const ECRANS: Record<string, { sf: string; cible: Cible }> = {
+  infos: { sf: 'person.text.rectangle.fill', cible: { route: '/mes-infos' } },
+  favoris: { sf: 'star.fill', cible: { route: '/favoris' } },
+  messages: { sf: 'bubble.left.and.bubble.right.fill', cible: { route: '/messages' } },
+  sondages: { sf: 'chart.bar.fill', cible: { route: '/sondages', params: { mes: '1' } } },
+  compat: { sf: 'heart.fill', cible: { route: '/mes-compat' } },
+  chinois: { sf: 'circle.lefthalf.filled', cible: { route: '/horoscope' } },
+  horoscope: { sf: 'sparkles', cible: { route: '/horoscope' } },
+  biorythme: { sf: 'waveform.path.ecg', cible: { route: '/biorythme' } },
+  theme: { sf: 'moon.stars.fill', cible: { route: '/theme' } },
+  compteur: { sf: 'hourglass', cible: { route: '/compteur' } },
+  noces: { sf: 'gift.fill', cible: null },
+  vedique: { sf: 'sun.max.fill', cible: { route: '/autres', params: { mode: 'vedique' } } },
+  maya: { sf: 'triangle.fill', cible: { route: '/autres', params: { mode: 'maya' } } },
+  distance: { sf: 'globe.europe.africa.fill', cible: { route: '/distance' } },
+  maternite: { sf: 'cross.case.fill', cible: { route: '/maternite' } },
+  lettre: { sf: 'envelope.fill', cible: { route: '/newsletter' } },
+};
 
 export default function Moi() {
-  const { langue, favoris, compte, setLangue, effacer } = useProfil();
+  const { langue, profil, favoris, compte, setLangue, effacer } = useProfil();
   const T = TEXTES[langue], T3 = TEXTES3[langue], T4 = TEXTES4[langue];
   const TC = UI_COMPTE[langue] || UI_COMPTE.fr, E = UI_E[langue] || UI_E.fr;
   const router = useRouter();
-  const { etat } = useLettre(compte);
   const [msg, setMsg] = useState<{ t: string; ok: boolean } | null>(null);
   const [progression, setProgression] = useState('');
 
@@ -42,12 +59,6 @@ export default function Moi() {
     else if (r === 'invite') setMsg({ t: TC.invitePasse, ok: true });
     else if (r === 'echec') setMsg({ t: TC.oidcKo, ok: false });
   }, [langue, TC]);
-  // ouverture directe de la connexion à l'arrivée sur l'onglet : une fois par lancement, sans compte ni choix « invité »
-  useFocusEffect(useCallback(() => {
-    if (compte || estInvite() || dejaPropose() || !AVEC_OIDC) return undefined;
-    const id = setTimeout(() => { seConnecter(); }, 350);
-    return () => clearTimeout(id);
-  }, [compte, seConnecter]));
 
   const telecharger = async () => {
     setProgression(T3.telechargement);
@@ -64,27 +75,33 @@ export default function Moi() {
       <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled">
         <Text style={styles.titre}>{E.espTitre}</Text>
 
-        <View style={styles.etat}>
-          <View style={[styles.pastille, { backgroundColor: compte ? COULEURS.vert : COULEURS.texteMuet }]} />
-          <Text style={styles.etatTxt} numberOfLines={2}>{compte ? fmt(E.connecteA, compte.courriel) : E.horsLigne}</Text>
-          {compte ? (
+        {compte ? (
+          <View style={styles.etat}>
+            <View style={[styles.pastille, { backgroundColor: COULEURS.vert }]} />
+            <Text style={styles.etatTxt} numberOfLines={2}>{[profil.prenom, profil.nom].filter(Boolean).join(' ').trim() || compte.courriel}</Text>
             <Pressable onPress={() => router.push('/compte')} hitSlop={8} accessibilityRole="button">
               <Text style={styles.lien}>{T4.gerer}</Text>
             </Pressable>
-          ) : (
-            <Pressable style={({ pressed }) => [styles.boutonPetit, pressed && styles.presse]} onPress={AVEC_OIDC ? seConnecter : () => router.push('/compte')} accessibilityRole="button">
-              <Text style={styles.boutonPetitTxt}>{E.seConnecter}</Text>
-            </Pressable>
-          )}
-        </View>
+          </View>
+        ) : (
+          <Pressable style={({ pressed }) => [styles.connexion, pressed && styles.presse]} onPress={AVEC_OIDC ? seConnecter : () => router.push('/compte')} accessibilityRole="button">
+            <Text style={styles.connexionTxt}>{E.seConnecter}</Text>
+          </Pressable>
+        )}
         {msg ? <Text style={[styles.message, { color: msg.ok ? COULEURS.vert : COULEURS.coeur }]} accessibilityLiveRegion="polite">{msg.t}</Text> : null}
-        {!etat ? <Bandeau texte={E.newsBandeau} lien={E.newsBandeauBtn} onPress={() => router.push('/newsletter')} /> : null}
+        <View style={styles.separateur} />
 
-        <Ligne titre={E.ongInfos} sf="person.text.rectangle.fill" onPress={() => router.push('/mes-infos')} />
-        <Ligne titre={E.ongSondages} sf="chart.bar.fill" onPress={() => router.push({ pathname: '/sondages', params: { mes: '1' } })} />
-        <Ligne titre={E.ongFavoris} texte={favoris.length ? String(favoris.length) : undefined} sf="star.fill" onPress={() => router.push('/favoris')} />
-        <Ligne titre={E.ongCompat} sf="heart.text.square.fill" onPress={() => router.push('/mes-compat')} />
-        <Ligne titre={E.ongNews} sf="envelope.fill" onPress={() => router.push('/newsletter')} />
+        {MENU.map((m) => {
+          const e = ECRANS[m.c]; const u = m.u[langue];
+          if (!e || !u) return null;
+          const n = m.c === 'favoris' ? favoris.length : m.c === 'messages' ? (compte?.messages_non_lus || 0) : 0;
+          const aller = () => {
+            if (!e.cible) { ouvrir(router, url(u), m.t[langue] || m.t.fr); return; }
+            // routes typées : les écrans du menu existent tous (_layout.tsx) ; la cible vient d'une table fixe
+            router.push((e.cible.params ? { pathname: e.cible.route, params: e.cible.params } : e.cible.route) as never);
+          };
+          return <Ligne key={m.c} titre={m.t[langue] || m.t.fr} texte={n ? String(n) : undefined} sf={e.sf} onPress={aller} />;
+        })}
 
         <Titre>{T.langue}</Titre>
         <View style={styles.langues}>
@@ -140,8 +157,9 @@ const styles = StyleSheet.create({
   pastille: { width: 10, height: 10, borderRadius: 5 },
   etatTxt: { flex: 1, fontSize: 15, fontWeight: '600', color: COULEURS.texte },
   lien: { color: COULEURS.secondaire, fontWeight: '600', textDecorationLine: 'underline' },
-  boutonPetit: { backgroundColor: COULEURS.primaire, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 },
-  boutonPetitTxt: { color: '#fff', fontWeight: '700', fontSize: 14 },
+  connexion: { backgroundColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 13, alignItems: 'center' },
+  connexionTxt: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  separateur: { height: StyleSheet.hairlineWidth, backgroundColor: COULEURS.bordure, marginVertical: 12 },
   message: { marginTop: 8, fontSize: 14, lineHeight: 19 },
   aide: { color: COULEURS.texteMuet, fontSize: 14, lineHeight: 19 },
   boutonSec: { borderWidth: 1, borderColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 11, alignItems: 'center', marginTop: 10 },
