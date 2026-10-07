@@ -1,9 +1,11 @@
 // Un article du site, rendu en natif depuis le contenu hors ligne ; « Voir la version en ligne » ouvre la vue web.
+// Sous le chapeau : le pouce « j'aime » et son compteur (components/pouce.tsx, 07/10/2026 soir), qui ajoute la page aux favoris.
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import RenderHtml, { type MixedStyleDeclaration } from 'react-native-render-html';
 
+import { Pouce } from '@/components/pouce';
 import { TEXTES } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
 import { article, cheminDe, type Article } from '@/moteur/contenu';
@@ -77,6 +79,8 @@ export default function EcranArticle() {
             {a.fil ? <Text style={styles.fil}>{a.fil}</Text> : null}
             <Text style={styles.h1}>{a.h1 || a.t}</Text>
             {a.lead ? <Text style={styles.lead}>{a.lead}</Text> : null}
+            {/* pouce « j'aime » et compteur, comme sous le pictogramme des pages du site (07/10/2026, soir) */}
+            <Pouce u={u} titre={a.h1 || a.t} />
             <RenderHtml
               contentWidth={width - 32}
               source={{ html: a.h }}

@@ -83,13 +83,20 @@ export function synchroAncienne(c: Compte | null = actuel): boolean {
 
 /* ---- API ---- */
 /** Appel JSON à SITE + 'api/compte/' + chemin ; en-tête Bearer si connecté ; délai 15 s ; renvoie le JSON + statut HTTP (0 = réseau). */
-export async function api(chemin: string, corps?: unknown, methode?: string): Promise<Reponse> {
+export function api(chemin: string, corps?: unknown, methode?: string): Promise<Reponse> {
+  return appelApi('api/compte/' + chemin, corps, methode);
+}
+
+/** Appel JSON à SITE + chemin (« api/messages/envoyer », « api/presence », « api/likes?p=… ») : en-tête Bearer si connecté, délai
+ *  15 s, cache « no-store » ; renvoie le JSON + statut HTTP (0 = réseau). Client commun de messages.ts et aime.ts. */
+export async function appelApi(chemin: string, corps?: unknown, methode?: string): Promise<Reponse> {
   const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
   const minuterie = ctrl ? setTimeout(() => ctrl.abort(), DELAI) : null;
-  const entetes: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' };
+  const entetes: Record<string, string> = { Accept: 'application/json' };
+  if (corps !== undefined) entetes['Content-Type'] = 'application/json';
   if (actuel) entetes.Authorization = 'Bearer ' + actuel.session;   // lu tout de suite : deconnecter() efface ensuite
   try {
-    const r = await fetch(SITE + 'api/compte/' + chemin, {
+    const r = await fetch(SITE + chemin, {
       method: methode || 'POST', headers: entetes, cache: 'no-store',
       body: corps !== undefined ? JSON.stringify(corps) : undefined, signal: ctrl ? ctrl.signal : undefined,
     });
@@ -266,6 +273,29 @@ export async function noterNonLus(n: number, admin?: boolean): Promise<void> {
   if (actuel && (actuel.messages_non_lus !== n || (admin !== undefined && actuel.admin !== admin))) {
     await garderCompte({ ...actuel, messages_non_lus: n, ...(admin !== undefined ? { admin } : {}) });
   }
+}
+
+/** Session refusée par le serveur (401 : expirée, supprimée) : le compte est oublié sur l'appareil s'il s'agit toujours de la même. */
+export async function oublierSession(session: string): Promise<void> {
+  await assurer();
+  if (actuel && actuel.session === session) await garderCompte(null);
+}
+
+/** Présence (activite_api.js, 07/10/2026 soir) : POST /api/presence {appareil:'appli'}, appelé toutes les 60 s par le contexte quand
+ *  l'appli est au premier plan et qu'un compte est connecté ; met à jour le nombre de fils non lus (badge de l'onglet Moi) ; 401 = la
+ *  session est oubliée. Renvoie le pays déduit de l'adresse IP (code ISO à deux lettres) ou null. */
+export async function presence(): Promise<string | null> {
+  await assurer();
+  const c = actuel;
+  if (!c) return null;
+  const j = await appelApi('api/presence', { appareil: 'appli' });
+  if (!actuel || actuel.session !== c.session) return null;   // déconnecté entre-temps
+  if (j.statut === 401) { await garderCompte(null); return null; }
+  if (!j.ok) return null;
+  if (typeof j.messages_non_lus === 'number' && j.messages_non_lus !== actuel.messages_non_lus) {
+    await garderCompte({ ...actuel, messages_non_lus: j.messages_non_lus });
+  }
+  return typeof j.pays_ip === 'string' && /^[A-Z]{2}$/.test(j.pays_ip) ? j.pays_ip : null;
 }
 
 /** La lettre pour l'adresse du compte connecté : abonnement direct (adresse prouvée par la session, case cochée par la personne) ou

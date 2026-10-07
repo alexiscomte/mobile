@@ -1,14 +1,16 @@
-// Moi = accueil de l'espace membre (Alexis, 07/10/2026), comme le menu de l'icône « Mes infos » du site : « Se connecter » (ou le nom
-// de la personne, sinon son adresse) en tête, puis les mêmes entrées (table MENU d'espace.js) vers les écrans natifs, avec le nombre de
-// favoris et de messages non lus ; langue, lecture hors ligne, à propos, effacement ; « Suivez-nous sur les réseaux sociaux » en
-// français. Sans compte, tout reste sur l'appareil.
+// Moi = accueil de l'espace membre (Alexis, 07/10/2026 ; menu regroupé le soir, cahier specs/espace-membre-reduit-0710.md, point 8),
+// comme le menu de l'icône « Mes infos » du site : « Se connecter » (ou le nom de la personne, sinon son adresse, qui mène à « Mes
+// informations personnelles » ; vu par elle seule) en tête, puis les mêmes 8 entrées (table MENU d'espace.js, « k » = connecté
+// seulement) vers les écrans natifs, avec le nombre de favoris et de messages non lus, puis « Se déconnecter » ; langue, lecture hors
+// ligne, à propos, effacement ; « Suivez-nous sur les réseaux sociaux » en français. Sans compte, tout reste sur l'appareil.
 import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Ligne, Titre } from '@/components/carte';
-import { AVEC_OIDC, connexionOidc } from '@/connexion';
+import { deconnecter } from '@/compte';
+import { AVEC_OIDC, connexionOidc, marquerInvite } from '@/connexion';
 import { LANGUES, NOMS_LANGUES, TEXTES, fmt, type Langue } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
 import { TEXTES4 } from '@/i18n4';
@@ -24,25 +26,17 @@ const UI_COMPTE = (ui as { compte: Record<string, TX> }).compte;
 const UI_E = (ui as unknown as { espace: Record<string, TX> }).espace;
 const RESEAUX = (ui as unknown as { reseaux: { titre: TX; texte: TX; liens: [string, string][] } }).reseaux;
 // menu de l'icône « Mes infos » du site (espace_menu.py) : mêmes entrées, mêmes libellés ; ici chaque entrée ouvre son écran natif
-const MENU = (ui as unknown as { menu: { c: string; t: TX; u: TX }[] }).menu;
+const MENU = (ui as unknown as { menu: { c: string; t: TX; u: TX; k?: number }[] }).menu;
 type Cible = { route: string; params?: Record<string, string> } | null;   // null : la page du site dans la vue web
 const ECRANS: Record<string, { sf: string; cible: Cible }> = {
   infos: { sf: 'person.text.rectangle.fill', cible: { route: '/mes-infos' } },
-  favoris: { sf: 'star.fill', cible: { route: '/favoris' } },
   messages: { sf: 'bubble.left.and.bubble.right.fill', cible: { route: '/messages' } },
+  favoris: { sf: 'hand.thumbsup.fill', cible: { route: '/favoris' } },
   sondages: { sf: 'chart.bar.fill', cible: { route: '/sondages', params: { mes: '1' } } },
   compat: { sf: 'heart.fill', cible: { route: '/mes-compat' } },
-  chinois: { sf: 'circle.lefthalf.filled', cible: { route: '/horoscope' } },
-  horoscope: { sf: 'sparkles', cible: { route: '/horoscope' } },
-  biorythme: { sf: 'waveform.path.ecg', cible: { route: '/biorythme' } },
-  theme: { sf: 'moon.stars.fill', cible: { route: '/theme' } },
-  compteur: { sf: 'hourglass', cible: { route: '/compteur' } },
-  noces: { sf: 'gift.fill', cible: null },
-  vedique: { sf: 'sun.max.fill', cible: { route: '/autres', params: { mode: 'vedique' } } },
-  maya: { sf: 'triangle.fill', cible: { route: '/autres', params: { mode: 'maya' } } },
-  distance: { sf: 'globe.europe.africa.fill', cible: { route: '/distance' } },
-  maternite: { sf: 'cross.case.fill', cible: { route: '/maternite' } },
-  lettre: { sf: 'envelope.fill', cible: { route: '/newsletter' } },
+  astro: { sf: 'moon.stars.fill', cible: { route: '/astrologie' } },
+  outils: { sf: 'wrench.and.screwdriver.fill', cible: { route: '/outils' } },
+  connexions: { sf: 'clock.arrow.circlepath', cible: { route: '/connexions' } },
 };
 
 export default function Moi() {
@@ -59,6 +53,11 @@ export default function Moi() {
     else if (r === 'invite') setMsg({ t: TC.invitePasse, ok: true });
     else if (r === 'echec') setMsg({ t: TC.oidcKo, ok: false });
   }, [langue, TC]);
+  const seDeconnecter = async () => {
+    await deconnecter();
+    marquerInvite();   // pas de connexion proposée d'office juste après, pendant ce lancement (comme l'écran du compte)
+    setMsg({ t: TC.deconnecte, ok: true });
+  };
 
   const telecharger = async () => {
     setProgression(T3.telechargement);
@@ -78,7 +77,10 @@ export default function Moi() {
         {compte ? (
           <View style={styles.etat}>
             <View style={[styles.pastille, { backgroundColor: COULEURS.vert }]} />
-            <Text style={styles.etatTxt} numberOfLines={2}>{[profil.prenom, profil.nom].filter(Boolean).join(' ').trim() || compte.courriel}</Text>
+            {/* le nom (sinon l'adresse) de la personne, vu par elle seule, mène à « Mes informations personnelles » (menu du site) */}
+            <Pressable style={styles.flex} onPress={() => router.push('/mes-infos')} accessibilityRole="link">
+              <Text style={styles.etatTxt} numberOfLines={2}>{[profil.prenom, profil.nom].filter(Boolean).join(' ').trim() || compte.courriel}</Text>
+            </Pressable>
             <Pressable onPress={() => router.push('/compte')} hitSlop={8} accessibilityRole="button">
               <Text style={styles.lien}>{T4.gerer}</Text>
             </Pressable>
@@ -93,7 +95,7 @@ export default function Moi() {
 
         {MENU.map((m) => {
           const e = ECRANS[m.c]; const u = m.u[langue];
-          if (!e || !u) return null;
+          if (!e || !u || (m.k && !compte)) return null;            // « k » : seulement avec un compte connecté (historique)
           const n = m.c === 'favoris' ? favoris.length : m.c === 'messages' ? (compte?.messages_non_lus || 0) : 0;
           const aller = () => {
             if (!e.cible) { ouvrir(router, url(u), m.t[langue] || m.t.fr); return; }
@@ -102,6 +104,7 @@ export default function Moi() {
           };
           return <Ligne key={m.c} titre={m.t[langue] || m.t.fr} texte={n ? String(n) : undefined} sf={e.sf} onPress={aller} />;
         })}
+        {compte ? <Ligne titre={E.seDeconnecter} sf="rectangle.portrait.and.arrow.right" onPress={() => { seDeconnecter(); }} /> : null}
 
         <Titre>{T.langue}</Titre>
         <View style={styles.langues}>
@@ -155,7 +158,8 @@ const styles = StyleSheet.create({
   titre: { fontSize: 28, fontWeight: '800', color: COULEURS.primaire, marginBottom: 10 },
   etat: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: COULEURS.fondDoux, borderRadius: 12, padding: 12 },
   pastille: { width: 10, height: 10, borderRadius: 5 },
-  etatTxt: { flex: 1, fontSize: 15, fontWeight: '600', color: COULEURS.texte },
+  flex: { flex: 1 },
+  etatTxt: { fontSize: 15, fontWeight: '600', color: COULEURS.texte, textDecorationLine: 'underline' },
   lien: { color: COULEURS.secondaire, fontWeight: '600', textDecorationLine: 'underline' },
   connexion: { backgroundColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 13, alignItems: 'center' },
   connexionTxt: { color: '#fff', fontWeight: '700', fontSize: 16 },

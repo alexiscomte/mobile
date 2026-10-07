@@ -6,8 +6,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
-import { chargerCompte, compteActuel, pousser, surCompte, synchroAncienne, tirer, deconnecter, type Compte } from './compte';
+import { chargerCompte, compteActuel, pousser, presence, surCompte, synchroAncienne, tirer, deconnecter, type Compte } from './compte';
 import { estLangue, langueAppareil, type Langue } from './i18n';
+import { paysParCode } from './moteur/lieux';
 
 export type Lieu = { code: string; ville?: string | null; lat?: number | null; lon?: number | null };
 export type Profil = {
@@ -26,7 +27,8 @@ export type Profil = {
 export type Favori = { url: string; titre: string; lang?: string; date?: string };
 export type { Compte };
 
-const K = { profil: 'ap.profil', favoris: 'ap.favoris', langue: 'ap.langue', compte: 'ap.compte' };
+const K = { profil: 'ap.profil', favoris: 'ap.favoris', langue: 'ap.langue', compte: 'ap.compte', paysIp: 'ap.pays_ip' };
+const PRESENCE_MS = 60000;   // présence : une fois par minute au plus, appli au premier plan et compte connecté (comme le site)
 const CHAMPS = ['prenom', 'nom', 'sexe', 'naissance', 'heure', 'rencontre', 'mariage', 'naissance_lieu', 'residence', 'courriel'];
 const RX_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -197,6 +199,37 @@ export function ProfilProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(K.favoris, JSON.stringify(n));
     pousser();
   }, []);
+  /** Pays déduit de l'adresse IP (réponse de /api/presence) : remplit UNE seule fois par appareil (marque « ap.pays_ip ») le pays vide
+   *  de la « ville où vous vivez », s'il existe dans pays.json (assets/data/pays.js du site) ; un pays déjà rempli n'est jamais
+   *  remplacé, et un pays effacé par la personne n'est pas remis (comme espace.js paysIp). */
+  const paysIp = useCallback(async (code: string) => {
+    try { if (await AsyncStorage.getItem(K.paysIp)) return; } catch { return; }
+    const fait = () => AsyncStorage.setItem(K.paysIp, code).catch(() => undefined);
+    if (profilRef.current.residence && profilRef.current.residence.code) { await fait(); return; }
+    if (!paysParCode(code, 'fr')) return;                                  // pays inconnu du site : rien
+    await fait();
+    await ecrireProfil(nettoyer({ ...profilRef.current, residence: { code, ville: null, lat: null, lon: null } }));
+  }, [ecrireProfil]);
+
+  // présence (activite_api.js, 07/10/2026 soir) : POST /api/presence {appareil:'appli'} 1,5 s après l'ouverture de session ou le
+  // lancement, puis toutes les 60 s et au retour au premier plan, seulement si un compte est connecté et que l'appli est active
+  const session = compte ? compte.session : '';
+  const presDerniere = useRef({ session: '', t: 0 });
+  useEffect(() => {
+    if (!pret || !session) return;
+    const tic = () => {
+      if (AppState.currentState !== 'active') return;
+      const d = presDerniere.current;
+      if (d.session === session && Date.now() - d.t < PRESENCE_MS - 2000) return;
+      presDerniere.current = { session, t: Date.now() };
+      presence().then((code) => { if (code) paysIp(code).catch(() => undefined); }).catch(() => undefined);
+    };
+    const premier = setTimeout(tic, 1500);
+    const minuterie = setInterval(tic, PRESENCE_MS);
+    const abo = AppState.addEventListener('change', (s) => { if (s === 'active') tic(); });
+    return () => { clearTimeout(premier); clearInterval(minuterie); abo.remove(); };
+  }, [pret, session, paysIp]);
+
   const setLangue = useCallback(async (l: Langue) => {
     setLangueEtat(l);
     await AsyncStorage.setItem(K.langue, l);

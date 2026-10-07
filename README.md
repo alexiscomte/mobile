@@ -19,15 +19,22 @@ construisent dans le nuage d'Expo (EAS Build), sans Mac.
   natifs : estimateur d'ovulation, maternité la plus proche (position du téléphone ou pays/ville), compteur de couple,
   vie d'époux selon le prénom, calendrier de garde alternée (export .ics), distance et différences (deux lieux :
   distance, vol, décalage horaire du jour, repères culturels, fiches pays).
-- **Moi** : prénom, date et heure de naissance, compte facultatif (écran `compte`), langue, favoris, « Mes sondages »,
-  téléchargement de tout le contenu pour lire hors ligne, inscription à la lettre d'information (`/api/newsletter`),
-  effacement des données.
+- **Moi** = espace membre, même menu que l'icône « Mes infos » du site (table `MENU` d'espace.js, exportée dans `ui.json`) :
+  « Se connecter » ou le nom (vers Mes informations personnelles), puis Mes informations personnelles, Mes messages (badge),
+  Mes favoris, Mes sondages, Mes compatibilités amoureuses, Mon astrologie (`astrologie`), Mes outils (`outils`), Mon
+  historique de connexion (`connexions`, connecté seulement), Se déconnecter ; langue, lecture hors ligne, effacement.
+- **Messagerie** (`messages`, 07/10/2026 soir) : avec l'admin seulement et pour les comptes connectés ; l'interlocuteur du
+  membre s'appelle toujours « AffectionPlus » (aucun nom d'autre membre), présence, case « copie par courriel » ; l'admin
+  voit le bloc « Informations administrateur ». **Présence** : `POST /api/presence {appareil:'appli'}` toutes les 60 s au
+  premier plan quand un compte est connecté (badge, pays de résidence vide rempli une fois). **Pouce « j'aime »** sous le
+  chapeau des articles (`/api/likes`, compteur sans liste de personnes ; la page entre dans les favoris). Aucune photo.
 
 Les outils et les articles sont les pages du site, affichées dans une vue web en **mode application**
 (`?app=1` → `<html class="app">` : sans en-tête, pied, partage ni bandeau — `outils/gen/app_mode.py` côté site).
 Le profil saisi dans l'application est injecté dans le stockage de la page (clé `ap.profil`, même forme que
 `assets/js/espace.js`), et ce que le site apprend (lieu de naissance, favoris) revient dans l'application.
-Sans compte, rien n'est envoyé à un serveur : ni profil, ni favoris.
+Sans compte, ni le profil ni les favoris ne sont envoyés à un serveur (un « j'aime » touché sur un article envoie seulement
+l'adresse de la page et un jeton aléatoire de l'appareil, haché par le serveur).
 
 **Compte facultatif (06/10/2026)** : même système que le site (`assets/js/compte.js`, API `compte_api.js`, `/api/compte/…`).
 Identifiant = adresse électronique, prouvée par un code à 6 chiffres reçu par courriel ou par Google (expo-auth-session,
@@ -43,8 +50,13 @@ sans toucher au compte ; « Supprimer mon compte » est dans l'écran du compte.
 ```
 src/app/                 écrans (Expo Router) : (tabs)/index|astro|jeux|infos|moi ; page (vue web) ; article (hors ligne) ;
                          horoscope, signes, theme, compat, biorythme, chinois, autres (védique/maya), lune, qdj, sondages,
-                         jeu2, quiz, ovulation, maternite, compteur, epoux, garde, newsletter, compte
-src/compte.ts            compte facultatif : appels /api/compte, synchronisation (tirer, pousser, appliquer)
+                         jeu2, quiz, ovulation, maternite, compteur, epoux, garde, newsletter, compte ; espace membre :
+                         mes-infos, messages, favoris, mes-compat, astrologie, outils, connexions
+src/compte.ts            compte facultatif : appels /api/compte, synchronisation (tirer, pousser, appliquer), client commun
+                         appelApi, présence
+src/messages.ts          messagerie avec l'admin (/api/messages) et historique des connexions (/api/compte/historique)
+src/aime.ts              pouce « j'aime » (/api/likes, jeton local ap.jaime.jeton) ; écran : components/pouce.tsx
+src/components/espace    briques de l'espace membre (pages à cartes, invitation à se connecter, présence, connexions)
 src/components/vue-site  vue web d'une page du site (injection, messages, liens externes, hors-ligne)
 src/components/form      champs communs des outils (date, heure inconnue, boutons, notes, suggestions)
 src/moteur/              moteurs et données du site : astro.js, astro_txt.js, lieu.js (copies), compat.ts + compat_txt.json,

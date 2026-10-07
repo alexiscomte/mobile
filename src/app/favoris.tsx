@@ -1,5 +1,7 @@
-// Mes favoris (espace membre, 07/10/2026), comme la page « Mes favoris » du site (espace.js rendreFavoris) : les pages marquées d'une
-// étoile, de la plus récente à la plus ancienne ; lecture dans l'écran article, retrait, liste vidée. Synchronisés avec le compte.
+// Mes favoris (espace membre, 07/10/2026), comme la page « Mes favoris » du site (espace.js rendreFavoris) : les pages aimées d'un
+// toucher sur le pouce (sous le chapeau des articles, components/pouce.tsx ; sur le site, sous le pictogramme de chaque page ; l'étoile
+// a disparu le 07/10 au soir), de la plus récente à la plus ancienne ; lecture dans l'écran article, retrait, liste vidée.
+// Synchronisés avec le compte.
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';

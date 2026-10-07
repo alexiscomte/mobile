@@ -1,0 +1,87 @@
+// Pouce « j'aime » d'un article (07/10/2026, soir ; cahier specs/espace-membre-reduit-0710.md, point 7), comme le bloc <!--POUCE-->
+// du site (pouce.py, espace.js installerPouce) : bouton (contour au repos, plein sur fond violet quand la page est aimée) et compteur à
+// côté, rien d'affiché à 0, jamais un lien (aucune liste de personnes). Toucher = j'aime, et la page entre dans les favoris
+// (ap.favoris, synchronisés avec le compte) ; nouveau toucher = je n'aime plus, elle en sort. L'état de départ est celui des favoris,
+// puis celui du serveur, qui fait foi (relu à la connexion et à la déconnexion). Icône : Material Icons « thumb_up » (Apache 2.0).
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
+
+import { basculerAime, cheminAime, lireAime } from '@/aime';
+import { UI_E } from '@/components/espace';
+import { fmt } from '@/i18n';
+import { useProfil } from '@/profil';
+import { COULEURS } from '@/theme';
+
+const POUCE = 'M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z';
+
+export function Pouce({ u, titre }: { u: string; titre: string }) {
+  const { langue, favoris, setFavoris, compte } = useProfil();
+  const E = UI_E[langue] || UI_E.fr;
+  const p = cheminAime(u);
+  const favRef = useRef(favoris);
+  favRef.current = favoris;
+  const [moi, setMoi] = useState(() => favoris.some((f) => f.url === p));
+  const [n, setN] = useState(0);
+  const [msg, setMsg] = useState('');
+  const seq = useRef(0);
+  const enCours = useRef(false);
+  const session = compte ? compte.session : '';
+
+  /** La page entre dans les favoris (oui) ou en sort ; vrai si la liste a changé. */
+  const favori = useCallback(async (oui: boolean) => {
+    const f = favRef.current, dedans = f.some((x) => x.url === p);
+    if (oui === dedans) return false;
+    await setFavoris(oui ? [{ url: p, titre: titre.replace(/\s+/g, ' ').trim().slice(0, 120), lang: langue, date: new Date().toISOString().slice(0, 10) }, ...f]
+      : f.filter((x) => x.url !== p));
+    return true;
+  }, [p, titre, langue, setFavoris]);
+
+  useEffect(() => {        // état du serveur ; relu quand la session change (connexion, déconnexion)
+    let actif = true;
+    const s = ++seq.current;
+    lireAime(p).then((e) => { if (actif && e && s === seq.current) { setMoi(e.moi); setN(e.n); } }).catch(() => undefined);
+    return () => { actif = false; };
+  }, [p, session]);
+
+  useEffect(() => {        // message bref (« Page ajoutée aux favoris »), effacé après 2,2 s
+    if (!msg) return;
+    const m = setTimeout(() => setMsg(''), 2200);
+    return () => clearTimeout(m);
+  }, [msg]);
+
+  const toucher = async () => {
+    if (enCours.current) return;
+    enCours.current = true; seq.current++;                 // une lecture en cours ne repassera pas par-dessus
+    const oui = !moi;
+    setMoi(oui); setMsg(oui ? E.ajoute : E.retire);       // tout de suite, sans attendre le serveur
+    await favori(oui);
+    const e = await basculerAime(p).catch(() => null);
+    enCours.current = false;
+    if (!e) return;                                         // hors ligne, plafond : l'état local reste
+    setMoi(e.moi); setN(e.n);
+    if (e.moi !== oui && await favori(e.moi)) setMsg(e.moi ? E.ajoute : E.retire);   // le serveur fait foi
+  };
+
+  return (
+    <View style={styles.ligne}>
+      <Pressable onPress={() => { toucher(); }} hitSlop={8} accessibilityRole="togglebutton" accessibilityState={{ checked: moi }}
+        accessibilityLabel={E.aime} style={({ pressed }) => [styles.bouton, moi && styles.boutonAime, pressed && styles.presse]}>
+        <Svg width={17} height={17} viewBox="0 0 24 24">
+          <Path d={POUCE} fill={moi ? '#fff' : 'none'} stroke={moi ? 'none' : COULEURS.primaire} strokeWidth={1.7} strokeLinejoin="round" />
+        </Svg>
+      </Pressable>
+      {n > 0 ? <Text style={styles.n} accessibilityLabel={fmt(E.aimeN, n)}>{String(n)}</Text> : null}
+      {msg ? <Text style={styles.msg} accessibilityLiveRegion="polite">{msg}</Text> : null}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  ligne: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 },
+  bouton: { width: 38, height: 32, borderRadius: 999, borderWidth: 1, borderColor: COULEURS.bordure, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
+  boutonAime: { backgroundColor: COULEURS.primaire, borderColor: COULEURS.primaire },
+  presse: { opacity: 0.75 },
+  n: { fontSize: 14, fontWeight: '600', color: COULEURS.texteMuet },
+  msg: { fontSize: 13, color: COULEURS.vert, marginLeft: 6, flexShrink: 1 },
+});
