@@ -48,6 +48,7 @@ const isoDate = (d: Date) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-'
 const isoHeure = (d: Date) => pad(d.getHours()) + ':' + pad(d.getMinutes());
 const versChoix = (l?: Lieu): LieuChoisi | null => (l && l.code ? { code: l.code, nomPays: '', lat: l.lat ?? 0, lon: l.lon ?? 0, ville: l.ville ?? null } : null);
 const versLieu = (l: LieuChoisi | null): Lieu | undefined => (l ? { code: l.code, ville: l.ville, lat: l.lat, lon: l.lon } : undefined);
+const cleLieu = (l?: Lieu): string => (l && l.code ? l.code + '|' + (l.ville || '') : '');
 const RX_COURRIEL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export default function MesInfos() {
@@ -72,6 +73,9 @@ export default function MesInfos() {
   useEffect(() => {
     setPrenom(profil.prenom || ''); setNom(profil.nom || ''); setSexe(profil.sexe || ''); setNaissance(profil.naissance || '');
     setHeure(profil.heure || ''); setHeureConnue(!!profil.heure); setCourriel(profil.courriel || '');
+    // lieux aussi (appareil partagé, 08/10/2026) : après une connexion qui a remplacé les données d'un autre compte, ses lieux affichés
+    // seraient restés et « Enregistrer » les aurait donnés au compte connecté
+    setLieuN(versChoix(profil.naissance_lieu)); setLieuR(versChoix(profil.residence));
   }, [profil]);
 
   const enregistrer = async () => {
@@ -145,9 +149,11 @@ export default function MesInfos() {
         )) : null}
 
         <Text style={styles.label}>{T.lieuNaissance}</Text>
-        <ChoixLieu langue={langue} valeur={lieuN} onChange={setLieuN} labelPays={T3.pays} labelVille={T3.ville} />
+        {/* clé = lieu du profil : ChoixLieu ne relit pas sa valeur après le montage ; remonté quand le profil change (connexion d'un
+            autre compte, enregistrement), jamais pendant la saisie */}
+        <ChoixLieu key={'n' + cleLieu(profil.naissance_lieu)} langue={langue} valeur={lieuN} onChange={setLieuN} labelPays={T3.pays} labelVille={T3.ville} />
         <Text style={styles.label}>{E.lieuR}</Text>
-        <ChoixLieu langue={langue} valeur={lieuR} onChange={setLieuR} labelPays={T3.pays} labelVille={T3.ville} />
+        <ChoixLieu key={'r' + cleLieu(profil.residence)} langue={langue} valeur={lieuR} onChange={setLieuR} labelPays={T3.pays} labelVille={T3.ville} />
 
         <Text style={styles.label}>{E.newsAdresse}</Text>
         <TextInput style={styles.entree} value={courriel} onChangeText={setCourriel} maxLength={254} keyboardType="email-address" autoCapitalize="none"

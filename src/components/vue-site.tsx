@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { WebView, type WebViewMessageEvent, type WebViewNavigation } from 'react-native-webview';
-import { adopterCompte } from '../compte';
+import { adopterCompte, proprioLocal } from '../compte';
 import { TEXTES } from '../i18n';
 import { profilPourSite, useProfil } from '../profil';
 import { INJECTION_APRES, estExterne, injectionAvant, lireMessage } from '../site';
@@ -31,7 +31,8 @@ export const VueSite = React.forwardRef<VueSiteRef, Props>(function VueSite({ ur
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(false);
   const [cle, setCle] = useState(0);
-  const avant = injectionAvant(profilPourSite(profil), favoris, compte);
+  // propriétaire des données de l'appli (appareil partagé, 08/10/2026) : la page efface les données d'un autre propriétaire avant tout
+  const avant = injectionAvant(profilPourSite(profil), favoris, compte, proprioLocal());
 
   React.useImperativeHandle(ref, () => ({
     revenir: () => { if (peutRevenir.current && web.current) { web.current.goBack(); return true; } return false; },
@@ -41,8 +42,11 @@ export const VueSite = React.forwardRef<VueSiteRef, Props>(function VueSite({ ur
   const surMessage = useCallback((e: WebViewMessageEvent) => {
     const m = lireMessage(e.nativeEvent.data);
     if (!m) return;
-    try { if (m.profil) fusionnerProfil(JSON.parse(m.profil)); } catch { /* profil illisible */ }
-    try { if (m.favoris) setFavoris(JSON.parse(m.favoris)); } catch { /* favoris illisibles */ }
+    // appareil partagé (08/10/2026) : une page chargée avec les données d'un autre propriétaire (avant une connexion qui les a remplacées
+    // dans l'appli) ne renvoie ni profil ni favoris : ils ne doivent pas revenir dans l'appli ni partir au compte connecté
+    const meme = (typeof m.proprio === 'string' ? m.proprio : '') === proprioLocal();
+    try { if (meme && m.profil) fusionnerProfil(JSON.parse(m.profil)); } catch { /* profil illisible */ }
+    try { if (meme && m.favoris) setFavoris(JSON.parse(m.favoris)); } catch { /* favoris illisibles */ }
     if (m.compteChange) adopterCompte(m.compte ?? null).catch(() => undefined);   // connexion ou déconnexion faite dans la page
     if (m.titre && onTitre) onTitre(m.titre.replace(/\s*[—-]\s*AffectionPlus\s*$/, ''));
   }, [fusionnerProfil, setFavoris, onTitre]);

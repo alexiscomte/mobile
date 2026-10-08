@@ -14,7 +14,7 @@
 // des réponses préparées reste sur le site ; N est gardé dans ap.compte.a_valider (entrée de l'onglet Moi, comme le menu du site).
 // Textes : ui.json messages (messages.js du site, app_moteurs.py).
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
 import { Bouton, Champ, F } from '@/components/form';
@@ -176,6 +176,13 @@ export default function Messages() {
 
   useEffect(() => { oublierTrace(); }, []);
   useEffect(() => { if (session) setFin(false); }, [session]);
+  // appareil partagé (08/10/2026) : connexion faite sur cet écran (Invitation) → « Votre nom » suit le profil du compte qui se connecte
+  // (les données d'un autre compte ont été remplacées : le nom posé à l'ouverture de l'écran était le sien), tant que la personne ne l'a
+  // pas changé ici ; une nouvelle session repart du profil
+  const nomTouche = useRef(false);
+  useEffect(() => { nomTouche.current = false; }, [session]);
+  useEffect(() => { if (!nomTouche.current) setNom(nomProfil); }, [nomProfil, session]);
+  const changerNom = useCallback((v: string) => { nomTouche.current = true; setNom(v); }, []);
 
   const sessionFinie = useCallback(() => { setFin(true); oublierSession(session).catch(() => undefined); }, [session]);
 
@@ -238,7 +245,7 @@ export default function Messages() {
         ) : !admin ? (
           <>
             <Text style={F.h2}>{t.ecrire}</Text>
-            <Champ label={t.nom} value={nom} onChangeText={setNom} maxLength={80} autoComplete="name" />
+            <Champ label={t.nom} value={nom} onChangeText={changerNom} maxLength={80} autoComplete="name" />
             <Champ label={t.sujet} value={sujet} onChangeText={setSujet} maxLength={150} />
             <Text style={F.label}>{t.message}</Text>
             <TextInput style={styles.zone} value={texte} onChangeText={setTexte} multiline maxLength={5000} textAlignVertical="top" accessibilityLabel={t.message} />

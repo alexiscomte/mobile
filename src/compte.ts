@@ -13,6 +13,15 @@
 // (hachage de la base, comparé au lancement et au passage en arrière-plan : identique = aucun appel), « ap.compte.essai » (calendrier des
 // nouveaux essais). Les données du compte n'arrivent QU'À LA CONNEXION (plus de tirage au lancement ni au retour au premier plan). Mêmes
 // règles que compte.js du site (voir « synchronisation » plus bas).
+// Appareil partagé (08/10/2026, défaut trouvé sur le serveur complet local : après la déconnexion de A, la connexion de B fusionnait les
+// données de A dans le compte de B et les lui envoyait ; « Votre nom » de Mes messages gardait le prénom de A) : les données de l'appareil
+// portent leur PROPRIÉTAIRE, « ap.compte.proprio » = { id, d } (id = empreinte de l'adresse du compte, jamais l'adresse ; posé à la
+// connexion, gardé après la déconnexion avec d = instantané des données à ce moment, empreintes seulement). À la connexion : pas de
+// propriétaire (invité jamais connecté) ou le même compte = fusion « le local gagne » comme avant ; un AUTRE compte = remplacement : rien
+// n'est fusionné ni envoyé, marqueur « sale », base et empreinte remis à zéro, jeton de vote non transmis ; seules restent les saisies
+// faites hors compte depuis la déconnexion, qui suivent la règle des données d'invité. La vue web (site.ts injectionAvant) reçoit le
+// propriétaire de l'appli et vide ses propres données s'il diffère ; vue-site.tsx ignore le profil d'une page d'un autre propriétaire.
+// Détail : bloc « propriétaire des données locales » plus bas (mêmes noms que compte.js).
 // Compteurs du serveur gardés dans « ap.compte » (pas de la synchronisation) : messages_non_lus (badge de Mes messages) et, pour l'admin
 // seulement, a_valider (réponses préparées à relire sur la page de validation du site, entrée « Réponses à valider (N) » de l'onglet Moi,
 // 07/10/2026 nuit, cahier specs/admin-cle-0710.md) : donnés par /api/presence, par la messagerie et par les pages du site ouvertes dans
@@ -79,9 +88,14 @@ function lireJson(v: string | null | undefined): unknown {
   try { return JSON.parse(v); } catch { return null; }
 }
 
-/** Lit « ap.compte » (appelé une fois par le contexte au démarrage, avant d'afficher quoi que ce soit). */
+/** Lit « ap.compte » (appelé une fois par le contexte au démarrage, avant d'afficher quoi que ce soit) et le propriétaire des données. */
 export async function chargerCompte(): Promise<Compte | null> {
-  try { actuel = nettoyerCompte(lireJson(await AsyncStorage.getItem(K_COMPTE))); } catch { actuel = null; }
+  try {
+    const v = new Map(await AsyncStorage.multiGet([K_COMPTE, K_PROPRIO]));
+    actuel = nettoyerCompte(lireJson(v.get(K_COMPTE)));
+    const pr = proprioDe(lireJson(v.get(K_PROPRIO)));
+    proprioMem = pr ? pr.id : '';
+  } catch { actuel = null; }
   charge = true;
   return actuel;
 }
@@ -218,13 +232,103 @@ async function garderBase(c: Compte, f: Forme) {
 let file: Promise<unknown> = Promise.resolve();
 function enFile<T>(f: () => Promise<T>): Promise<T> { const p = file.then(f, f); file = p.catch(() => undefined); return p; }
 
+/* ---- propriétaire des données locales (appareil partagé, 08/10/2026 ; exactement les règles de compte.js du site) ----
+   ap.compte.proprio = { id, d } : id = empreinte (hachage non réversible, celui d'empreinte()) de l'adresse du compte dont viennent les
+   données de l'appareil, jamais l'adresse elle-même ; posé à chaque connexion (recevoir) et GARDÉ après la déconnexion, avec d = instantané
+   pris à la déconnexion : empreintes de chaque champ du profil et de chaque score, des adresses des favoris, des identifiants des tests de
+   compatibilité (aucune valeur en clair).
+   À la connexion : pas de propriétaire (invité jamais connecté) ou le même compte → fusion « le local gagne » comme avant ; un AUTRE
+   compte → ses données ne sont ni fusionnées ni envoyées : l'appareil les efface (marqueur « sale », calendrier, base, empreinte, jeton
+   de vote et votes, ap.lettre compris) et prend celles du compte qui se connecte. Seules restent les saisies faites HORS COMPTE depuis la
+   déconnexion, reconnues grâce à d (champ du profil nouveau ou texte changé ; score nouveau ou refait ; favori ou test nouveau), qui
+   suivent ensuite la règle des données d'invité (appliquer) ; un lieu ou un autre objet déjà présent à la déconnexion n'est jamais gardé ;
+   série de la question du jour, parties à deux et votes : remplacés. Le jeton de vote local n'est transmis à la connexion que sans
+   propriétaire (invité jamais connecté). La vue web reçoit le propriétaire de l'appli (proprioLocal, site.ts injectionAvant). */
+const K_PROPRIO = 'ap.compte.proprio';
+type Instantane = { p?: Record<string, string>; s?: Record<string, string>; f?: string[]; c?: string[] };
+type Proprio = { id: string; d?: Instantane };
+type Saisies = { profil: Record<string, unknown>; scores: Record<string, unknown>; favoris: unknown[]; compat: unknown[] };
+/** Données de l'appareil liées à une personne (synchronisées ou non), effacées quand elles appartiennent à un autre compte (plus apq:*
+ *  et ap.sondage:*). */
+const DONNEES_PERSO = [K_PROFIL, K_FAVS, K_QDJ, K_JEU2, K_CT, K_SJ, K_SALE, K_ESSAI, K_BASE, K_EMPREINTE, 'ap.lettre', 'ap.messages'];
+let proprioMem = '';
+/** Empreinte de l'adresse d'un compte (jamais l'adresse en clair) ; '' sans adresse. Même calcul que compte.js idDe. */
+export function idDe(courriel: unknown): string { const s = String(courriel || '').trim().toLowerCase(); return s ? empreinte('ap:' + s) : ''; }
+function proprioDe(brut: unknown): Proprio | null { const p = objet(brut); return typeof p.id === 'string' && p.id ? { id: p.id, ...(p.d ? { d: p.d as Instantane } : {}) } : null; }
+/** Propriétaire des données de l'appareil (empreinte), lu sans attendre : la vue web le reçoit (site.ts) et vue-site.tsx compare celui
+ *  de la page avant de reprendre son profil. '' = invité jamais connecté. */
+export function proprioLocal(): string { return proprioMem; }
+async function garderProprio(p: Proprio) {
+  proprioMem = p.id;
+  try { await AsyncStorage.setItem(K_PROPRIO, JSON.stringify(p)); } catch { /* stockage indisponible */ }
+}
+/** Instantané de la déconnexion : empreintes de ce qui est sur l'appareil, pas les valeurs. */
+async function instantane(): Promise<Instantane> {
+  const f = forme(await etatLocal());
+  const r = { p: {} as Record<string, string>, s: {} as Record<string, string>, f: [] as string[], c: [] as string[] };
+  for (const k of Object.keys(f.profil)) r.p[k] = empreinte(f.profil[k]);
+  for (const k of Object.keys(f.scores)) r.s[k] = empreinte(f.scores[k]);
+  for (const x of Array.isArray(f.favoris) ? f.favoris : []) { const u = objet(x).url; if (u) r.f.push(empreinte(String(u))); }
+  for (const x of Array.isArray(f.compat) ? f.compat : []) { const id = objet(x).id; if (id) r.c.push(empreinte(String(id))); }
+  return r;
+}
+/** Saisies faites hors compte depuis la déconnexion du propriétaire (d = son instantané ; sans instantané : aucune). */
+function saisiesHorsCompte(f: Forme, d: unknown): Saisies {
+  const g: Saisies = { profil: {}, scores: {}, favoris: [], compat: [] };
+  if (!d || typeof d !== 'object') return g;
+  const o = d as Instantane, dp = objet(o.p), ds = objet(o.s), df = Array.isArray(o.f) ? o.f : [], dc = Array.isArray(o.c) ? o.c : [];
+  for (const k of Object.keys(f.profil)) { const v = f.profil[k]; if (!propre(dp, k) || (typeof v !== 'object' && dp[k] !== empreinte(v))) g.profil[k] = v; }
+  for (const k of Object.keys(f.scores)) if (!propre(ds, k) || ds[k] !== empreinte(f.scores[k])) g.scores[k] = f.scores[k];
+  g.favoris = (Array.isArray(f.favoris) ? f.favoris : []).filter((x) => { const u = objet(x).url; return !!u && !df.includes(empreinte(String(u))); });
+  g.compat = (Array.isArray(f.compat) ? f.compat : []).filter((x) => { const t = objet(x); return typeof t.id === 'string' && !!t.id && !t.x && !dc.includes(empreinte(t.id)); });
+  return g;
+}
+async function viderDonnees() {
+  try {
+    const cles = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith('apq:') || k.startsWith('ap.sondage:'));
+    await AsyncStorage.multiRemove([...DONNEES_PERSO, ...cles]);
+  } catch { /* stockage indisponible */ }
+}
+/** Connexion d'un AUTRE compte que le propriétaire : tout est effacé, puis seules les saisies hors compte sont remises (données d'invité). */
+async function remplacerLocal(d: unknown) {
+  const g = saisiesHorsCompte(forme(await etatLocal()), d);
+  await viderDonnees();
+  const ecrire: [string, string][] = [];
+  if (Object.keys(g.profil).length) ecrire.push([K_PROFIL, JSON.stringify(g.profil)]);
+  if (g.favoris.length) ecrire.push([K_FAVS, JSON.stringify(g.favoris)]);
+  for (const k of Object.keys(g.scores)) ecrire.push(['apq:' + k, JSON.stringify(g.scores[k])]);
+  if (g.compat.length) ecrire.push([K_CT, JSON.stringify(g.compat)]);
+  try { if (ecrire.length) await AsyncStorage.multiSet(ecrire); } catch { /* stockage indisponible */ }
+}
+/** Session présente sans être passée par recevoir (ouverte avant le 08/10/2026) : le propriétaire est noté ; si les données sont celles
+ *  d'un AUTRE compte et que rien n'a encore été convenu avec celui-ci, elles sont effacées (jamais envoyées). Vrai si effacées. */
+async function verifierProprio(c: Compte, pr: Proprio | null, b: Forme | null): Promise<boolean> {
+  const id = idDe(c.courriel);
+  if (!id || (pr && pr.id === id && !pr.d)) return false;
+  const efface = !!(pr && pr.id !== id && !b);
+  if (efface) await viderDonnees();
+  await garderProprio({ id });
+  return efface;
+}
+/** Jeton de vote transmis à la connexion : seulement celui d'un invité jamais connecté (avec un propriétaire, c'est le jeton d'un compte). */
+async function jetonLocal(): Promise<string> {
+  try {
+    const v = new Map(await AsyncStorage.multiGet([K_PROPRIO, K_SJ]));
+    return proprioDe(lireJson(v.get(K_PROPRIO))) ? '' : (v.get(K_SJ) || '');
+  } catch { return ''; }
+}
+
 /** Contrôle par l'empreinte, puis champ par champ : tient à jour le marqueur ap.compte.sale ; vrai s'il reste quelque chose à envoyer. */
 function noter(): Promise<boolean> {
   return enFile(async () => {
     const c = actuel;
     if (!c) return false;
+    let v = new Map(await AsyncStorage.multiGet([K_BASE, K_EMPREINTE, K_SALE, K_PROPRIO]));
+    if (await verifierProprio(c, proprioDe(lireJson(v.get(K_PROPRIO))), baseDe(lireJson(v.get(K_BASE)), c))) {
+      signaler('donnees');                                         // l'écran reprend les données (effacées)
+      v = new Map(await AsyncStorage.multiGet([K_BASE, K_EMPREINTE, K_SALE]));
+    }
     const f = forme(await etatLocal());
-    const v = new Map(await AsyncStorage.multiGet([K_BASE, K_EMPREINTE, K_SALE]));
     const b = baseDe(lireJson(v.get(K_BASE)), c), s = marqueurDe(lireJson(v.get(K_SALE)));
     if (!b) { await garderBase(c, f); return Object.keys(s).length > 0; }   // session ouverte avant cette version : l'état local devient la base
     if (empreinte(f) === lireJson(v.get(K_EMPREINTE))) { if (Object.keys(s).length) await AsyncStorage.removeItem(K_SALE); return false; }
@@ -278,9 +382,12 @@ function arreterEnvois() {
   noterEchecs(0);
 }
 /** Session refusée (401) ou déconnexion : le compte est oublié sur l'appareil, avec la base, l'empreinte et le calendrier des essais (la
- *  prochaine connexion repart des données du compte) ; le marqueur reste : ce qui n'a pas pu partir gagnera à la prochaine connexion. */
+ *  prochaine connexion repart des données du compte) ; le marqueur reste : ce qui n'a pas pu partir gagnera à la prochaine connexion DU
+ *  MÊME compte. Les données restent, avec leur propriétaire et l'instantané de ce moment (appareil partagé, 08/10/2026). */
 async function oublierCompteLocal() {
   arreterEnvois();
+  const id = actuel ? idDe(actuel.courriel) : '';
+  if (id) { try { await garderProprio({ id, d: await instantane() }); } catch { /* stockage indisponible */ } }
   try { await AsyncStorage.multiRemove([K_BASE, K_EMPREINTE, K_ESSAI]); } catch { /* stockage indisponible */ }
   await garderCompte(null);
 }
@@ -413,12 +520,17 @@ async function appliquer(j: Reponse) {
 }
 
 /** Les données du compte arrivent (connexion) : posées sur l'appareil (ce qui est « sale » gagne), puis ce que le compte a devient la
- *  base ; ce que l'appareil a de plus ou de modifié est marqué et part tout de suite (envoi partiel). */
+ *  base ; ce que l'appareil a de plus ou de modifié est marqué et part tout de suite (envoi partiel). Appareil partagé (08/10/2026) :
+ *  données d'un AUTRE compte = remplacement (seules les saisies faites hors compte depuis sa déconnexion restent, données d'invité). */
 async function recevoir(j: Reponse, prenomGoogle?: string) {
   const moi = actuel;
   if (!moi) return;
+  const id = idDe(typeof j.courriel === 'string' && j.courriel ? j.courriel : moi.courriel);
   await enFile(async () => {
+    const pr = proprioDe(lireJson(await AsyncStorage.getItem(K_PROPRIO).catch(() => null)));
+    if (pr && id && pr.id !== id) await remplacerLocal(pr.d);
     await appliquer(j);
+    if (id) await garderProprio({ id });            // les données de l'appareil sont désormais celles de ce compte
     // connexion Google : le prénom du compte Google remplit « Mes infos » seulement si l'appareil et le compte n'en ont pas (compte.js)
     if (prenomGoogle) {
       try {
@@ -477,8 +589,7 @@ export const OIDC = {
 
 /** Ouvre la session de l'appli avec le jeton d'identité du service commun. Erreurs : jeton (401), trop, reseau. */
 export async function connecterOidc(idToken: string): Promise<Reponse> {
-  const jetonLocal = (await AsyncStorage.getItem(K_SJ).catch(() => null)) || '';
-  const j = await api('oidc', { id_token: idToken, client_id: OIDC.client, jeton_local: jetonLocal, appareil: 'appli' });
+  const j = await api('oidc', { id_token: idToken, client_id: OIDC.client, jeton_local: await jetonLocal(), appareil: 'appli' });
   if (j.ok) await ouvrir(j);
   return j;
 }
@@ -547,8 +658,7 @@ export async function noterMdp(): Promise<void> {
 
 /** Connexion par le jeton d'identité Google. Erreurs : consentement (409, compte à créer), google (401), trop, reseau. */
 export async function connecterGoogle(credential: string, langue: string, consentement: boolean): Promise<Reponse> {
-  const jetonLocal = (await AsyncStorage.getItem(K_SJ).catch(() => null)) || '';
-  const corps: Record<string, string> = { credential, langue, jeton_local: jetonLocal, appareil: 'appli' };
+  const corps: Record<string, string> = { credential, langue, jeton_local: await jetonLocal(), appareil: 'appli' };
   if (consentement) corps.consentement = 'oui';
   const j = await api('google', corps);
   if (j.ok) await ouvrir(j);
