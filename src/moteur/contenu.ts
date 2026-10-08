@@ -6,7 +6,8 @@ import { SITE } from '../site';
 
 export type EntreeIndex = [string, string, string, string, string];   // u, titre, description, fil, groupe
 export type Article = { t: string; d: string; fil: string; h1: string; lead: string; h: string; maj: string };
-type Index = { v: string; pages: EntreeIndex[] };
+// r : ancienne adresse -> nouvelle (« fr/…/x.html#ancre »), fiches pays fusionnées dans les grosses pages droits (droits_pays.py, 08/10/2026)
+type Index = { v: string; pages: EntreeIndex[]; r?: Record<string, string> };
 type Paquet = { v: string; pages: Record<string, Article> };
 
 const memIndex: Partial<Record<Langue, Index>> = {};
@@ -52,7 +53,9 @@ export async function index(lg: Langue): Promise<Index> {
 /** Un article : depuis la mémoire, l'appareil, ou le site (le paquet du groupe est alors gardé pour la suite). */
 export async function article(lg: Langue, u: string): Promise<Article | null> {
   const idx = await index(lg);
-  const e = idx.pages.find((x) => x[0] === u);
+  const vers: string | undefined = idx.r ? idx.r[u] : undefined;   // fiche fusionnée : on ouvre sa page de groupe
+  const v = vers ? vers.split('#')[0] : u;
+  const e = idx.pages.find((x) => x[0] === v);
   if (!e) return null;
   const nom = lg + '-' + e[4] + '.json';
   let p = memPaquets[nom];
@@ -62,7 +65,7 @@ export async function article(lg: Langue, u: string): Promise<Article | null> {
     if (!p) return null;
     memPaquets[nom] = p;
   }
-  return p.pages[u] || null;
+  return p.pages[v] || null;
 }
 
 /** Télécharge tous les paquets de la langue (lecture hors ligne complète) ; rend le nombre de paquets obtenus. */
