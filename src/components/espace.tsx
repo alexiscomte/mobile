@@ -51,7 +51,9 @@ const CIBLES: Record<string, { route?: string; params?: Record<string, string>; 
   distance: { route: '/distance', sf: 'globe', image: VIGNETTES.distance },
   compteur: { route: '/compteur', sf: 'heart.circle.fill', image: VIGNETTES.compteur },
   noces: { sf: 'gift.fill', image: TUILES.mariage },                                        // pas d'écran natif : la page du site
-  // groupe « moi » (sous-pages de l'espace sorties du menu, 07/10/2026 nuit) : leurs écrans natifs
+  // groupe « moi » (sous-pages de l'espace sorties du menu, 07/10/2026 nuit) : leurs écrans natifs ; « Mes messages » en tête depuis le
+  // 08/10/2026 (Alexis : plus dans le menu, « les seuls messages que l'utilisateur va recevoir sont ceux de l'admin »)
+  messages: { route: '/messages', sf: 'bubble.left.and.bubble.right.fill' },
   sondages: { route: '/sondages', params: { mes: '1' }, sf: 'chart.bar.fill', image: TUILES.sondages },
   compat: { route: '/mes-compat', sf: 'heart.text.square.fill', image: VIGNETTES['amour-signes'] },
   connexions: { route: '/connexions', sf: 'clock.arrow.circlepath' },                        // toujours affichée : l'écran invite à se connecter
@@ -62,10 +64,11 @@ const CIBLES: Record<string, { route?: string; params?: Record<string, string>; 
  *  cartes : astrologie (9), outils du couple et de la famille (4), Mes sondages / Mes compatibilités amoureuses / Mon historique de
  *  connexion. Une carte sans page dans la langue est omise, comme sur le site. */
 export function PageOutils() {
-  const { langue, profil } = useProfil();
+  const { langue, profil, compte } = useProfil();
   const router = useRouter();
   const E = UI_E[langue] || UI_E.fr;
   const P = (PAGES_ESPACE.outils || {})[langue] || PAGES_ESPACE.outils.fr;
+  const nonLus = compte?.messages_non_lus || 0;                                 // nombre affiché sur la carte « Mes messages »
   const versInfos = () => router.push('/mes-infos');
   return (
     <>
@@ -91,7 +94,8 @@ export function PageOutils() {
                 const aller = c && c.route
                   ? () => router.push((c.params ? { pathname: c.route, params: c.params } : c.route) as never)
                   : () => ouvrir(router, url(u), t);
-                return <Ligne key={k.c} titre={t} sf={c ? c.sf : 'link'} image={c ? c.image : undefined} onPress={aller} />;
+                const n = k.c === 'messages' ? nonLus : 0;
+                return <Ligne key={k.c} titre={t} texte={n ? String(n) : undefined} sf={c ? c.sf : 'link'} image={c ? c.image : undefined} onPress={aller} />;
               })}
             </View>
           );

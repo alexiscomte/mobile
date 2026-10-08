@@ -99,7 +99,8 @@ export default function Moi() {
           const e = ECRANS[m.c]; const u = m.u[langue];
           // « k » : seulement avec un compte connecté ; « a » : seulement pour l'administrateur (ap.compte.admin)
           if (!e || !u || (m.k && !compte) || (m.a && !(compte && compte.admin))) return null;
-          const n = m.c === 'favoris' ? favoris.length : m.c === 'messages' ? (compte?.messages_non_lus || 0) : m.c === 'reponses' ? (compte?.a_valider || 0) : 0;
+          // « Mes messages » est une carte de « Mes outils » depuis le 08/10/2026 : ses non-lus s'affichent sur l'entrée « Mes outils »
+          const n = m.c === 'favoris' ? favoris.length : (m.c === 'messages' || m.c === 'outils') ? (compte?.messages_non_lus || 0) : m.c === 'reponses' ? (compte?.a_valider || 0) : 0;
           const aller = () => {
             if (!e.cible) { ouvrir(router, url(u), m.t[langue] || m.t.fr); return; }
             // routes typées : les écrans du menu existent tous (_layout.tsx) ; la cible vient d'une table fixe
