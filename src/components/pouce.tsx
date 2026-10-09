@@ -3,9 +3,10 @@
 // côté, rien d'affiché à 0, jamais un lien (aucune liste de personnes). Toucher = j'aime, et la page entre dans les favoris
 // (ap.favoris, synchronisés avec le compte) ; nouveau toucher = je n'aime plus, elle en sort. L'état de départ est celui des favoris,
 // puis celui du serveur, qui fait foi (relu à la connexion et à la déconnexion). Icône : Material Icons « thumb_up » (Apache 2.0).
-// Depuis le 09/10/2026 (comme la barre du site : pouce, icône « partager », fil d'Ariane) : en HAUT de l'écran de l'article, suivi de
-// l'icône de partage natif (Share de react-native, prop « partager ») puis du fil d'Ariane ; le message bref (« Page ajoutée aux
-// favoris ») prend un instant la place du fil, sans décaler l'article. IconePartage sert aussi à la barre de titre de page.tsx.
+// Depuis le 09/10/2026 (comme la barre du site) : en HAUT de l'écran de l'article, sur la ligne du fil d'Ariane, le fil à gauche, le pouce
+// (et son compteur) puis l'icône de partage natif (Share de react-native, prop « partager ») collés à DROITE (Alexis : « totalement sur la
+// droite ») ; le message bref (« Page ajoutée aux favoris ») prend un instant la place du fil, sans décaler l'article ni les boutons.
+// IconePartage sert aussi à la barre de titre de page.tsx (en haut à droite).
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
@@ -33,7 +34,7 @@ export function IconePartage({ couleur = COULEURS.primaire, taille = 17 }: { cou
 type Props = {
   u: string;
   titre: string;
-  /** fil d'Ariane affiché après les deux boutons (comme sur le site) */
+  /** fil d'Ariane, à gauche des deux boutons (comme sur le site) */
   fil?: string;
   /** partage natif de la page ; sans lui, pas d'icône */
   partager?: () => void;
@@ -91,6 +92,9 @@ export function Pouce({ u, titre, fil, partager, libellePartage }: Props) {
 
   return (
     <View style={styles.ligne}>
+      {/* à gauche : le fil d'Ariane (ou, un instant, le message) ; sinon un espace qui pousse les boutons à droite */}
+      {msg ? <Text style={styles.msg} accessibilityLiveRegion="polite" numberOfLines={2}>{msg}</Text>
+        : fil ? <Text style={styles.fil} numberOfLines={2}>{fil}</Text> : <View style={styles.espace} />}
       <Pressable onPress={() => { toucher(); }} hitSlop={8} accessibilityRole="togglebutton" accessibilityState={{ checked: moi }}
         accessibilityLabel={E.aime} style={({ pressed }) => [styles.bouton, moi && styles.boutonAime, pressed && styles.presse]}>
         <Svg width={17} height={17} viewBox="0 0 24 24">
@@ -104,8 +108,6 @@ export function Pouce({ u, titre, fil, partager, libellePartage }: Props) {
           <IconePartage />
         </Pressable>
       ) : null}
-      {msg ? <Text style={styles.msg} accessibilityLiveRegion="polite" numberOfLines={2}>{msg}</Text>
-        : fil ? <Text style={styles.fil} numberOfLines={2}>{fil}</Text> : null}
     </View>
   );
 }
@@ -116,6 +118,7 @@ const styles = StyleSheet.create({
   boutonAime: { backgroundColor: COULEURS.primaire, borderColor: COULEURS.primaire },
   presse: { opacity: 0.75 },
   n: { fontSize: 14, fontWeight: '600', color: COULEURS.texteMuet, marginLeft: -3 },
-  fil: { flex: 1, flexShrink: 1, color: COULEURS.texteMuet, fontSize: 12, marginLeft: 2 },
-  msg: { flex: 1, flexShrink: 1, fontSize: 13, color: COULEURS.vert, marginLeft: 2 },
+  fil: { flex: 1, flexShrink: 1, color: COULEURS.texteMuet, fontSize: 12, marginRight: 2 },
+  msg: { flex: 1, flexShrink: 1, fontSize: 13, color: COULEURS.vert, marginRight: 2 },
+  espace: { flex: 1 },
 });

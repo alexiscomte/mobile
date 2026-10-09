@@ -1,6 +1,7 @@
 // Un article du site, rendu en natif depuis le contenu hors ligne ; « Voir la version en ligne » ouvre la vue web.
-// En haut de l'écran (09/10/2026, comme la barre du site) : le pouce « j'aime » et son compteur (components/pouce.tsx), qui ajoute la page
-// aux favoris, l'icône de partage natif (Share de react-native, à la place du « Partager » de la barre de titre) et le fil d'Ariane.
+// En haut de l'écran (09/10/2026, comme la barre du site) : le fil d'Ariane à gauche ; à DROITE, le pouce « j'aime » et son compteur
+// (components/pouce.tsx), qui ajoute la page aux favoris, puis l'icône de partage natif (Share de react-native, à la place du « Partager »
+// de la barre de titre).
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -71,7 +72,7 @@ export default function EcranArticle() {
         ) : null}
         {a ? (
           <>
-            {/* pouce « j'aime » et compteur, icône de partage natif, fil d'Ariane : comme la barre en tête du fil d'Ariane du site (09/10/2026) */}
+            {/* fil d'Ariane, puis à droite pouce « j'aime » (et compteur) et icône de partage natif : comme la barre du site (09/10/2026) */}
             <Pouce u={u} titre={a.h1 || a.t} fil={a.fil} partager={partager} libellePartage={T.partagerPage} />
             <Text style={styles.h1}>{a.h1 || a.t}</Text>
             {a.lead ? <Text style={styles.lead}>{a.lead}</Text> : null}
@@ -135,7 +136,7 @@ const CLASSES: Record<string, MixedStyleDeclaration> = {
 const styles = StyleSheet.create({
   contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   html: { color: COULEURS.texte, fontSize: 16, lineHeight: 24 },
-  h1:{ fontSize: 26, lineHeight: 33, fontWeight: '800', color: COULEURS.primaire, marginBottom: 8 },
+  h1: { fontSize: 26, lineHeight: 33, fontWeight: '800', color: COULEURS.primaire, marginBottom: 8 },
   lead: { fontSize: 17, lineHeight: 25, color: COULEURS.texteMuet, marginBottom: 14 },
   maj: { color: COULEURS.texteMuet, fontSize: 12, marginTop: 10 },
   erreur: { color: COULEURS.coeur, marginBottom: 12 },
