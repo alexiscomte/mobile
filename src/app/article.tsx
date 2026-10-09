@@ -1,5 +1,6 @@
 // Un article du site, rendu en natif depuis le contenu hors ligne ; « Voir la version en ligne » ouvre la vue web.
-// Sous le chapeau : le pouce « j'aime » et son compteur (components/pouce.tsx, 07/10/2026 soir), qui ajoute la page aux favoris.
+// En haut de l'écran (09/10/2026, comme la barre du site) : le pouce « j'aime » et son compteur (components/pouce.tsx), qui ajoute la page
+// aux favoris, l'icône de partage natif (Share de react-native, à la place du « Partager » de la barre de titre) et le fil d'Ariane.
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -56,16 +57,10 @@ export default function EcranArticle() {
   }), [router, T3, u, langue]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!u) { router.back(); return null; }
+  const partager = () => { Share.share({ message: (a ? a.t + ' ' : '') + SITE + u }).catch(() => undefined); };
   return (
     <>
-      <Stack.Screen options={{
-        title: a ? a.t : '',
-        headerRight: () => (
-          <Pressable onPress={() => Share.share({ message: (a ? a.t + ' ' : '') + SITE + u }).catch(() => undefined)} hitSlop={10}>
-            <Text style={styles.partager}>{T.partager}</Text>
-          </Pressable>
-        ),
-      }} />
+      <Stack.Screen options={{ title: a ? a.t : '' }} />
       <ScrollView contentContainerStyle={styles.contenu}>
         {a === undefined ? <ActivityIndicator color={COULEURS.primaire} /> : null}
         {a === null ? (
@@ -76,11 +71,10 @@ export default function EcranArticle() {
         ) : null}
         {a ? (
           <>
-            {a.fil ? <Text style={styles.fil}>{a.fil}</Text> : null}
+            {/* pouce « j'aime » et compteur, icône de partage natif, fil d'Ariane : comme la barre en tête du fil d'Ariane du site (09/10/2026) */}
+            <Pouce u={u} titre={a.h1 || a.t} fil={a.fil} partager={partager} libellePartage={T.partagerPage} />
             <Text style={styles.h1}>{a.h1 || a.t}</Text>
             {a.lead ? <Text style={styles.lead}>{a.lead}</Text> : null}
-            {/* pouce « j'aime » et compteur, comme sous le pictogramme des pages du site (07/10/2026, soir) */}
-            <Pouce u={u} titre={a.h1 || a.t} />
             <RenderHtml
               contentWidth={width - 32}
               source={{ html: a.h }}
@@ -141,12 +135,10 @@ const CLASSES: Record<string, MixedStyleDeclaration> = {
 const styles = StyleSheet.create({
   contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   html: { color: COULEURS.texte, fontSize: 16, lineHeight: 24 },
-  fil: { color: COULEURS.texteMuet, fontSize: 12, marginBottom: 6 },
-  h1: { fontSize: 26, lineHeight: 33, fontWeight: '800', color: COULEURS.primaire, marginBottom: 8 },
+  h1:{ fontSize: 26, lineHeight: 33, fontWeight: '800', color: COULEURS.primaire, marginBottom: 8 },
   lead: { fontSize: 17, lineHeight: 25, color: COULEURS.texteMuet, marginBottom: 14 },
   maj: { color: COULEURS.texteMuet, fontSize: 12, marginTop: 10 },
   erreur: { color: COULEURS.coeur, marginBottom: 12 },
-  partager: { color: COULEURS.primaire, fontWeight: '600', fontSize: 15 },
   marqueur: { backgroundColor: COULEURS.fondDoux, borderRadius: 10, padding: 12, marginVertical: 10, borderWidth: 1, borderColor: COULEURS.bordure },
   marqueurTxt: { color: COULEURS.primaire, fontWeight: '700' },
   bouton: { backgroundColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 12, alignItems: 'center' },

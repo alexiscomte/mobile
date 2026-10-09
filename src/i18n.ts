@@ -19,7 +19,7 @@ type Textes = {
   lieuNaissance: string; lieuNaissanceTxt: string; lieuBouton: string; langue: string; enregistrer: string; enregistre: string;
   effacer: string; effacerConfirm: string; oui: string; non: string; favoris: string; aucunFavori: string;
   aPropos: string; aProposTxt: string; siteWeb: string; newsletter: string; confidentialite: string;
-  chargement: string; horsLigne: string; reessayer: string; ouvrirNavigateur: string; partager: string; retour: string;
+  chargement: string; horsLigne: string; reessayer: string; ouvrirNavigateur: string; partager: string; partagerPage: string; retour: string;
   version: string;
 };
 
@@ -43,11 +43,11 @@ const fr: Textes = {
   lieuNaissance: 'Lieu de naissance', lieuNaissanceTxt: 'Pour l’ascendant : à renseigner sur la fiche du site (pays et ville).',
   lieuBouton: 'Compléter sur le site', langue: 'Langue', enregistrer: 'Enregistrer', enregistre: 'Enregistré.',
   effacer: 'Effacer mes données', effacerConfirm: 'Effacer vos infos et vos favoris de cet appareil ?', oui: 'Oui', non: 'Non',
-  favoris: 'Favoris', aucunFavori: 'Aucun favori : dans un article, touchez le pouce sous le titre pour l’aimer, il s’ajoute ici.',
+  favoris: 'Favoris', aucunFavori: 'Aucun favori : en haut d’un article, touchez le pouce pour l’aimer, il s’ajoute ici.',
   aPropos: 'À propos', aProposTxt: 'AffectionPlus : le site et l’application sont gratuits, sans publicité intrusive. Sans compte, tout reste sur l’appareil ; avec un compte facultatif, vos infos vous suivent.',
   siteWeb: 'Le site affectionplus.com', newsletter: 'Lettre d’information', confidentialite: 'Confidentialité',
   chargement: 'Chargement…', horsLigne: 'Pas de connexion. Cette page a besoin d’internet.', reessayer: 'Réessayer',
-  ouvrirNavigateur: 'Ouvrir dans le navigateur', partager: 'Partager', retour: 'Retour', version: 'Version',
+  ouvrirNavigateur: 'Ouvrir dans le navigateur', partager: 'Partager', partagerPage: 'Partager cette page', retour: 'Retour', version: 'Version',
 };
 
 const en: Textes = {
@@ -70,11 +70,11 @@ const en: Textes = {
   lieuNaissance: 'Place of birth', lieuNaissanceTxt: 'For the ascendant: set it on the site’s form (country and town).',
   lieuBouton: 'Complete on the site', langue: 'Language', enregistrer: 'Save', enregistre: 'Saved.',
   effacer: 'Erase my data', effacerConfirm: 'Erase your details and favourites from this device?', oui: 'Yes', non: 'No',
-  favoris: 'Favourites', aucunFavori: 'No favourites yet: in an article, tap the thumbs-up under the title to like it and it is added here.',
+  favoris: 'Favourites', aucunFavori: 'No favourites yet: at the top of an article, tap the thumbs-up to like it and it is added here.',
   aPropos: 'About', aProposTxt: 'AffectionPlus: the site and the app are free, with no intrusive advertising. Without an account, everything stays on the device; with an optional account, your details follow you.',
   siteWeb: 'The affectionplus.com site', newsletter: 'Newsletter', confidentialite: 'Privacy',
   chargement: 'Loading…', horsLigne: 'No connection. This page needs the internet.', reessayer: 'Retry',
-  ouvrirNavigateur: 'Open in browser', partager: 'Share', retour: 'Back', version: 'Version',
+  ouvrirNavigateur: 'Open in browser', partager: 'Share', partagerPage: 'Share this page', retour: 'Back', version: 'Version',
 };
 
 const de: Textes = {
@@ -97,11 +97,11 @@ const de: Textes = {
   lieuNaissance: 'Geburtsort', lieuNaissanceTxt: 'Für den Aszendenten: auf dem Formular der Website eintragen (Land und Ort).',
   lieuBouton: 'Auf der Website ergänzen', langue: 'Sprache', enregistrer: 'Speichern', enregistre: 'Gespeichert.',
   effacer: 'Meine Daten löschen', effacerConfirm: 'Ihre Angaben und Favoriten von diesem Gerät löschen?', oui: 'Ja', non: 'Nein',
-  favoris: 'Favoriten', aucunFavori: 'Keine Favoriten: Tippen Sie in einem Artikel auf den Daumen unter dem Titel („Gefällt mir“), dann erscheint er hier.',
+  favoris: 'Favoriten', aucunFavori: 'Keine Favoriten: Tippen Sie oben in einem Artikel auf den Daumen („Gefällt mir“), dann erscheint er hier.',
   aPropos: 'Über', aProposTxt: 'AffectionPlus: Website und App sind kostenlos, ohne aufdringliche Werbung. Ohne Konto bleibt alles auf dem Gerät; mit einem freiwilligen Konto begleiten Ihre Angaben Sie überallhin.',
   siteWeb: 'Die Website affectionplus.com', newsletter: 'Newsletter', confidentialite: 'Datenschutz',
   chargement: 'Wird geladen…', horsLigne: 'Keine Verbindung. Diese Seite braucht Internet.', reessayer: 'Erneut versuchen',
-  ouvrirNavigateur: 'Im Browser öffnen', partager: 'Teilen', retour: 'Zurück', version: 'Version',
+  ouvrirNavigateur: 'Im Browser öffnen', partager: 'Teilen', partagerPage: 'Diese Seite teilen', retour: 'Zurück', version: 'Version',
 };
 
 const es: Textes = {
@@ -124,11 +124,11 @@ const es: Textes = {
   lieuNaissance: 'Lugar de nacimiento', lieuNaissanceTxt: 'Para el ascendente: indíquelo en la ficha del sitio (país y ciudad).',
   lieuBouton: 'Completar en el sitio', langue: 'Idioma', enregistrer: 'Guardar', enregistre: 'Guardado.',
   effacer: 'Borrar mis datos', effacerConfirm: '¿Borrar sus datos y favoritos de este dispositivo?', oui: 'Sí', non: 'No',
-  favoris: 'Favoritos', aucunFavori: 'Sin favoritos: en un artículo, toque el pulgar bajo el título («me gusta») y aparecerá aquí.',
+  favoris: 'Favoritos', aucunFavori: 'Sin favoritos: en la parte superior de un artículo, toque el pulgar («me gusta») y aparecerá aquí.',
   aPropos: 'Acerca de', aProposTxt: 'AffectionPlus: el sitio y la aplicación son gratuitos, sin publicidad intrusiva. Sin cuenta, todo se queda en el dispositivo; con una cuenta opcional, sus datos le acompañan.',
   siteWeb: 'El sitio affectionplus.com', newsletter: 'Boletín', confidentialite: 'Privacidad',
   chargement: 'Cargando…', horsLigne: 'Sin conexión. Esta página necesita internet.', reessayer: 'Reintentar',
-  ouvrirNavigateur: 'Abrir en el navegador', partager: 'Compartir', retour: 'Atrás', version: 'Versión',
+  ouvrirNavigateur: 'Abrir en el navegador', partager: 'Compartir', partagerPage: 'Compartir esta página', retour: 'Atrás', version: 'Versión',
 };
 
 const it: Textes = {
@@ -151,11 +151,11 @@ const it: Textes = {
   lieuNaissance: 'Luogo di nascita', lieuNaissanceTxt: 'Per l’ascendente: da indicare nella scheda del sito (paese e città).',
   lieuBouton: 'Completare sul sito', langue: 'Lingua', enregistrer: 'Salva', enregistre: 'Salvato.',
   effacer: 'Cancella i miei dati', effacerConfirm: 'Cancellare i vostri dati e preferiti da questo dispositivo?', oui: 'Sì', non: 'No',
-  favoris: 'Preferiti', aucunFavori: 'Nessun preferito: in un articolo, toccate il pollice sotto il titolo («mi piace») e comparirà qui.',
+  favoris: 'Preferiti', aucunFavori: 'Nessun preferito: in cima a un articolo, toccate il pollice («mi piace») e comparirà qui.',
   aPropos: 'Informazioni', aProposTxt: 'AffectionPlus: sito e app sono gratuiti, senza pubblicità invadente. Senza account, tutto resta sul dispositivo; con un account facoltativo, i vostri dati vi seguono.',
   siteWeb: 'Il sito affectionplus.com', newsletter: 'Newsletter', confidentialite: 'Privacy',
   chargement: 'Caricamento…', horsLigne: 'Nessuna connessione. Questa pagina ha bisogno di internet.', reessayer: 'Riprova',
-  ouvrirNavigateur: 'Apri nel browser', partager: 'Condividi', retour: 'Indietro', version: 'Versione',
+  ouvrirNavigateur: 'Apri nel browser', partager: 'Condividi', partagerPage: 'Condividi questa pagina', retour: 'Indietro', version: 'Versione',
 };
 
 const pt: Textes = {
@@ -178,11 +178,11 @@ const pt: Textes = {
   lieuNaissance: 'Local de nascimento', lieuNaissanceTxt: 'Para o ascendente: a indicar na ficha do site (país e cidade).',
   lieuBouton: 'Completar no site', langue: 'Língua', enregistrer: 'Guardar', enregistre: 'Guardado.',
   effacer: 'Apagar os meus dados', effacerConfirm: 'Apagar os seus dados e favoritos deste dispositivo?', oui: 'Sim', non: 'Não',
-  favoris: 'Favoritos', aucunFavori: 'Sem favoritos: num artigo, toque no polegar sob o título («gosto») e ele aparece aqui.',
+  favoris: 'Favoritos', aucunFavori: 'Sem favoritos: no topo de um artigo, toque no polegar («gosto») e ele aparece aqui.',
   aPropos: 'Sobre', aProposTxt: 'AffectionPlus: o site e a aplicação são gratuitos, sem publicidade intrusiva. Sem conta, tudo fica no dispositivo; com uma conta opcional, os seus dados acompanham-no.',
   siteWeb: 'O site affectionplus.com', newsletter: 'Newsletter', confidentialite: 'Privacidade',
   chargement: 'A carregar…', horsLigne: 'Sem ligação. Esta página precisa de internet.', reessayer: 'Tentar de novo',
-  ouvrirNavigateur: 'Abrir no navegador', partager: 'Partilhar', retour: 'Voltar', version: 'Versão',
+  ouvrirNavigateur: 'Abrir no navegador', partager: 'Partilhar', partagerPage: 'Partilhar esta página', retour: 'Voltar', version: 'Versão',
 };
 
 const nl: Textes = {
@@ -205,11 +205,11 @@ const nl: Textes = {
   lieuNaissance: 'Geboorteplaats', lieuNaissanceTxt: 'Voor de ascendant: in te vullen op het formulier van de site (land en plaats).',
   lieuBouton: 'Aanvullen op de site', langue: 'Taal', enregistrer: 'Opslaan', enregistre: 'Opgeslagen.',
   effacer: 'Mijn gegevens wissen', effacerConfirm: 'Uw gegevens en favorieten van dit toestel wissen?', oui: 'Ja', non: 'Nee',
-  favoris: 'Favorieten', aucunFavori: 'Geen favorieten: tik in een artikel op de duim onder de titel (‘vind ik leuk’), dan verschijnt het hier.',
+  favoris: 'Favorieten', aucunFavori: 'Geen favorieten: tik bovenaan een artikel op de duim (‘vind ik leuk’), dan verschijnt het hier.',
   aPropos: 'Over', aProposTxt: 'AffectionPlus: de site en de app zijn gratis, zonder opdringerige reclame. Zonder account blijft alles op het toestel; met een optioneel account gaan uw gegevens met u mee.',
   siteWeb: 'De site affectionplus.com', newsletter: 'Nieuwsbrief', confidentialite: 'Privacy',
   chargement: 'Laden…', horsLigne: 'Geen verbinding. Deze pagina heeft internet nodig.', reessayer: 'Opnieuw proberen',
-  ouvrirNavigateur: 'Openen in browser', partager: 'Delen', retour: 'Terug', version: 'Versie',
+  ouvrirNavigateur: 'Openen in browser', partager: 'Delen', partagerPage: 'Deze pagina delen', retour: 'Terug', version: 'Versie',
 };
 
 const pl: Textes = {
@@ -232,11 +232,11 @@ const pl: Textes = {
   lieuNaissance: 'Miejsce urodzenia', lieuNaissanceTxt: 'Do ascendentu: uzupełnij w formularzu serwisu (kraj i miasto).',
   lieuBouton: 'Uzupełnij w serwisie', langue: 'Język', enregistrer: 'Zapisz', enregistre: 'Zapisano.',
   effacer: 'Usuń moje dane', effacerConfirm: 'Usunąć twoje dane i ulubione z tego urządzenia?', oui: 'Tak', non: 'Nie',
-  favoris: 'Ulubione', aucunFavori: 'Brak ulubionych: w artykule dotknij kciuka pod tytułem („lubię to”), a pojawi się tutaj.',
+  favoris: 'Ulubione', aucunFavori: 'Brak ulubionych: u góry artykułu dotknij kciuka („lubię to”), a pojawi się tutaj.',
   aPropos: 'O aplikacji', aProposTxt: 'AffectionPlus: serwis i aplikacja są darmowe, bez nachalnych reklam. Bez konta wszystko zostaje na urządzeniu; z opcjonalnym kontem twoje dane są zawsze z tobą.',
   siteWeb: 'Serwis affectionplus.com', newsletter: 'Newsletter', confidentialite: 'Prywatność',
   chargement: 'Wczytywanie…', horsLigne: 'Brak połączenia. Ta strona wymaga internetu.', reessayer: 'Spróbuj ponownie',
-  ouvrirNavigateur: 'Otwórz w przeglądarce', partager: 'Udostępnij', retour: 'Wstecz', version: 'Wersja',
+  ouvrirNavigateur: 'Otwórz w przeglądarce', partager: 'Udostępnij', partagerPage: 'Udostępnij tę stronę', retour: 'Wstecz', version: 'Wersja',
 };
 
 const tr: Textes = {
@@ -259,11 +259,11 @@ const tr: Textes = {
   lieuNaissance: 'Doğum yeri', lieuNaissanceTxt: 'Yükselen burç için: sitedeki formda belirtin (ülke ve şehir).',
   lieuBouton: 'Sitede tamamla', langue: 'Dil', enregistrer: 'Kaydet', enregistre: 'Kaydedildi.',
   effacer: 'Verilerimi sil', effacerConfirm: 'Bilgileriniz ve favorileriniz bu cihazdan silinsin mi?', oui: 'Evet', non: 'Hayır',
-  favoris: 'Favoriler', aucunFavori: 'Favori yok: bir makalede başlığın altındaki başparmağa dokunun (“beğen”), burada görünür.',
+  favoris: 'Favoriler', aucunFavori: 'Favori yok: bir makalenin üstündeki başparmağa dokunun (“beğen”), burada görünür.',
   aPropos: 'Hakkında', aProposTxt: 'AffectionPlus: site ve uygulama ücretsizdir, rahatsız edici reklam yoktur. Hesap olmadan her şey cihazda kalır; isteğe bağlı bir hesapla bilgileriniz sizinle gelir.',
   siteWeb: 'affectionplus.com sitesi', newsletter: 'Bülten', confidentialite: 'Gizlilik',
   chargement: 'Yükleniyor…', horsLigne: 'Bağlantı yok. Bu sayfa internet gerektirir.', reessayer: 'Tekrar dene',
-  ouvrirNavigateur: 'Tarayıcıda aç', partager: 'Paylaş', retour: 'Geri', version: 'Sürüm',
+  ouvrirNavigateur: 'Tarayıcıda aç', partager: 'Paylaş', partagerPage: 'Bu sayfayı paylaş', retour: 'Geri', version: 'Sürüm',
 };
 
 export const TEXTES: Record<Langue, Textes> = { fr, en, de, es, it, pt, nl, pl, tr };

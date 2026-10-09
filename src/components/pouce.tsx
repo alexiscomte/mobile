@@ -3,9 +3,12 @@
 // côté, rien d'affiché à 0, jamais un lien (aucune liste de personnes). Toucher = j'aime, et la page entre dans les favoris
 // (ap.favoris, synchronisés avec le compte) ; nouveau toucher = je n'aime plus, elle en sort. L'état de départ est celui des favoris,
 // puis celui du serveur, qui fait foi (relu à la connexion et à la déconnexion). Icône : Material Icons « thumb_up » (Apache 2.0).
+// Depuis le 09/10/2026 (comme la barre du site : pouce, icône « partager », fil d'Ariane) : en HAUT de l'écran de l'article, suivi de
+// l'icône de partage natif (Share de react-native, prop « partager ») puis du fil d'Ariane ; le message bref (« Page ajoutée aux
+// favoris ») prend un instant la place du fil, sans décaler l'article. IconePartage sert aussi à la barre de titre de page.tsx.
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 import { basculerAime, cheminAime, lireAime } from '@/aime';
 import { UI_E } from '@/components/espace';
@@ -15,7 +18,30 @@ import { COULEURS } from '@/theme';
 
 const POUCE = 'M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z';
 
-export function Pouce({ u, titre }: { u: string; titre: string }) {
+/** Icône « partager » du site (trois nœuds reliés, dessin de type « share-2 » de Feather Icons, licence MIT), en trait. */
+export function IconePartage({ couleur = COULEURS.primaire, taille = 17 }: { couleur?: string; taille?: number }) {
+  return (
+    <Svg width={taille} height={taille} viewBox="0 0 24 24">
+      <Circle cx={18} cy={5} r={3} fill="none" stroke={couleur} strokeWidth={1.7} />
+      <Circle cx={6} cy={12} r={3} fill="none" stroke={couleur} strokeWidth={1.7} />
+      <Circle cx={18} cy={19} r={3} fill="none" stroke={couleur} strokeWidth={1.7} />
+      <Path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" fill="none" stroke={couleur} strokeWidth={1.7} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+type Props = {
+  u: string;
+  titre: string;
+  /** fil d'Ariane affiché après les deux boutons (comme sur le site) */
+  fil?: string;
+  /** partage natif de la page ; sans lui, pas d'icône */
+  partager?: () => void;
+  /** nom accessible de l'icône de partage (TEXTES.partagerPage) */
+  libellePartage?: string;
+};
+
+export function Pouce({ u, titre, fil, partager, libellePartage }: Props) {
   const { langue, favoris, setFavoris, compte } = useProfil();
   const E = UI_E[langue] || UI_E.fr;
   const p = cheminAime(u);
@@ -72,16 +98,24 @@ export function Pouce({ u, titre }: { u: string; titre: string }) {
         </Svg>
       </Pressable>
       {n > 0 ? <Text style={styles.n} accessibilityLabel={fmt(E.aimeN, n)}>{String(n)}</Text> : null}
-      {msg ? <Text style={styles.msg} accessibilityLiveRegion="polite">{msg}</Text> : null}
+      {partager ? (
+        <Pressable onPress={partager} hitSlop={8} accessibilityRole="button" accessibilityLabel={libellePartage}
+          style={({ pressed }) => [styles.bouton, pressed && styles.presse]}>
+          <IconePartage />
+        </Pressable>
+      ) : null}
+      {msg ? <Text style={styles.msg} accessibilityLiveRegion="polite" numberOfLines={2}>{msg}</Text>
+        : fil ? <Text style={styles.fil} numberOfLines={2}>{fil}</Text> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  ligne: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 },
+  ligne: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, minHeight: 32 },
   bouton: { width: 38, height: 32, borderRadius: 999, borderWidth: 1, borderColor: COULEURS.bordure, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
   boutonAime: { backgroundColor: COULEURS.primaire, borderColor: COULEURS.primaire },
   presse: { opacity: 0.75 },
-  n: { fontSize: 14, fontWeight: '600', color: COULEURS.texteMuet },
-  msg: { fontSize: 13, color: COULEURS.vert, marginLeft: 6, flexShrink: 1 },
+  n: { fontSize: 14, fontWeight: '600', color: COULEURS.texteMuet, marginLeft: -3 },
+  fil: { flex: 1, flexShrink: 1, color: COULEURS.texteMuet, fontSize: 12, marginLeft: 2 },
+  msg: { flex: 1, flexShrink: 1, fontSize: 13, color: COULEURS.vert, marginLeft: 2 },
 });

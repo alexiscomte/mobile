@@ -1,13 +1,15 @@
 // Une page du site, en mode application, par-dessus les onglets : titre dans la barre, partage, retour dans l'historique de la vue web.
+// Partage (09/10/2026) : l'icône « partager » du site (components/pouce.tsx IconePartage) en haut de l'écran, dans la barre de titre, ouvre le
+// partage natif ; la page du site garde en haut son pouce (barre du fil d'Ariane) et cache son propre bouton de partage en mode application.
 import { Stack, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, Share, StyleSheet, Text } from 'react-native';
+import { Platform, Pressable, Share, StyleSheet } from 'react-native';
 
+import { IconePartage } from '@/components/pouce';
 import { VueSite, type VueSiteRef } from '@/components/vue-site';
 import { TEXTES } from '@/i18n';
 import { useProfil } from '@/profil';
 import { SITE, urlPropre } from '@/site';
-import { COULEURS } from '@/theme';
 
 export default function PageSite() {
   const { url, titre, apres } = useLocalSearchParams<{ url?: string; titre?: string; apres?: string }>();
@@ -40,8 +42,8 @@ export default function PageSite() {
         options={{
           title: titreVue,
           headerRight: () => (
-            <Pressable onPress={partager} accessibilityLabel={T.partager} hitSlop={10}>
-              <Text style={styles.partager}>{T.partager}</Text>
+            <Pressable onPress={partager} accessibilityRole="button" accessibilityLabel={T.partagerPage} hitSlop={10} style={styles.partager}>
+              <IconePartage taille={21} />
             </Pressable>
           ),
         }}
@@ -57,4 +59,4 @@ export default function PageSite() {
   );
 }
 
-const styles = StyleSheet.create({ partager: { color: COULEURS.primaire, fontWeight: '600', fontSize: 15 } });
+const styles = StyleSheet.create({ partager: { paddingHorizontal: 4, paddingVertical: 2 } });

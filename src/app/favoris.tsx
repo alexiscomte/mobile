@@ -1,5 +1,5 @@
 // Mes favoris (espace membre, 07/10/2026), comme la page « Mes favoris » du site (espace.js rendreFavoris) : les pages aimées d'un
-// toucher sur le pouce (sous le chapeau des articles, components/pouce.tsx ; sur le site, sous le pictogramme de chaque page ; l'étoile
+// toucher sur le pouce (en haut des articles, components/pouce.tsx ; sur le site, en tête du fil d'Ariane depuis le 09/10/2026 ; l'étoile
 // a disparu le 07/10 au soir), de la plus récente à la plus ancienne ; lecture dans l'écran article, retrait, liste vidée.
 // Synchronisés avec le compte.
 import { Stack, useRouter } from 'expo-router';
