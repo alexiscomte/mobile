@@ -83,6 +83,21 @@ export async function toutTelecharger(lg: Langue, progression?: (fait: number, t
   return n;
 }
 
+/** Ancre de la nouvelle adresse d'une fiche fusionnée (table « r » de l'index : « page#ancre »), sinon '' (09/10/2026). */
+export async function ancreRedirigee(lg: Langue, u: string): Promise<string> {
+  const idx = await index(lg);
+  const v = idx.r ? idx.r[u] : undefined;
+  const i = v ? v.indexOf('#') : -1;
+  return v && i >= 0 ? v.slice(i + 1) : '';
+}
+
+/** L'ancre d'une adresse (« …/x.html#mariage-civil » -> « mariage-civil »), décodée ; '' sans ancre. */
+export function ancreDe(url: string): string {
+  const i = url.indexOf('#');
+  if (i < 0) return '';
+  try { return decodeURIComponent(url.slice(i + 1)); } catch { return url.slice(i + 1); }
+}
+
 /** Une adresse absolue du site -> chemin de page (fr/…/x.html) ou null. */
 export function cheminDe(url: string): string | null {
   if (!url.startsWith(SITE)) return null;
