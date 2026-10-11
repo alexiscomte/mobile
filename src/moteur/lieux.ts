@@ -1,4 +1,5 @@
 // Pays et villes du site (assets/data/pays.js, copié dans pays.json ; assets/data/villes/xx.js, lus à la demande sur le site).
+import { texteEmbarque } from '../embarque';
 import type { Langue } from '../i18n';
 import { SITE } from '../site';
 import pays from './pays.json';
@@ -33,9 +34,13 @@ const CACHE: Record<string, Ville[]> = {};
 export async function villes(code: string): Promise<Ville[]> {
   const c = code.toUpperCase();
   if (CACHE[c]) return CACHE[c];
-  const r = await fetch(SITE + 'assets/data/villes/' + c.toLowerCase() + '.js');
-  if (!r.ok) throw new Error(String(r.status));
-  const s = await r.text();
+  // les villes sont embarquées dans l'appli (hors ligne dès l'installation) ; le site ne sert que de repli
+  let s = await texteEmbarque('v/' + c.toLowerCase() + '.js');
+  if (!s) {
+    const r = await fetch(SITE + 'assets/data/villes/' + c.toLowerCase() + '.js');
+    if (!r.ok) throw new Error(String(r.status));
+    s = await r.text();
+  }
   const i = s.indexOf('['), j = s.lastIndexOf(']');
   const rows = JSON.parse(s.slice(i, j + 1)) as [string, number, number, number, string, string][];
   CACHE[c] = rows.map(([nom, lat, lon, pop, cp, alias]) => ({ nom, lat, lon, pop, cp, alias }));

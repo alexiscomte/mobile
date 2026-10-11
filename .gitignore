@@ -41,3 +41,6 @@ example
 # generated native folders
 /ios
 /android
+
+# Contenu embarqué (122 Mo, régénéré par outils/gen/app_embarquer.py du dépôt Claude ; le registre src/embarque-registre.ts est versionné)
+assets/embarque/

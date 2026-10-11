@@ -8,6 +8,7 @@
     "@react-native-community/datetimepicker": "9.1.0",
     "expo": "~57.0.26",
     "expo-application": "~57.0.3",
+    "expo-asset": "~57.0.18",
     "expo-auth-session": "~57.0.14",
     "expo-constants": "~57.0.21",
     "expo-crypto": "~57.0.3",

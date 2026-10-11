@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 
 import { TEXTES } from '@/i18n';
+import { majArrierePlan } from '@/moteur/contenu';
 import { ProfilProvider, useProfil } from '@/profil';
 import { COULEURS } from '@/theme';
 
@@ -18,6 +19,8 @@ function Pile() {
   const { pret, langue } = useProfil();
   const T = TEXTES[langue];
   useEffect(() => { if (pret) SplashScreen.hideAsync(); }, [pret]);
+  // tout le contenu est embarqué dans l'appli : le réseau ne sert qu'à la mise à jour, discrète, une fois par jour
+  useEffect(() => { if (pret) majArrierePlan(langue); }, [pret, langue]);
   if (!pret) return null;
   return (
     <Stack screenOptions={{ headerTintColor: COULEURS.primaire, headerTitleStyle: { color: COULEURS.texte, fontWeight: '600' }, headerBackTitle: T.retour }}>

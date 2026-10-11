@@ -2,6 +2,7 @@
 // une ligne par page : [adresse, titre, description, fil d'Ariane, sous-titres, mots-clés]. Chargé une fois par langue,
 // gardé en mémoire et sur l'appareil (24 h).
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { jsonEmbarque } from './embarque';
 import type { Langue } from './i18n';
 import { SITE } from './site';
 
@@ -24,13 +25,30 @@ export async function chargerIndex(lg: Langue): Promise<Ligne[]> {
       const { t, lignes } = JSON.parse(brut);
       if (Date.now() - t < DUREE && Array.isArray(lignes)) { memoire[lg] = lignes; return lignes; }
     }
-  } catch { /* cache illisible : on retélécharge */ }
-  const r = await fetch(SITE + 'assets/search-' + lg + '.json');
-  if (!r.ok) throw new Error('index ' + r.status);
-  const lignes = (await r.json()) as Ligne[];
+  } catch { /* cache illisible : on retombe sur l'index embarqué */ }
+  // l'index embarqué dans l'appli sert tout de suite (hors ligne dès l'installation) ; le site ne sert qu'à la mise à jour, en arrière-plan
+  const emb = await jsonEmbarque<Ligne[]>('s/' + lg + '.json');
+  if (emb) {
+    memoire[lg] = emb;
+    miseAJour(lg, cle).catch(() => undefined);
+    return emb;
+  }
+  const lignes = await telecharger(lg);
   memoire[lg] = lignes;
   AsyncStorage.setItem(cle, JSON.stringify({ t: Date.now(), lignes })).catch(() => undefined);
   return lignes;
+}
+
+async function telecharger(lg: Langue): Promise<Ligne[]> {
+  const r = await fetch(SITE + 'assets/search-' + lg + '.json');
+  if (!r.ok) throw new Error('index ' + r.status);
+  return (await r.json()) as Ligne[];
+}
+
+async function miseAJour(lg: Langue, cle: string): Promise<void> {
+  const lignes = await telecharger(lg);
+  memoire[lg] = lignes;
+  await AsyncStorage.setItem(cle, JSON.stringify({ t: Date.now(), lignes }));
 }
 
 /** Les pages dont le titre, la description, les sous-titres ou les mots-clés contiennent tous les mots cherchés. */

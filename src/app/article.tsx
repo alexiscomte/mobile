@@ -11,6 +11,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, Linking, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import RenderHtml, { type MixedStyleDeclaration } from 'react-native-render-html';
 
+import { localiserImages } from '@/embarque';
 import { Pouce } from '@/components/pouce';
 import { TEXTES } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
@@ -102,6 +103,7 @@ export default function EcranArticle() {
     return r;
   }, [router, T3, chemin, langue, aller]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const htmlLocal = useMemo(() => (a ? localiserImages(a.h) : ''), [a]);   // images du site : copies embarquées dans l'appli (hors ligne)
   if (!u) { router.back(); return null; }
   const partager = () => { Share.share({ message: (a ? a.t + ' ' : '') + SITE + u }).catch(() => undefined); };
   return (
@@ -126,7 +128,7 @@ export default function EcranArticle() {
             {a.lead ? <Text style={styles.lead}>{a.lead}</Text> : null}
             <RenderHtml
               contentWidth={width - 32}
-              source={{ html: a.h }}
+              source={{ html: htmlLocal }}
               baseStyle={styles.html as MixedStyleDeclaration}
               tagsStyles={TAGS}
               classesStyles={CLASSES}

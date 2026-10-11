@@ -8,6 +8,7 @@ import { TEXTES } from '@/i18n';
 import { ARCHETYPES } from '@/images';
 import { bilanQcm, chargerQuiz, lireScores, memoriserScore, resultatTest, teste, texteHtml, type Quiz, type Reponse, type Score } from '@/moteur/quiz';
 import { useProfil } from '@/profil';
+import { imageLocale } from '@/embarque';
 import { page, SITE } from '@/site';
 import { COULEURS } from '@/theme';
 
@@ -79,7 +80,7 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
       return (
         <Ecran titre={quiz.t}>
           <Text style={styles.score}>{bons} / {d.questions.length}</Text>
-          {lot.img ? <Banniere image={SITE + lot.img} ratio={1.5} /> : null}
+          {lot.img ? <Banniere image={imageLocale(SITE + lot.img)} ratio={1.5} /> : null}
           <Text style={styles.resTitre}>{texteHtml(lot.titre)}</Text>
           <Text style={styles.texte}>{texteHtml(lot.corps)}</Text>
           {rates.length ? <><Text style={styles.sousTitre}>{texteHtml(d.revoir || '')}</Text>{rates.map((r, k) => <Text key={k} style={styles.texte}>• {texteHtml(r)}</Text>)}</> : null}
@@ -95,7 +96,7 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
     const animal = quiz.id.startsWith('qarch') && cle ? ARCHETYPES[String(cle[2])] : undefined;
     return (
       <Ecran titre={quiz.t}>
-        {animal ? <Illustration image={animal} taille={240} style={styles.animal} /> : r.img ? <Banniere image={SITE + r.img} ratio={1.5} /> : null}
+        {animal ? <Illustration image={animal} taille={240} style={styles.animal} /> : r.img ? <Banniere image={imageLocale(SITE + r.img)} ratio={1.5} /> : null}
         <Text style={styles.resTitre}>{texteHtml(r.titre)}</Text>
         <Text style={styles.texte}>{texteHtml(r.corps)}</Text>
         {notes.length && d.retenu ? <><Text style={styles.sousTitre}>{texteHtml(d.retenu)}</Text>{notes.map((n, k) => <Text key={k} style={styles.texte}>• {texteHtml(n)}</Text>)}</> : null}
@@ -110,7 +111,7 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
     return (
       <Ecran titre={quiz.t}>
         <Text style={styles.etape}>{i + 1} / {d.questions.length}</Text>
-        {q.img ? <Banniere key={q.img} image={SITE + q.img} /> : null}
+        {q.img ? <Banniere key={q.img} image={imageLocale(SITE + q.img)} /> : null}
         <Text style={styles.question}>{texteHtml(q.q)}</Text>
         {correction ? (
           <>
@@ -130,7 +131,7 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
   return (
     <Ecran titre={quiz.t}>
       <Text style={styles.etape}>{pile.length + 1}</Text>
-      {q.img ? <Banniere key={q.img} image={SITE + q.img} /> : null}
+      {q.img ? <Banniere key={q.img} image={imageLocale(SITE + q.img)} /> : null}
       <Text style={styles.question}>{texteHtml(q.q)}</Text>
       {q.aide ? <Text style={styles.aide}>{texteHtml(q.aide)}</Text> : null}
       {q.r.map((r, k) => (

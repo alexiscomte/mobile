@@ -14,6 +14,14 @@ construisent dans le nuage d'Expo (EAS Build), sans Mac.
   amour signe par signe, tarot et le dossier astrologie sont des pages du site.
 - **Jeux** : Nous connaissons-nous ?, la question du jour, les sondages (vote par `/api/sondage`), quiz et tests,
   mes scores, compteur de couple.
+- **Contenu EMBARQUÉ (11/10/2026, décision d'Alexis)** : tout le contenu du site est dans l'appli dès l'installation, 9 langues, hors ligne,
+  aucun téléchargement nécessaire : articles et fiches pays (paquets `c/`), recherche (`s/`), quiz (`q/`), villes (`v/`) et images (`i/`),
+  soit 2 161 fichiers et 122 Mo dans `assets/embarque/` (IGNORÉ par git, régénéré ; `.easignore` le laisse partir à EAS Build). Génération :
+  `python C:\Claude\Claude\outils\gen\app_embarquer.py` après les six exports du site (écrit aussi `src/embarque-registre.ts`, versionné).
+  Lecture : `src/embarque.ts` (fichiers `.dat` = ressources Metro, `metro.config.js`). Le réseau ne sert qu'aux MISES À JOUR : au lancement
+  (au plus une fois par jour, `majArrierePlan`) et par le bouton de l'écran Moi, l'index du site est comparé à celui de l'appli et seuls les
+  paquets modifiés (version = empreinte, `pv` de l'index) sont téléchargés dans le dossier de l'appli ; la recherche et les quiz se
+  rafraîchissent de même en arrière-plan. Sur un nouveau PC : relancer `app_embarquer.py` avant tout build.
 - **Infos** : recherche dans toutes les pages du site (index `assets/search-<langue>.json`, gardé sur l'appareil
   24 h), les rubriques (Conseils, Santé, Sexualité, Astrologie, Pays) lues en natif et hors ligne, et les outils
   natifs : estimateur d'ovulation, maternité la plus proche (position du téléphone ou pays/ville), compteur de couple,
