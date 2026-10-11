@@ -4,7 +4,7 @@
 // Synchronisés avec le compte.
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Bouton, F } from '@/components/form';
 import { TEXTES } from '@/i18n';
@@ -15,6 +15,7 @@ import { url } from '@/site';
 import { COULEURS } from '@/theme';
 
 const UI_E = (ui as unknown as { espace: Record<string, Record<string, string>> }).espace;
+const UI_C = (ui as unknown as { compte: Record<string, Record<string, string>> }).compte;
 
 function dateCourte(iso: string | undefined, lg: string): string {
   if (!iso) return '';
@@ -47,7 +48,11 @@ export default function Favoris() {
             </Pressable>
           </View>
         )) : <Text style={[F.muet, styles.vide]}>{T.aucunFavori}</Text>}
-        {favoris.length ? <Bouton titre={E.vider} secondaire onPress={() => setFavoris([])} /> : null}
+        {/* vider la liste : action destructive, confirmée par une alerte « Annuler / Vider » sur l'iPhone (recommandation d'Apple) */}
+        {favoris.length ? <Bouton titre={E.vider} secondaire onPress={() => {
+          if (Platform.OS === 'web') { setFavoris([]); return; }
+          Alert.alert(E.vider, '', [{ text: (UI_C[langue] || UI_C.fr).annuler, style: 'cancel' }, { text: E.vider, style: 'destructive', onPress: () => { setFavoris([]); } }]);
+        }} /> : null}
         <Text style={[F.muet, styles.note]}>{E.note}</Text>
       </ScrollView>
     </>

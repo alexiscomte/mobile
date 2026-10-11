@@ -158,7 +158,7 @@ export default function Moi() {
             <Text style={styles.aide}>{RESEAUX.texte.fr}</Text>
             <View style={styles.reseaux}>
               {RESEAUX.liens.map(([nom, lien]) => (
-                <Pressable key={lien} onPress={() => { Linking.openURL(lien).catch(() => undefined); }} style={({ pressed }) => [styles.reseau, pressed && styles.presse]} accessibilityRole="link">
+                <Pressable key={lien} hitSlop={{ top: 6, bottom: 6 }} onPress={() => { Linking.openURL(lien).catch(() => undefined); }} style={({ pressed }) => [styles.reseau, pressed && styles.presse]} accessibilityRole="link">
                   <Text style={styles.reseauTxt}>{nom}</Text>
                 </Pressable>
               ))}

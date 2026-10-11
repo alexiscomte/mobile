@@ -47,7 +47,7 @@ export default function EcranQuiz() {
               return (
                 <Pressable accessibilityRole="button" key={q.id} onPress={() => router.push({ pathname: '/quiz', params: { id: q.id } })} style={({ pressed }) => [styles.ligne, pressed && styles.presse]}>
                   <Text style={styles.ligneTxt}>{q.m === 'qcm' ? 'QCM' : 'Test'} · {q.d.questions.length} {q.m === 'qcm' && sc ? `· ${sc.s}/${sc.n}` : ''}</Text>
-                  <Text style={styles.chevron}>›</Text>
+                  <Text style={styles.chevron} importantForAccessibility="no" accessibilityElementsHidden>›</Text>
                 </Pressable>
               );
             })}
