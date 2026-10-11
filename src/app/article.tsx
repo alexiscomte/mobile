@@ -20,7 +20,7 @@ import { ouvrir } from '@/nav';
 import { useProfil } from '@/profil';
 import sondages from '@/moteur/sondages.json';
 import { page, SITE, url, type Cle } from '@/site';
-import { COULEURS } from '@/theme';
+import { COULEURS, useCouleurs, type NomCouleur } from '@/theme';
 
 const ROUTES: Record<string, string> = { horoscope: '/horoscope', biorythme: '/biorythme', theme: '/theme', jeu2: '/jeu2', qdj: '/qdj', sondages: '/sondages', scores: '/quiz',
   compat: '/compat', chinois: '/chinois', distance: '/distance', maternite: '/maternite', ovulation: '/ovulation', garde: '/garde', epoux: '/epoux' };
@@ -105,7 +105,10 @@ export default function EcranArticle() {
     return r;
   }, [router, T3, chemin, langue, aller]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const htmlLocal = useMemo(() => (a ? localiserImages(a.h) : ''), [a]);   // images du site : copies embarquées dans l'appli (hors ligne)
+  const htmlLocal = useMemo(() => (a ? localiserImages(a.h) : ''), [a]);
+  // rendu HTML : react-native-render-html veut des couleurs en chaînes (palette claire ou sombre selon le réglage de l'iPhone)
+  const pal = useCouleurs();
+  const rendu = useMemo(() => stylesHtml(pal), [pal.sombre]);   // eslint-disable-line react-hooks/exhaustive-deps
   if (!u) { router.back(); return null; }
   const partager = () => { Share.share({ message: (a ? a.t + ' ' : '') + SITE + u }).catch(() => undefined); };
   return (
@@ -131,9 +134,10 @@ export default function EcranArticle() {
             <RenderHtml
               contentWidth={width - 32}
               source={{ html: htmlLocal }}
-              baseStyle={styles.html as MixedStyleDeclaration}
-              tagsStyles={TAGS}
-              classesStyles={CLASSES}
+              baseStyle={rendu.base}
+              tagsStyles={rendu.tags}
+              classesStyles={rendu.classes}
+              ignoredStyles={pal.sombre ? ['color', 'backgroundColor'] : undefined}
               renderers={renderers}
               renderersProps={{ a: { onPress: (_e: unknown, href: string) => {
                 const rel = cheminDe(href), ancre = ancreDe(href);
@@ -160,45 +164,49 @@ export default function EcranArticle() {
   );
 }
 
-const TAGS: Record<string, MixedStyleDeclaration> = {
-  h2: { fontSize: 21, lineHeight: 28, fontWeight: '700', color: COULEURS.primaireFonce, marginTop: 18, marginBottom: 8 },
-  h3: { fontSize: 18, lineHeight: 24, fontWeight: '700', color: COULEURS.primaireFonce, marginTop: 14, marginBottom: 6 },
-  h4: { fontSize: 16, fontWeight: '700', color: COULEURS.primaireFonce, marginTop: 10, marginBottom: 4 },
+// styles du HTML des articles ; en mode sombre, les couleurs écrites dans le HTML du site (style="color:…") sont ignorées
+function stylesHtml(C: Record<NomCouleur, string>) {
+const base: MixedStyleDeclaration = { color: C.texte, fontSize: 16, lineHeight: 24 };
+const tags: Record<string, MixedStyleDeclaration> = {
+  h2: { fontSize: 21, lineHeight: 28, fontWeight: '700', color: C.primaireFonce, marginTop: 18, marginBottom: 8 },
+  h3: { fontSize: 18, lineHeight: 24, fontWeight: '700', color: C.primaireFonce, marginTop: 14, marginBottom: 6 },
+  h4: { fontSize: 16, fontWeight: '700', color: C.primaireFonce, marginTop: 10, marginBottom: 4 },
   p: { marginTop: 0, marginBottom: 10 },
-  a: { color: COULEURS.secondaireFonce, textDecorationLine: 'underline' },
+  a: { color: C.secondaireFonce, textDecorationLine: 'underline' },
   li: { marginBottom: 4 },
-  table: { borderWidth: 1, borderColor: COULEURS.bordure },
-  th: { fontWeight: '700', backgroundColor: COULEURS.fondDoux, padding: 6 },
-  td: { padding: 6, borderTopWidth: 1, borderColor: COULEURS.bordure },
-  summary: { fontWeight: '700', color: COULEURS.primaireFonce },
-  details: { backgroundColor: COULEURS.fondMuet, borderRadius: 8, padding: 10, marginBottom: 8 },
+  table: { borderWidth: 1, borderColor: C.bordure },
+  th: { fontWeight: '700', backgroundColor: C.fondDoux, padding: 6 },
+  td: { padding: 6, borderTopWidth: 1, borderColor: C.bordure },
+  summary: { fontWeight: '700', color: C.primaireFonce },
+  details: { backgroundColor: C.fondMuet, borderRadius: 8, padding: 10, marginBottom: 8 },
   img: { marginVertical: 8 },
   // photos qui illustrent les articles (site : photos_pages.py, 05/10/2026), avec leur légende
   figure: { marginTop: 6, marginBottom: 16, marginHorizontal: 0 },
-  figcaption: { fontSize: 13, lineHeight: 18, color: COULEURS.texteMuet, textAlign: 'center', marginTop: 4 },
+  figcaption: { fontSize: 13, lineHeight: 18, color: C.texteMuet, textAlign: 'center', marginTop: 4 },
 };
-const CLASSES: Record<string, MixedStyleDeclaration> = {
+const classes: Record<string, MixedStyleDeclaration> = {
   content: { marginBottom: 6 },
-  lead: { fontSize: 17, color: COULEURS.texteMuet },
-  card: { backgroundColor: COULEURS.fondDoux, borderRadius: 12, padding: 12, marginBottom: 10 },
+  lead: { fontSize: 17, color: C.texteMuet },
+  card: { backgroundColor: C.fondDoux, borderRadius: 12, padding: 12, marginBottom: 10 },
   'card-grid': { marginBottom: 8 },
-  'grille-titre': { fontSize: 20, fontWeight: '700', color: COULEURS.primaireFonce, marginTop: 16 },
-  maj: { color: COULEURS.texteMuet, fontSize: 12 },
-  'af-note': { color: COULEURS.texteMuet, fontSize: 13 },
+  'grille-titre': { fontSize: 20, fontWeight: '700', color: C.primaireFonce, marginTop: 16 },
+  maj: { color: C.texteMuet, fontSize: 12 },
+  'af-note': { color: C.texteMuet, fontSize: 13 },
   clean: { paddingLeft: 0 },
   'photo-article': { marginTop: 6, marginBottom: 16 },
 };
+return { base, tags, classes };
+}
 
 const styles = StyleSheet.create({
   contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
-  html: { color: COULEURS.texte, fontSize: 16, lineHeight: 24 },
   h1: { fontSize: 26, lineHeight: 33, fontWeight: '800', color: COULEURS.primaire, marginBottom: 8 },
   lead: { fontSize: 17, lineHeight: 25, color: COULEURS.texteMuet, marginBottom: 14 },
   maj: { color: COULEURS.texteMuet, fontSize: 12, marginTop: 10 },
   erreur: { color: COULEURS.coeur, marginBottom: 12 },
   marqueur: { backgroundColor: COULEURS.fondDoux, borderRadius: 10, padding: 12, marginVertical: 10, borderWidth: 1, borderColor: COULEURS.bordure },
   marqueurTxt: { color: COULEURS.primaire, fontWeight: '700' },
-  bouton: { backgroundColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
+  bouton: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
   boutonTxt: { color: '#fff', fontWeight: '700' },
   boutonSec: { borderWidth: 1, borderColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 11, alignItems: 'center', marginTop: 16 },
   boutonSecTxt: { color: COULEURS.primaire, fontWeight: '600' },

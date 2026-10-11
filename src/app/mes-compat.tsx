@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   indiceTxt: { color: COULEURS.texte, marginTop: 10 },
   pc: { fontSize: 26, fontWeight: '800', color: COULEURS.primaire },
   jauge: { height: 8, borderRadius: 4, backgroundColor: COULEURS.fondDoux, overflow: 'hidden', marginTop: 4 },
-  jaugeBarre: { height: 8, backgroundColor: COULEURS.primaire },
+  jaugeBarre: { height: 8, backgroundColor: COULEURS.primairePlein },
   lect: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
   lectTxt: { fontSize: 12, color: COULEURS.texte, borderWidth: StyleSheet.hairlineWidth, borderColor: COULEURS.bordure, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2 },
   gras: { fontWeight: '700' },

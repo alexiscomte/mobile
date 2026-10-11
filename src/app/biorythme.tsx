@@ -26,23 +26,23 @@ function Graphe({ age, etats, lang, t, largeur }: { age: number; etats: EtatCycl
   const reperes = [-15, -10, -5, 0, 5, 10, 15];
   return (
     <Svg width={largeur} height={largeur * H / W} viewBox={`0 0 ${W} ${H}`}>
-      <Rect x={L} y={T} width={w} height={h} fill="#fff" stroke="#DADBF5" />
-      <Line x1={L} y1={mid} x2={L + w} y2={mid} stroke="#9a9bb8" strokeDasharray="4 4" />
-      <SvgText x={L - 6} y={Y(1) + 4} textAnchor="end" fontSize="11" fill="#635B70">+100</SvgText>
-      <SvgText x={L - 6} y={mid + 4} textAnchor="end" fontSize="11" fill="#635B70">0</SvgText>
-      <SvgText x={L - 6} y={Y(-1) + 4} textAnchor="end" fontSize="11" fill="#635B70">−100</SvgText>
+      <Rect x={L} y={T} width={w} height={h} fill={COULEURS.fondEleve} stroke={COULEURS.bordure} />
+      <Line x1={L} y1={mid} x2={L + w} y2={mid} stroke={COULEURS.hors} strokeDasharray="4 4" />
+      <SvgText x={L - 6} y={Y(1) + 4} textAnchor="end" fontSize="11" fill={COULEURS.texteMuet}>+100</SvgText>
+      <SvgText x={L - 6} y={mid + 4} textAnchor="end" fontSize="11" fill={COULEURS.texteMuet}>0</SvgText>
+      <SvgText x={L - 6} y={Y(-1) + 4} textAnchor="end" fontSize="11" fill={COULEURS.texteMuet}>−100</SvgText>
       {reperes.map((k) => (
         <React.Fragment key={k}>
-          <Line x1={X(k)} y1={T} x2={X(k)} y2={T + h} stroke="#ECEDFA" />
-          <SvgText x={X(k)} y={T + h + 16} textAnchor="middle" fontSize="11" fill="#635B70">{courte(new Date(now + k * 86400000))}</SvgText>
+          <Line x1={X(k)} y1={T} x2={X(k)} y2={T + h} stroke={COULEURS.grille} />
+          <SvgText x={X(k)} y={T + h + 16} textAnchor="middle" fontSize="11" fill={COULEURS.texteMuet}>{courte(new Date(now + k * 86400000))}</SvgText>
         </React.Fragment>
       ))}
-      <Line x1={X(0)} y1={T} x2={X(0)} y2={T + h} stroke="#580378" strokeWidth={2} />
-      <SvgText x={X(0)} y={T + h + 32} textAnchor="middle" fontSize="12" fontWeight="600" fill="#580378">{t.aujourdhui}</SvgText>
+      <Line x1={X(0)} y1={T} x2={X(0)} y2={T + h} stroke={COULEURS.primaire} strokeWidth={2} />
+      <SvgText x={X(0)} y={T + h + 32} textAnchor="middle" fontSize="12" fontWeight="600" fill={COULEURS.primaire}>{t.aujourdhui}</SvgText>
       {etats.map((e) => (
         <React.Fragment key={e.k}>
           <Polyline fill="none" stroke={e.col} strokeWidth={2.5} points={courbe(age, e.P).map(([q, v]) => X(q).toFixed(1) + ',' + Y(v).toFixed(1)).join(' ')} />
-          <Circle cx={X(0)} cy={Y(e.v)} r={6} fill={e.col} stroke="#fff" strokeWidth={2} />
+          <Circle cx={X(0)} cy={Y(e.v)} r={6} fill={e.col} stroke={COULEURS.fondEleve} strokeWidth={2} />
         </React.Fragment>
       ))}
     </Svg>
@@ -107,7 +107,7 @@ export default function Biorythme() {
 
 const styles = StyleSheet.create({
   contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
-  bandeau: { backgroundColor: COULEURS.primaire, borderRadius: 12, padding: 14, marginBottom: 14 },
+  bandeau: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, padding: 14, marginBottom: 14 },
   bandeauTitre: { color: 'rgba(255,255,255,0.8)', fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 },
   bandeauTxt: { color: '#fff', fontSize: 16, fontWeight: '600' },
   lien: { color: '#fff', textDecorationLine: 'underline', marginTop: 8, fontWeight: '600' },

@@ -101,6 +101,6 @@ const styles = StyleSheet.create({
   badge: { color: COULEURS.secondaire, fontWeight: '700', fontSize: 12 },
   meta: { fontSize: 13, color: COULEURS.texteMuet, marginTop: 2 },
   liens: { flexDirection: 'row', gap: 14, marginTop: 4 },
-  urgence: { backgroundColor: '#FFF3E0', borderRadius: 12, padding: 12, marginTop: 20 },
-  urgenceTxt: { color: '#7A4A00', fontSize: 14, lineHeight: 20 },
+  urgence: { backgroundColor: COULEURS.avertFond, borderRadius: 12, padding: 12, marginTop: 20 },
+  urgenceTxt: { color: COULEURS.avertTexte, fontSize: 14, lineHeight: 20 },
 });

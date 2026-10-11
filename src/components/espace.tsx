@@ -180,7 +180,7 @@ export function Pastille({ enLigne, derniere, lg }: { enLigne?: boolean; dernier
   const txt = enLigne ? t.enLigne : derniere ? fmt(t.derniere, dateJour(derniere, lg)) : t.horsLigne;
   return (
     <View style={styles.pastille}>
-      <View style={[styles.point, { backgroundColor: enLigne ? COULEURS.vert : '#8d8a99' }]} />
+      <View style={[styles.point, { backgroundColor: enLigne ? COULEURS.vert : COULEURS.hors }]} />
       <Text style={styles.pastilleTxt}>{txt}</Text>
     </View>
   );
@@ -224,8 +224,8 @@ export function Repliable({ titre, ouvert, basculer, children }: { titre: string
 const styles = StyleSheet.create({
   lead: { fontSize: 17, lineHeight: 24, color: COULEURS.texteMuet, marginBottom: 10 },
   lien: { color: COULEURS.primaire, textDecorationLine: 'underline', fontWeight: '600' },
-  avert: { backgroundColor: '#fff4e5', borderColor: '#f0c27a', borderWidth: 1, borderRadius: 12, padding: 12, marginVertical: 8 },
-  avertTxt: { color: '#6b4300', fontWeight: '600', fontSize: 15, lineHeight: 20 },
+  avert: { backgroundColor: COULEURS.avertFond, borderColor: COULEURS.avertBord, borderWidth: 1, borderRadius: 12, padding: 12, marginVertical: 8 },
+  avertTxt: { color: COULEURS.avertTexte, fontWeight: '600', fontSize: 15, lineHeight: 20 },
   pastille: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   point: { width: 9, height: 9, borderRadius: 5 },
   pastilleTxt: { color: COULEURS.texteMuet, fontSize: 13 },

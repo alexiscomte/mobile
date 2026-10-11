@@ -106,11 +106,11 @@ export const VueSite = React.forwardRef<VueSiteRef, Props>(function VueSite({ ur
 });
 
 const styles = StyleSheet.create({
-  conteneur: { flex: 1, backgroundColor: '#fff' },
-  web: { flex: 1, backgroundColor: '#fff' },
+  conteneur: { flex: 1, backgroundColor: COULEURS.fond },
+  web: { flex: 1, backgroundColor: COULEURS.fond },
   progression: { position: 'absolute', top: 8, left: 0, right: 0, alignItems: 'center' },
   horsLigne: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 },
   horsLigneTxt: { fontSize: 16, textAlign: 'center', color: COULEURS.texte },
-  bouton: { backgroundColor: COULEURS.primaire, paddingVertical: 10, paddingHorizontal: 22, borderRadius: 10 },
+  bouton: { backgroundColor: COULEURS.primairePlein, paddingVertical: 10, paddingHorizontal: 22, borderRadius: 10 },
   boutonTxt: { color: '#fff', fontWeight: '600' },
 });

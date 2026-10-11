@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   label: { fontSize: 15, fontWeight: '600', color: COULEURS.texte, marginTop: 10, marginBottom: 6 },
   entree: { backgroundColor: COULEURS.fondDoux, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, fontSize: 17, color: COULEURS.texte },
   picker: { alignSelf: 'flex-start', marginLeft: -8 },
-  bouton: { backgroundColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 16 },
+  bouton: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 16 },
   boutonTxt: { color: '#fff', fontWeight: '700', fontSize: 16 },
   boutonSec: { borderWidth: 1, borderColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 11, alignItems: 'center', marginTop: 14 },
   boutonSecTxt: { color: COULEURS.primaire, fontWeight: '600' },

@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   etape: { fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase', color: COULEURS.texteMuet, marginBottom: 6 },
   question: { fontSize: 19, fontWeight: '700', color: COULEURS.primaireFonce, marginBottom: 12 },
   rangee: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
-  choix: { backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#D9D4E3', borderRadius: 12, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 9 },
+  choix: { backgroundColor: COULEURS.fondEleve, borderWidth: 1.5, borderColor: COULEURS.bordure, borderRadius: 12, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 9 },
   choixActif: { borderColor: COULEURS.primaire, backgroundColor: COULEURS.fondDoux },
   choixTxt: { fontSize: 16, color: COULEURS.texte, lineHeight: 22 },
   choixTxtActif: { color: COULEURS.primaireFonce, fontWeight: '600' },
@@ -206,6 +206,6 @@ const styles = StyleSheet.create({
   charge: { fontWeight: '400' },
   consigne: { fontSize: 13, lineHeight: 18, color: COULEURS.texteMuet },
   badge: { fontSize: 11, fontWeight: '700', color: COULEURS.coeur },
-  avert: { backgroundColor: '#FFF4E5', borderRadius: 10, padding: 12, marginTop: 14, marginBottom: 10 },
-  avertTxt: { color: '#7a4a00', fontSize: 14, lineHeight: 20 },
+  avert: { backgroundColor: COULEURS.avertFond, borderRadius: 10, padding: 12, marginTop: 14, marginBottom: 10 },
+  avertTxt: { color: COULEURS.avertTexte, fontSize: 14, lineHeight: 20 },
 });

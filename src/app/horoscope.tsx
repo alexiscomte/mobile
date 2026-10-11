@@ -115,7 +115,7 @@ export default function Horoscope() {
 const styles = StyleSheet.create({
   contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   entete: { color: COULEURS.texteMuet, fontSize: 14, marginBottom: 12 },
-  bandeau: { backgroundColor: COULEURS.primaire, borderRadius: 12, padding: 14, marginBottom: 12 },
+  bandeau: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, padding: 14, marginBottom: 12 },
   bandeauTitre: { color: 'rgba(255,255,255,0.8)', fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 },
   bandeauTxt: { color: '#fff', fontSize: 15, lineHeight: 22 },
   gras: { fontWeight: '700' },

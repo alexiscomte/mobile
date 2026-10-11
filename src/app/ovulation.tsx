@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   label: { fontSize: 15, fontWeight: '600', color: COULEURS.texte, marginTop: 10, marginBottom: 6 },
   entree: { backgroundColor: COULEURS.fondDoux, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, fontSize: 17, color: COULEURS.texte },
   picker: { alignSelf: 'flex-start', marginLeft: -8 },
-  bouton: { backgroundColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 16 },
+  bouton: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 16 },
   boutonTxt: { color: '#fff', fontWeight: '700', fontSize: 16 },
   presse: { opacity: 0.8 },
   note: { color: COULEURS.texteMuet, fontSize: 13, marginTop: 8 },
@@ -88,6 +88,6 @@ const styles = StyleSheet.create({
   cycleTitre: { fontWeight: '700', color: COULEURS.primaire, marginBottom: 4 },
   ligne: { fontSize: 14, lineHeight: 21, color: COULEURS.texte },
   gras: { fontWeight: '700' },
-  avert: { backgroundColor: '#FFF4E5', borderRadius: 10, padding: 12, marginTop: 6 },
-  avertTxt: { color: '#7a4a00', fontSize: 14, lineHeight: 20 },
+  avert: { backgroundColor: COULEURS.avertFond, borderRadius: 10, padding: 12, marginTop: 6 },
+  avertTxt: { color: COULEURS.avertTexte, fontSize: 14, lineHeight: 20 },
 });

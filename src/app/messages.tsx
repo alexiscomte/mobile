@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
   info: { color: COULEURS.texteMuet, fontSize: 13 },
   bulle: { borderRadius: 12, padding: 10, marginTop: 8, maxWidth: '92%' },
   membre: { backgroundColor: COULEURS.fondDoux, alignSelf: 'flex-end' },
-  equipe: { backgroundColor: '#efe6f7', borderColor: '#d8c4ea', borderWidth: 1, alignSelf: 'flex-start' },
+  equipe: { backgroundColor: COULEURS.bulleEquipe, borderColor: COULEURS.bulleEquipeBord, borderWidth: 1, alignSelf: 'flex-start' },
   meta: { color: COULEURS.texteMuet, fontSize: 12, marginBottom: 4 },
   texte: { color: COULEURS.texte, fontSize: 15, lineHeight: 21 },
 });

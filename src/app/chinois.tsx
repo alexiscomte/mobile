@@ -69,7 +69,7 @@ export default function Chinois() {
 
 const styles = StyleSheet.create({
   contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
-  bandeau: { backgroundColor: COULEURS.primaire, borderRadius: 12, padding: 14, marginBottom: 14 },
+  bandeau: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, padding: 14, marginBottom: 14 },
   bandeauTxt: { color: '#fff', fontSize: 16, fontWeight: '600', lineHeight: 23 },
   lien: { color: '#fff', textDecorationLine: 'underline', marginTop: 8, fontWeight: '600' },
   texte: { fontSize: 15, lineHeight: 22, color: COULEURS.texte, marginBottom: 10 },

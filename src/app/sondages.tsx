@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   erreur: { color: COULEURS.coeur, fontSize: 13 },
   onglets: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 8 },
   onglet: { borderWidth: 1, borderColor: COULEURS.bordure, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5 },
-  ongletActif: { backgroundColor: COULEURS.primaire, borderColor: COULEURS.primaire },
+  ongletActif: { backgroundColor: COULEURS.primairePlein, borderColor: COULEURS.primairePlein },
   ongletTxt: { fontSize: 12, color: COULEURS.texteMuet },
   ongletTxtActif: { color: '#fff' },
   barreLigne: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },

@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   scoreTxt: { color: COULEURS.primaireFonce, fontWeight: '700', marginBottom: 4 },
   jauge: { height: 8, borderRadius: 4, backgroundColor: COULEURS.fondDoux, overflow: 'hidden' },
   jaugeBarre: { height: 8, backgroundColor: COULEURS.secondaire },
-  total: { backgroundColor: COULEURS.primaire, borderRadius: 12, padding: 14, marginBottom: 8 },
+  total: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, padding: 14, marginBottom: 8 },
   totalTitre: { color: 'rgba(255,255,255,0.8)', fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 },
   totalNombre: { color: '#fff', fontSize: 40, fontWeight: '800' },
   totalSur: { fontSize: 16, fontWeight: '400' },

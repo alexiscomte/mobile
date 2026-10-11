@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   puces: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   aide: { color: COULEURS.texteMuet, fontSize: 14, lineHeight: 19 },
-  bouton: { backgroundColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 13, alignItems: 'center', marginTop: 22 },
+  bouton: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, paddingVertical: 13, alignItems: 'center', marginTop: 22 },
   boutonTxt: { color: '#fff', fontWeight: '700', fontSize: 16 },
   presse: { opacity: 0.8 },
   message: { color: COULEURS.vert, marginTop: 8, textAlign: 'center' },

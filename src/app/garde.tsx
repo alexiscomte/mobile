@@ -23,8 +23,8 @@ function Mois({ titre, semaines, noms, jours }: { titre: string; semaines: Case[
         <View key={i} style={styles.ligne}>
           {s.map((c, k) => (
             <View key={k} style={[styles.td, c && c.q !== undefined ? { backgroundColor: COUL[c.q] } : null]}>
-              {c ? <Text style={styles.jour}>{c.d}</Text> : null}
-              {c && c.q !== undefined ? <Text style={styles.qui} numberOfLines={1}>{noms[c.q]}</Text> : null}
+              {c ? <Text style={[styles.jour, c.q !== undefined && styles.surPastel]}>{c.d}</Text> : null}
+              {c && c.q !== undefined ? <Text style={[styles.qui, styles.surPastel]} numberOfLines={1}>{noms[c.q]}</Text> : null}
             </View>
           ))}
         </View>
@@ -116,4 +116,5 @@ const styles = StyleSheet.create({
   td: { flex: 1, minHeight: 44, borderWidth: StyleSheet.hairlineWidth, borderColor: COULEURS.bordure, padding: 3 },
   jour: { fontSize: 12, fontWeight: '600', color: COULEURS.texte },
   qui: { fontSize: 9, color: COULEURS.texteMuet },
+  surPastel: { color: '#221B2B' },   // cases pastel : texte foncé dans les deux modes
 });

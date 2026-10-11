@@ -1,19 +1,16 @@
-import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect } from 'react';
+import * as SystemUI from 'expo-system-ui';
+import React, { useEffect, useMemo } from 'react';
 
 import { TEXTES } from '@/i18n';
 import { majArrierePlan } from '@/moteur/contenu';
 import { ProfilProvider, useProfil } from '@/profil';
-import { COULEURS } from '@/theme';
+import { COULEURS, useCouleurs } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
 
-const THEME = {
-  ...DefaultTheme,
-  colors: { ...DefaultTheme.colors, primary: COULEURS.primaire, background: COULEURS.fond, card: COULEURS.fond, text: COULEURS.texte, border: COULEURS.bordure },
-};
 
 function Pile() {
   const { pret, langue } = useProfil();
@@ -23,7 +20,9 @@ function Pile() {
   useEffect(() => { if (pret) majArrierePlan(langue); }, [pret, langue]);
   if (!pret) return null;
   return (
-    <Stack screenOptions={{ headerTintColor: COULEURS.primaire, headerTitleStyle: { color: COULEURS.texte, fontWeight: '600' }, headerBackTitle: T.retour }}>
+    // en-têtes natifs (UINavigationBar) : titre au centre, retour avec le titre de l'écran précédent ou « Retour », balayage depuis le
+    // bord gauche pour revenir ; aucune couleur de fond imposée (Liquid Glass sur iOS 26), teinte de la marque pour les boutons
+    <Stack screenOptions={{ headerTintColor: COULEURS.primaire, headerTitleStyle: { color: COULEURS.texte, fontWeight: '600' }, headerBackTitle: T.retour, contentStyle: { backgroundColor: COULEURS.fond } }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="page" options={{ title: '', headerBackTitle: T.retour }} />
       <Stack.Screen name="horoscope" options={{ title: T.horoscopeDuJour }} />
@@ -60,10 +59,19 @@ function Pile() {
 }
 
 export default function RootLayout() {
+  // mode clair / sombre : suit le réglage de l'iPhone (app.json userInterfaceStyle = automatic) ; le thème de la navigation veut des
+  // chaînes, d'où useCouleurs() ici (les écrans, eux, utilisent les couleurs dynamiques de COULEURS)
+  const c = useCouleurs();
+  const theme = useMemo(() => {
+    const base = c.sombre ? DarkTheme : DefaultTheme;
+    return { ...base, colors: { ...base.colors, primary: c.primaire, background: c.fond, card: c.fond, text: c.texte, border: c.bordure } };
+  }, [c.sombre]);   // eslint-disable-line react-hooks/exhaustive-deps
+  // fond de la vue racine (visible pendant les transitions et sous le clavier) : noir en mode sombre, sinon blanc
+  useEffect(() => { SystemUI.setBackgroundColorAsync(c.fond).catch(() => undefined); }, [c.fond]);
   return (
     <ProfilProvider>
-      <ThemeProvider value={THEME}>
-        <StatusBar style="dark" />
+      <ThemeProvider value={theme}>
+        <StatusBar style="auto" />
         <Pile />
       </ThemeProvider>
     </ProfilProvider>

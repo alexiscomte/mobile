@@ -55,7 +55,7 @@ export default function Accueil() {
 
         <Titre>{T.commencerIci}</Titre>
         <View style={styles.grille}>
-          <Carte large titre={page('maSituation', langue).t} texte={T.commencerIciTxt} couleur={COULEURS.primaire} sf="signpost.right.fill" image={TUILES.situation} onPress={go('maSituation')} />
+          <Carte large titre={page('maSituation', langue).t} texte={T.commencerIciTxt} couleur={DEGRADES.sexualite[1]} sf="signpost.right.fill" image={TUILES.situation} onPress={go('maSituation')} />
         </View>
       </ScrollView>
     </SafeAreaView>

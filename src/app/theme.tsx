@@ -116,7 +116,7 @@ export default function Theme() {
 
 const styles = StyleSheet.create({
   contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
-  bandeau: { backgroundColor: COULEURS.primaire, borderRadius: 12, padding: 14 },
+  bandeau: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, padding: 14 },
   bandeauTxt: { color: '#fff', fontSize: 15 },
   lien: { color: '#fff', textDecorationLine: 'underline', marginTop: 8, fontWeight: '600' },
   note: { color: COULEURS.texteMuet, fontSize: 12, marginVertical: 8 },

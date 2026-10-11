@@ -114,8 +114,8 @@ export function Pouce({ u, titre, fil, partager, libellePartage }: Props) {
 
 const styles = StyleSheet.create({
   ligne: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10, minHeight: 32 },
-  bouton: { width: 38, height: 32, borderRadius: 999, borderWidth: 1, borderColor: COULEURS.bordure, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
-  boutonAime: { backgroundColor: COULEURS.primaire, borderColor: COULEURS.primaire },
+  bouton: { width: 38, height: 32, borderRadius: 999, borderWidth: 1, borderColor: COULEURS.bordure, backgroundColor: COULEURS.fondEleve, alignItems: 'center', justifyContent: 'center' },
+  boutonAime: { backgroundColor: COULEURS.primairePlein, borderColor: COULEURS.primairePlein },
   presse: { opacity: 0.75 },
   n: { fontSize: 14, fontWeight: '600', color: COULEURS.texteMuet, marginLeft: -3 },
   fil: { flex: 1, flexShrink: 1, color: COULEURS.texteMuet, fontSize: 12, marginRight: 2 },

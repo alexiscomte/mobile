@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   sousTitre: { fontSize: 16, fontWeight: '700', color: COULEURS.primaireFonce, marginTop: 10, marginBottom: 6 },
   note: { color: COULEURS.texteMuet, fontSize: 12, marginTop: 12 },
   retour: { color: COULEURS.secondaireFonce, textDecorationLine: 'underline', marginTop: 8 },
-  bouton: { backgroundColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 8 },
+  bouton: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 8 },
   boutonTxt: { color: '#fff', fontWeight: '700', fontSize: 16 },
   boutonSec: { borderWidth: 1, borderColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 11, alignItems: 'center', marginTop: 8 },
   boutonSecTxt: { color: COULEURS.primaire, fontWeight: '600' },
