@@ -57,15 +57,15 @@ export default function QuestionDuJour() {
         <Text style={styles.date}>{date}</Text>
         <Text style={styles.question}>{q}</Text>
         <View style={styles.boutons}>
-          <Pressable style={({ pressed }) => [styles.bouton, pressed && styles.presse]} onPress={envoyer}><Text style={styles.boutonTxt}>{t.envoyer}</Text></Pressable>
-          <Pressable style={({ pressed }) => [styles.boutonSec, pressed && styles.presse]} onPress={() => setExtra((x) => x + 1)}><Text style={styles.boutonSecTxt}>{t.autre}</Text></Pressable>
+          <Pressable accessibilityRole="button" style={({ pressed }) => [styles.bouton, pressed && styles.presse]} onPress={envoyer}><Text style={styles.boutonTxt}>{t.envoyer}</Text></Pressable>
+          <Pressable accessibilityRole="button" style={({ pressed }) => [styles.boutonSec, pressed && styles.presse]} onPress={() => setExtra((x) => x + 1)}><Text style={styles.boutonSecTxt}>{t.autre}</Text></Pressable>
         </View>
         <View style={styles.defi}>
           <Text style={styles.defiTitre}>{t.defi}</Text>
           <Text style={styles.defiTxt}>{df}</Text>
         </View>
         {fait ? <Text style={styles.ok}>{t.fait_ok}</Text> : (
-          <Pressable style={({ pressed }) => [styles.bouton, pressed && styles.presse]} onPress={marquer}><Text style={styles.boutonTxt}>{t.fait}</Text></Pressable>
+          <Pressable accessibilityRole="button" style={({ pressed }) => [styles.bouton, pressed && styles.presse]} onPress={marquer}><Text style={styles.boutonTxt}>{t.fait}</Text></Pressable>
         )}
         <Text style={styles.serie}>{fmt(t.serie, s)}{etat.record > 1 ? ' · ' + fmt(t.record, etat.record) : ''}</Text>
         <View style={styles.semaine}>
@@ -84,7 +84,7 @@ export default function QuestionDuJour() {
 }
 
 const styles = StyleSheet.create({
-  contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   date: { color: COULEURS.texteMuet, textTransform: 'capitalize', marginBottom: 6 },
   question: { fontSize: 26, lineHeight: 34, fontWeight: '700', color: COULEURS.primaireFonce, marginBottom: 16 },
   boutons: { gap: 8, marginBottom: 16 },

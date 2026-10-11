@@ -15,6 +15,7 @@ import { basculerAime, cheminAime, lireAime } from '@/aime';
 import { UI_E } from '@/components/espace';
 import { fmt } from '@/i18n';
 import { useProfil } from '@/profil';
+import { choix, succes } from '@/haptique';
 import { COULEURS } from '@/theme';
 
 const POUCE = 'M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z';
@@ -82,6 +83,7 @@ export function Pouce({ u, titre, fil, partager, libellePartage }: Props) {
     enCours.current = true; seq.current++;                 // une lecture en cours ne repassera pas par-dessus
     const oui = !moi;
     setMoi(oui); setMsg(oui ? E.ajoute : E.retire);       // tout de suite, sans attendre le serveur
+    if (oui) succes(); else choix();
     await favori(oui);
     const e = await basculerAime(p).catch(() => null);
     enCours.current = false;

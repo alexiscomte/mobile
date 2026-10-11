@@ -3,6 +3,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import { Platform, Pressable, StyleSheet, Switch, Text, TextInput, View, type TextInputProps } from 'react-native';
 
+import { choix } from '@/haptique';
 import { COULEURS } from '@/theme';
 
 export const pad = (n: number) => (n < 10 ? '0' : '') + n;
@@ -16,14 +17,14 @@ export const fmt = (s: string, ...v: (string | number)[]) => {
 };
 
 export function Label({ children }: { children: React.ReactNode }) {
-  return <Text style={F.label}>{children}</Text>;
+  return <Text style={F.label} accessibilityRole="text">{children}</Text>;
 }
 
 export function Champ({ label, ...props }: { label?: string } & TextInputProps) {
   return (
     <>
       {label ? <Label>{label}</Label> : null}
-      <TextInput style={F.entree} placeholderTextColor={COULEURS.texteMuet} {...props} />
+      <TextInput style={F.entree} placeholderTextColor={COULEURS.texteMuet} accessibilityLabel={label} {...props} />
     </>
   );
 }
@@ -66,9 +67,9 @@ export function ChampHeure({ label, inconnue, value, onChange, langue }: { label
   );
 }
 
-export function Bouton({ titre, onPress, secondaire, disabled }: { titre: string; onPress: () => void; secondaire?: boolean; disabled?: boolean }) {
+export function Bouton({ titre, onPress, secondaire, disabled, label }: { titre: string; onPress: () => void; secondaire?: boolean; disabled?: boolean; label?: string }) {
   return (
-    <Pressable disabled={disabled} onPress={onPress} style={({ pressed }) => [secondaire ? F.boutonSec : F.bouton, (pressed || disabled) && F.presse]}>
+    <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled: !!disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [secondaire ? F.boutonSec : F.bouton, (pressed || disabled) && F.presse]}>
       <Text style={secondaire ? F.boutonSecTxt : F.boutonTxt}>{titre}</Text>
     </Pressable>
   );
@@ -76,7 +77,9 @@ export function Bouton({ titre, onPress, secondaire, disabled }: { titre: string
 
 export function Puce({ titre, actif, onPress }: { titre: string; actif: boolean; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} style={[F.puce, actif && F.puceActive]}>
+    // puce = choix parmi plusieurs : état « sélectionné » annoncé par VoiceOver, léger retour haptique, zone de toucher de 44 pt
+    <Pressable accessibilityRole="button" accessibilityState={{ selected: actif }} hitSlop={{ top: 6, bottom: 6 }}
+      onPress={() => { if (!actif) choix(); onPress(); }} style={({ pressed }) => [F.puce, actif && F.puceActive, pressed && F.presse]}>
       <Text style={[F.puceTxt, actif && F.puceTxtActive]}>{titre}</Text>
     </Pressable>
   );
@@ -95,25 +98,25 @@ export function Bandeau({ texte, lien, onPress }: { texte: string; lien?: string
   return (
     <View style={F.bandeau}>
       <Text style={F.bandeauTxt}>{texte}</Text>
-      {lien && onPress ? <Pressable onPress={onPress}><Text style={F.bandeauLien}>{lien} →</Text></Pressable> : null}
+      {lien && onPress ? <Pressable accessibilityRole="link" onPress={onPress} hitSlop={8}><Text style={F.bandeauLien}>{lien} →</Text></Pressable> : null}
     </View>
   );
 }
 
 export const F = StyleSheet.create({
-  contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   label: { fontSize: 15, fontWeight: '600', color: COULEURS.texte, marginTop: 14, marginBottom: 6 },
   entree: { backgroundColor: COULEURS.fondDoux, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, fontSize: 17, color: COULEURS.texte },
   picker: { alignSelf: 'flex-start', marginLeft: -8 },
   ligneOption: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   optionDroite: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 },
   optionTxt: { color: COULEURS.texteMuet },
-  bouton: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, paddingVertical: 13, alignItems: 'center', marginTop: 18 },
-  boutonTxt: { color: '#fff', fontWeight: '700', fontSize: 16 },
-  boutonSec: { borderWidth: 1, borderColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 11, alignItems: 'center', marginTop: 10 },
-  boutonSecTxt: { color: COULEURS.primaire, fontWeight: '600', fontSize: 15 },
+  bouton: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, paddingVertical: 13, paddingHorizontal: 12, minHeight: 48, justifyContent: 'center', alignItems: 'center', marginTop: 18 },
+  boutonTxt: { color: '#fff', fontWeight: '700', fontSize: 16, textAlign: 'center' },
+  boutonSec: { borderWidth: 1, borderColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 12, minHeight: 44, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
+  boutonSecTxt: { color: COULEURS.primaire, fontWeight: '600', fontSize: 15, textAlign: 'center' },
   presse: { opacity: 0.7 },
-  puce: { borderWidth: 1, borderColor: COULEURS.bordure, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 },
+  puce: { borderWidth: 1, borderColor: COULEURS.bordure, borderRadius: 18, paddingHorizontal: 12, paddingVertical: 7, minHeight: 32, justifyContent: 'center', maxWidth: '100%' },
   puceActive: { backgroundColor: COULEURS.primairePlein, borderColor: COULEURS.primairePlein },
   puceTxt: { color: COULEURS.texte, fontSize: 14 },
   puceTxtActive: { color: '#fff', fontWeight: '600' },

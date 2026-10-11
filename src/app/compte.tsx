@@ -82,7 +82,7 @@ export default function CompteEcran() {
   return (
     <>
       <Stack.Screen options={{ title: t.titre }} />
-      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <Banniere image={TUILES.compte} ratio={1.78} />
         {msg ? <Text style={[styles.msg, { color: msg.ok ? COULEURS.vert : COULEURS.coeur }]} accessibilityLiveRegion="polite">{msg.t}</Text> : null}
         {compte ? <MonCompte /> : (

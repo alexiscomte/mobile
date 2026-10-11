@@ -41,7 +41,7 @@ export default function Autres() {
           <Bandeau texte={T2.sansDate} lien={T2.renseigner} onPress={() => router.push('/(tabs)/moi')} />
         ) : estMaya ? (
           <>
-            <Text style={F.h2}>{X.ui.titre_m}</Text>
+            <Text style={F.h2} accessibilityRole="header">{X.ui.titre_m}</Text>
             {/* le signe du jour maya en image (src/images.ts, MAYA, une scène par signe) */}
             <View style={{ alignItems: 'center', marginBottom: 12 }}><Illustration image={MAYA_IMG[String(r.my.sign)]} taille={160} alt={MAYA[r.my.sign]} /></View>
             <Text style={[F.texte, F.gras]}>{fmt(X.ui.maya_res, r.my.number, MAYA[r.my.sign], X.maya[r.my.sign])}</Text>
@@ -51,7 +51,7 @@ export default function Autres() {
           </>
         ) : (
           <>
-            <Text style={F.h2}>{X.ui.titre_v}</Text>
+            <Text style={F.h2} accessibilityRole="header">{X.ui.titre_v}</Text>
             <Text style={F.texte}><Text style={F.gras}>{X.ui.soleil}</Text> : {sid(r.v.sun)}</Text>
             <Text style={F.texte}><Text style={F.gras}>{X.ui.lune}</Text> : {sid(r.v.moon)}</Text>
             <Text style={F.texte}><Text style={F.gras}>{X.ui.nak}</Text> : {NAK[r.v.nak]}, {X.ui.pada} {r.v.pada} — {X.nak[r.v.nak]}</Text>

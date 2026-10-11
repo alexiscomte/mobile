@@ -17,7 +17,7 @@ const COUL = ['#EAD9F3', '#D5EAF3'];
 function Mois({ titre, semaines, noms, jours }: { titre: string; semaines: Case[][]; noms: [string, string]; jours: string[] }) {
   return (
     <View style={styles.mois}>
-      <Text style={F.h3}>{titre}</Text>
+      <Text style={F.h3} accessibilityRole="header">{titre}</Text>
       <View style={styles.ligne}>{jours.map((j, i) => <Text key={i} style={styles.th}>{j}</Text>)}</View>
       {semaines.map((s, i) => (
         <View key={i} style={styles.ligne}>
@@ -83,7 +83,7 @@ export default function Garde() {
   return (
     <>
       <Stack.Screen options={{ title: page('garde', langue).t }} />
-      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <Text style={F.label}>{T.rythme}</Text>
         <View style={F.puces}>
           {RYTHMES.map((r) => <Puce key={r} titre={T[LIB[r]]} actif={r === rythme} onPress={() => setRythme(r)} />)}

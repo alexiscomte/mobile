@@ -63,7 +63,7 @@ export default function Newsletter() {
   return (
     <>
       <Stack.Screen options={{ title: T.titre }} />
-      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <Text style={[F.texte, F.gras]}>{etatTxt}</Text>
         {compte && etat ? <Bouton titre={E.newsBoutonDesab} secondaire onPress={desabonner} disabled={envoi} /> : null}
         {!compte && etat === 'confirme' ? <Text style={[F.muet, styles.note]}>{E.newsInviteDesab}</Text> : null}
@@ -83,7 +83,7 @@ export default function Newsletter() {
         {T.donnees ? (
           // « Vos données » (01/10/2026) : même texte que le site, dont le prestataire d'envoi (Brevo) ; lien vers la page Confidentialité du site
           <View style={styles.donnees}>
-            <Text style={styles.h2}>{T.h_donnees}</Text>
+            <Text style={styles.h2} accessibilityRole="header">{T.h_donnees}</Text>
             <Text style={styles.donneesTxt}>{T.donnees}</Text>
             {T.confidentialite_url ? (
               <Text style={styles.lien} accessibilityRole="link" onPress={() => Linking.openURL(SITE + langue + '/' + T.confidentialite_url)}>

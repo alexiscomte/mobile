@@ -1,7 +1,7 @@
 // Infos : recherche dans toutes les pages du site, puis les rubriques.
 import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Ligne, Titre } from '@/components/carte';
@@ -52,7 +52,7 @@ export default function Infos() {
 
   const entete = (
     <View>
-      <Text style={styles.titre}>{T.infosTitre}</Text>
+      <Text style={styles.titre} accessibilityRole="header">{T.infosTitre}</Text>
       <Text style={styles.intro}>{T.infosIntro}</Text>
       <View style={styles.champ}>
         <TextInput
@@ -65,14 +65,17 @@ export default function Infos() {
           clearButtonMode="while-editing"
           autoCorrect={false}
           onSubmitEditing={Keyboard.dismiss}
+          accessibilityLabel={T.recherchePlaceholder}
+          accessibilityRole="search"
         />
-        {question ? (
-          <Pressable onPress={() => setQuestion('')} hitSlop={10} accessibilityLabel="×"><Text style={styles.effacer}>×</Text></Pressable>
+        {/* iOS a son propre bouton d'effacement (clearButtonMode) : le nôtre seulement ailleurs */}
+        {question && Platform.OS !== 'ios' ? (
+          <Pressable accessibilityRole="button" onPress={() => setQuestion('')} hitSlop={10} accessibilityLabel="×"><Text style={styles.effacer}>×</Text></Pressable>
         ) : null}
       </View>
       {chargement ? <View style={styles.etat}><ActivityIndicator color={COULEURS.primaire} /><Text style={styles.etatTxt}>{T.chargementIndex}</Text></View> : null}
       {erreur ? <Text style={styles.erreur}>{T.indexIndispo}</Text> : null}
-      {enRecherche && index && !resultats.length ? <Text style={styles.etatTxt}>{T.aucunResultat}</Text> : null}
+      {enRecherche && index && !resultats.length ? <Text style={styles.etatTxt} accessibilityLiveRegion="polite">{T.aucunResultat}</Text> : null}
       {!enRecherche ? <Titre>{T.rubriques}</Titre> : <Titre>{T.resultats}</Titre>}
       {!enRecherche
         ? RUBRIQUES.map(({ cle, sf, image }) => {
@@ -97,6 +100,7 @@ export default function Infos() {
         data={enRecherche ? resultats : []}
         keyExtractor={(r) => r.u}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         ListHeaderComponent={entete}
         contentContainerStyle={styles.contenu}
         renderItem={({ item }) => (
@@ -109,8 +113,8 @@ export default function Infos() {
 
 const styles = StyleSheet.create({
   fond: { flex: 1, backgroundColor: COULEURS.fond },
-  contenu: { padding: 16, paddingBottom: 110 },
-  titre: { fontSize: 28, fontWeight: '800', color: COULEURS.primaire },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 110 },
+  titre: { fontSize: 34, lineHeight: 41, fontWeight: '800', color: COULEURS.primaire },
   intro: { fontSize: 15, color: COULEURS.texteMuet, marginBottom: 12 },
   champ: { flexDirection: 'row', alignItems: 'center', backgroundColor: COULEURS.fondDoux, borderRadius: 12, paddingHorizontal: 12 },
   entree: { flex: 1, fontSize: 17, paddingVertical: 12, color: COULEURS.texte },

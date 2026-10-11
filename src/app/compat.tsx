@@ -26,7 +26,7 @@ const heureNum = (s: string): number | null => { const m = /^(\d{2}):(\d{2})/.ex
 function Bloc({ s, ui, lire, ouvrir }: { s: Section; ui: Record<string, string>; lire: string; ouvrir: (rel: string) => void }) {
   return (
     <View style={styles.bloc}>
-      <Text style={F.h2}>{s.titre}</Text>
+      <Text style={F.h2} accessibilityRole="header">{s.titre}</Text>
       <Text style={F.muet}>{s.intro}</Text>
       {s.lignes.map((l, i) => (
         <Text key={i} style={F.texte}>{l.gras ? <Text style={F.gras}>{l.gras} </Text> : null}{l.texte}</Text>
@@ -49,7 +49,7 @@ function Bloc({ s, ui, lire, ouvrir }: { s: Section; ui: Record<string, string>;
         </View>
       ) : null}
       <Note>{s.caveat}</Note>
-      {s.lien ? <Pressable onPress={() => ouvrir(s.lien as string)}><Text style={F.lien}>→ {lire}</Text></Pressable> : null}
+      {s.lien ? <Pressable accessibilityRole="button" onPress={() => ouvrir(s.lien as string)}><Text style={F.lien}>→ {lire}</Text></Pressable> : null}
     </View>
   );
 }
@@ -136,10 +136,10 @@ export default function Compat() {
   return (
     <>
       <Stack.Screen options={{ title: page('compat', langue).t }} />
-      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         {!res ? (
           <>
-            <Text style={F.h2}>{U.p1}</Text>
+            <Text style={F.h2} accessibilityRole="header">{U.p1}</Text>
             <Champ label={U.prenom} value={n1} onChangeText={setN1} maxLength={40} autoCapitalize="words" />
             <Champ label={Y.nomFam} value={f1} onChangeText={setF1} maxLength={60} autoCapitalize="words" />
             <Text style={F.label}>{S.sexe}</Text>
@@ -148,7 +148,7 @@ export default function Compat() {
             <ChampHeure label={U.heure} inconnue={T1.heureInconnue} value={h1} onChange={setH1} langue={langue} />
             <Text style={F.label}>{Y.lieuN}</Text>
             <ChoixLieu langue={langue} valeur={b1} onChange={setB1} labelPays={T3.pays} labelVille={T3.ville} />
-            <Text style={F.h2}>{U.p2}</Text>
+            <Text style={F.h2} accessibilityRole="header">{U.p2}</Text>
             <Champ label={U.prenom} value={n2} onChangeText={setN2} maxLength={40} autoCapitalize="words" />
             <Champ label={Y.nomFam} value={f2} onChangeText={setF2} maxLength={60} autoCapitalize="words" />
             <Text style={F.label}>{S.sexe}</Text>
@@ -160,7 +160,7 @@ export default function Compat() {
             <Bouton titre={U.go} onPress={calculer} />
             <Erreur>{erreur}</Erreur>
             <Note>{U.note}</Note>
-            {nbTests ? <Pressable onPress={() => router.push('/mes-compat')}><Text style={F.lien}>{S.mes.replace('%s', String(nbTests))} →</Text></Pressable> : null}
+            {nbTests ? <Pressable accessibilityRole="button" onPress={() => router.push('/mes-compat')}><Text style={F.lien}>{S.mes.replace('%s', String(nbTests))} →</Text></Pressable> : null}
           </>
         ) : (
           <>
@@ -196,12 +196,12 @@ export default function Compat() {
             })()}
             {res.avis.map((a, i) => <Note key={i}>{a}</Note>)}
             {res.sections.map((s, i) => <Bloc key={i} s={s} ui={U} lire={T3.lirePage} ouvrir={ouvrir} />)}
-            <Text style={F.h2}>{T.fin.titre}</Text>
+            <Text style={F.h2} accessibilityRole="header">{T.fin.titre}</Text>
             <Text style={F.texte}>{T.fin.texte}</Text>
-            {T.fin.liens.map(([t, u]) => <Pressable key={u} onPress={() => ouvrir(u)}><Text style={F.lien}>→ {t}</Text></Pressable>)}
+            {T.fin.liens.map(([t, u]) => <Pressable accessibilityRole="button" key={u} onPress={() => ouvrir(u)}><Text style={F.lien}>→ {t}</Text></Pressable>)}
             <Bouton titre={garde === 'ok' ? '✓ ' + S.garde : S.garder} onPress={garder} disabled={garde === 'ok'} />
             {garde === 'ko' ? <Erreur>{S.plein}</Erreur> : null}
-            {garde === 'ok' ? <Pressable onPress={() => router.push('/mes-compat')}><Text style={F.lien}>{S.voir} →</Text></Pressable> : null}
+            {garde === 'ok' ? <Pressable accessibilityRole="button" onPress={() => router.push('/mes-compat')}><Text style={F.lien}>{S.voir} →</Text></Pressable> : null}
             <Bouton titre={U.refaire} onPress={() => setRes(null)} secondaire />
             <Note>{U.note}</Note>
           </>

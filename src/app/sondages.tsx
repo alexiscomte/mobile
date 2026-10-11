@@ -3,7 +3,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { F, Puce } from '@/components/form';
 import { pousser, surCompte } from '@/compte';
@@ -13,6 +13,7 @@ import sondages from '@/moteur/sondages.json';
 import ui from '@/moteur/ui.json';
 import { useProfil } from '@/profil';
 import { SITE } from '@/site';
+import { erreur, succes } from '@/haptique';
 import { COULEURS } from '@/theme';
 
 type Sondage = { id: string; u: Record<string, string>; q: Record<string, string>; o: Record<string, string[]> };
@@ -68,20 +69,20 @@ function Item({ s, lg, t, res, vote, onVote, mes }: { s: Sondage; lg: Langue; t:
           {groupes.length > 1 ? (
             <View style={styles.onglets}>
               {groupes.map((g, i) => (
-                <Pressable key={i} onPress={() => setOnglet(i)} style={[styles.onglet, i === onglet && styles.ongletActif]}>
+                <Pressable accessibilityRole="button" key={i} onPress={() => setOnglet(i)} style={[styles.onglet, i === onglet && styles.ongletActif]}>
                   <Text style={[styles.ongletTxt, i === onglet && styles.ongletTxtActif]}>{g.nom} · {fmt(t.votes, somme(g.n))}</Text>
                 </Pressable>
               ))}
             </View>
           ) : <Text style={styles.nb}>{t.tous} · {fmt(t.votes, total)}</Text>}
           {groupes[onglet] ? <Barres opts={opts} n={groupes[onglet].n} mien={vote} /> : null}
-          <Pressable onPress={() => setOuvert(true)}><Text style={styles.changer}>{t.changer}</Text></Pressable>
+          <Pressable accessibilityRole="button" onPress={() => setOuvert(true)}><Text style={styles.changer}>{t.changer}</Text></Pressable>
         </>
       ) : (
         <View style={{ gap: 8 }}>
           {total ? <Text style={styles.nb}>{t.tous} · {fmt(t.votes, total)}</Text> : <Text style={styles.nb}>{t.zero}</Text>}
           {opts.map((o, i) => (
-            <Pressable key={i} disabled={attente} onPress={async () => { setAttente(true); setErreur(false); const ok = await onVote(i); setAttente(false); if (ok) setOuvert(false); else setErreur(true); }}
+            <Pressable accessibilityRole="button" key={i} disabled={attente} onPress={async () => { setAttente(true); setErreur(false); const ok = await onVote(i); setAttente(false); if (ok) setOuvert(false); else setErreur(true); }}
               style={({ pressed }) => [styles.choix, pressed && styles.presse]}>
               <Text style={styles.choixTxt}>{o}</Text>
             </Pressable>
@@ -105,12 +106,13 @@ export default function Sondages() {
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [chargement, setChargement] = useState(true);
   const [indispo, setIndispo] = useState(false);
+  const [rafraichit, setRafraichit] = useState(false);   // tirer vers le bas : résultats du baromètre relus
 
   const charger = useCallback(async () => {
     try {
       const r = await fetch(SITE + 'api/sondage/barometre', { cache: 'no-store' });
       const x = await r.json();
-      if (x && x.ok) setRes(x.s || {}); else setIndispo(true);
+      if (x && x.ok) { setRes(x.s || {}); setIndispo(false); } else setIndispo(true);
     } catch { setIndispo(true); }
     setChargement(false);
   }, []);
@@ -130,13 +132,14 @@ export default function Sondages() {
       const j = await jeton();
       const r = await fetch(SITE + 'api/sondage', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ s: s.id, c, l: lg, p: '', j }) });
       const x = await r.json();
-      if (!x || !x.ok) return false;
+      if (!x || !x.ok) { erreur(); return false; }
+      succes();
       await AsyncStorage.setItem('ap.sondage:' + s.id, String(c));
       pousser();   // compte connecté : le vote suit (le serveur le relie au jeton de vote du compte)
       setVotes((v) => ({ ...v, [s.id]: c }));
       setRes((prev) => ({ ...prev, [s.id]: { t: x.r.t, l: { ...(prev[s.id] ? prev[s.id].l : {}), [lg]: x.r.l } } }));
       return true;
-    } catch { return false; }
+    } catch { erreur(); return false; }
   };
 
   const tous = CAT.filter((s) => s.q[lg]).map((s, i) => ({ s, i, n: res[s.id] ? somme(res[s.id].t) : 0 })).sort((a, b) => b.n - a.n || a.i - b.i);
@@ -145,7 +148,8 @@ export default function Sondages() {
   return (
     <>
       <Stack.Screen options={{ title: mesSeuls ? T4.mesSondages : t.tous ? (UI[lg] ? titre(lg) : 'Sondages') : 'Sondages' }} />
-      <ScrollView contentContainerStyle={styles.contenu}>
+      <ScrollView contentContainerStyle={styles.contenu}
+        refreshControl={<RefreshControl refreshing={rafraichit} tintColor={COULEURS.primaire} onRefresh={() => { setRafraichit(true); charger().finally(() => setRafraichit(false)); }} />}>
         <View style={[F.puces, styles.puces]}>
           <Puce titre={t.mesTous || titre(lg)} actif={!mesSeuls} onPress={() => setMesSeuls(false)} />
           <Puce titre={T4.mesSondages} actif={mesSeuls} onPress={() => setMesSeuls(true)} />
@@ -172,7 +176,7 @@ function titre(lg: Langue): string {
 }
 
 const styles = StyleSheet.create({
-  contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   total: { color: COULEURS.texteMuet, fontSize: 13, marginBottom: 10 },
   item: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COULEURS.bordure, paddingVertical: 14 },
   question: { fontSize: 17, fontWeight: '700', color: COULEURS.primaireFonce, marginBottom: 8, lineHeight: 23 },

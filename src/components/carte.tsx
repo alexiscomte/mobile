@@ -16,6 +16,7 @@ export function Carte({ titre, texte, couleur, sf, onPress, large, image }: Cart
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
+      accessibilityLabel={texte ? titre + ', ' + texte : titre}
       style={({ pressed }) => [styles.carte, { backgroundColor: couleur }, large && styles.large, image ? (large ? styles.largeImage : styles.avecImage) : null, pressed && styles.pressee]}>
       {image ? <FondTuile image={image} couleur={couleur} horizontal={large} /> : (
         <SymbolView name={sf as SFSymbol} tintColor="#fff" size={26} fallback={<Text style={styles.puce}>◆</Text>} />
@@ -30,7 +31,8 @@ type LigneProps = { titre: string; texte?: string; sf?: string; onPress: () => v
 
 export function Ligne({ titre, texte, sf, onPress, image }: LigneProps) {
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" style={({ pressed }) => [styles.ligne, pressed && styles.pressee]}>
+    // VoiceOver lit « titre, texte, bouton » (le chevron décoratif est ignoré)
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={texte ? titre + ', ' + texte : titre} style={({ pressed }) => [styles.ligne, pressed && styles.pressee]}>
       {image ? <Illustration image={image} taille={52} /> : sf ? (
         <View style={styles.ligneIcone}>
           <SymbolView name={sf as SFSymbol} tintColor={COULEURS.primaire} size={22} fallback={<Text style={{ color: COULEURS.primaire }}>◆</Text>} />
@@ -40,13 +42,13 @@ export function Ligne({ titre, texte, sf, onPress, image }: LigneProps) {
         <Text style={styles.ligneTitre}>{titre}</Text>
         {texte ? <Text style={styles.ligneTexte} numberOfLines={2}>{texte}</Text> : null}
       </View>
-      <Text style={styles.chevron}>›</Text>
+      <Text style={styles.chevron} importantForAccessibility="no" accessibilityElementsHidden>›</Text>
     </Pressable>
   );
 }
 
 export function Titre({ children }: { children: React.ReactNode }) {
-  return <Text style={styles.sectionTitre}>{children}</Text>;
+  return <Text style={styles.sectionTitre} accessibilityRole="header">{children}</Text>;
 }
 
 const styles = StyleSheet.create({
@@ -55,11 +57,11 @@ const styles = StyleSheet.create({
   avecImage: { minHeight: 168, justifyContent: 'flex-end', overflow: 'hidden' },
   largeImage: { minHeight: 124, justifyContent: 'center', overflow: 'hidden' },
   texteGauche: { maxWidth: '64%' },
-  pressee: { opacity: 0.8 },
+  pressee: { opacity: 0.7 },
   puce: { color: '#fff', fontSize: 20 },
   carteTitre: { color: '#fff', fontSize: 16, fontWeight: '700', lineHeight: 20 },
   carteTexte: { color: 'rgba(255,255,255,0.88)', fontSize: 13, lineHeight: 17 },
-  ligne: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 4, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COULEURS.bordure },
+  ligne: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, paddingVertical: 12, paddingHorizontal: 4, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COULEURS.bordure },
   ligneIcone: { width: 36, height: 36, borderRadius: 10, backgroundColor: COULEURS.fondDoux, alignItems: 'center', justifyContent: 'center' },
   ligneTextes: { flex: 1, gap: 2 },
   ligneTitre: { fontSize: 16, fontWeight: '600', color: COULEURS.texte },

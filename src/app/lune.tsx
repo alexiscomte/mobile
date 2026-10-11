@@ -53,7 +53,7 @@ export default function Lune() {
         <View style={styles.carte}>
           <Disque illum={r.ph.illum} waxing={r.ph.waxing} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.titre}>{U.aujourd}, {r.now.toLocaleDateString(langue, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</Text>
+            <Text style={styles.titre} accessibilityRole="header">{U.aujourd}, {r.now.toLocaleDateString(langue, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</Text>
             <Text style={styles.phase}><Text style={styles.gras}>{T.phases[r.ph.idx]}</Text> — {U.lune_en} {T.signes[r.s]} {ASTRO.fmtDeg(r.ml)}, {U.eclairee} {Math.round(r.ph.illum * 100)} %.</Text>
             <Text style={styles.suite}>{cap(String(U.prochaine_pl))} : {r.pleine} · {U.prochaine_nl} : {r.nouvelle}.</Text>
           </View>
@@ -68,7 +68,7 @@ export default function Lune() {
 }
 
 const styles = StyleSheet.create({
-  contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   carte: { flexDirection: 'row', gap: 14, alignItems: 'center', backgroundColor: COULEURS.fondDoux, borderRadius: 14, padding: 14 },
   titre: { color: COULEURS.texteMuet, fontSize: 13, marginBottom: 4, textTransform: 'capitalize' },
   phase: { fontSize: 15, lineHeight: 21, color: COULEURS.texte },

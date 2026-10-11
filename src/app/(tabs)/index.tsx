@@ -24,7 +24,7 @@ export default function Accueil() {
   return (
     <SafeAreaView style={styles.fond} edges={['top']}>
       <ScrollView contentContainerStyle={styles.contenu}>
-        <Text style={styles.bonjour}>{profil.prenom ? fmt(T.bonjourPrenom, profil.prenom) : T.bonjour}</Text>
+        <Text style={styles.bonjour} accessibilityRole="header">{profil.prenom ? fmt(T.bonjourPrenom, profil.prenom) : T.bonjour}</Text>
         <Text style={styles.date}>{date}</Text>
         <View style={styles.resume}><ResumeSignes /></View>
 
@@ -64,8 +64,8 @@ export default function Accueil() {
 
 const styles = StyleSheet.create({
   fond: { flex: 1, backgroundColor: COULEURS.fond },
-  contenu: { padding: 16, paddingBottom: 110 },
-  bonjour: { fontSize: 28, fontWeight: '800', color: COULEURS.primaire },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 110 },
+  bonjour: { fontSize: 34, lineHeight: 41, fontWeight: '800', color: COULEURS.primaire },
   date: { fontSize: 15, color: COULEURS.texteMuet, textTransform: 'capitalize', marginBottom: 6 },
   resume: { marginBottom: 14 },
   grille: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },

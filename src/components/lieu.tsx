@@ -35,14 +35,14 @@ export function ChoixLieu({ langue, valeur, onChange, labelPays, labelVille }: P
       <Champ label={labelPays} value={qPays} onChangeText={(v) => { setQPays(v); setPays(null); setQVille(''); setVilleOk(false); onChange(null); }} autoCorrect={false} />
       {sugPays.length ? (
         <View style={F.suggestions}>
-          {sugPays.map((p) => <Pressable key={p.code} style={F.suggestion} onPress={() => choisirPays(p)}><Text style={F.suggestionTxt}>{p.nom}</Text></Pressable>)}
+          {sugPays.map((p) => <Pressable accessibilityRole="button" key={p.code} style={F.suggestion} onPress={() => choisirPays(p)}><Text style={F.suggestionTxt}>{p.nom}</Text></Pressable>)}
         </View>
       ) : null}
       <Champ label={labelVille} value={qVille} onChangeText={(v) => { setQVille(v); if (villeOk && pays) { setVilleOk(false); onChange({ code: pays.code, nomPays: pays.nom, lat: pays.lat, lon: pays.lon, ville: null }); } }} editable={!!pays} autoCorrect={false} />
       {sugVille.length ? (
         <View style={F.suggestions}>
           {sugVille.map((v) => (
-            <Pressable key={v.nom + v.lat} style={F.suggestion} onPress={() => choisirVille(v)}>
+            <Pressable accessibilityRole="button" key={v.nom + v.lat} style={F.suggestion} onPress={() => choisirVille(v)}>
               <Text style={F.suggestionTxt}>{v.nom}{v.cp ? ' (' + v.cp + ')' : ''}</Text>
             </Pressable>
           ))}

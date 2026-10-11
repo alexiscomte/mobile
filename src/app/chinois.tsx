@@ -33,7 +33,7 @@ export default function Chinois() {
         {!r ? (
           <View style={styles.bandeau}>
             <Text style={styles.bandeauTxt}>{T2.sansDate}</Text>
-            <Pressable onPress={() => router.push('/(tabs)/moi')}><Text style={styles.lien}>{T2.renseigner} →</Text></Pressable>
+            <Pressable accessibilityRole="button" onPress={() => router.push('/(tabs)/moi')}><Text style={styles.lien}>{T2.renseigner} →</Text></Pressable>
           </View>
         ) : (
           <>
@@ -59,7 +59,7 @@ export default function Chinois() {
                 <Text style={styles.vignetteTxt}>{C.animaux[r.oppose]}</Text>
               </View>
             </View>
-            <Pressable onPress={() => router.push('/horoscope')} style={styles.boutonSec}><Text style={styles.boutonSecTxt}>{T2.lesDouze} →</Text></Pressable>
+            <Pressable accessibilityRole="button" onPress={() => router.push('/horoscope')} style={styles.boutonSec}><Text style={styles.boutonSecTxt}>{T2.lesDouze} →</Text></Pressable>
           </>
         )}
       </ScrollView>
@@ -68,7 +68,7 @@ export default function Chinois() {
 }
 
 const styles = StyleSheet.create({
-  contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   bandeau: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, padding: 14, marginBottom: 14 },
   bandeauTxt: { color: '#fff', fontSize: 16, fontWeight: '600', lineHeight: 23 },
   lien: { color: '#fff', textDecorationLine: 'underline', marginTop: 8, fontWeight: '600' },

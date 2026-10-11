@@ -13,11 +13,11 @@ import { page, SITE } from '@/site';
 function Bloc({ l, lettres }: { l: Lecture; lettres: string }) {
   return (
     <View>
-      <Text style={F.h2}>{l.prenom}</Text>
+      <Text style={F.h2} accessibilityRole="header">{l.prenom}</Text>
       <Text style={F.muet}>{lettres.replace('%s', l.lettres)}</Text>
       {l.blocs.map((b, i) => (
         <View key={i}>
-          <Text style={F.h3}>{b.titre}</Text>
+          <Text style={F.h3} accessibilityRole="header">{b.titre}</Text>
           <Text style={F.texte}><Text style={F.gras}>{b.sous}.</Text> {b.texte}</Text>
         </View>
       ))}
@@ -48,7 +48,7 @@ export default function Epoux() {
   return (
     <>
       <Stack.Screen options={{ title: page('epoux', langue).t }} />
-      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <Champ label={T.prenom} value={p} onChangeText={setP} maxLength={40} autoCapitalize="words" />
         <Champ label={T.autre} value={a} onChangeText={setA} maxLength={40} autoCapitalize="words" />
         <Bouton titre={T.go} onPress={calcul} />
@@ -60,7 +60,7 @@ export default function Epoux() {
             {res.l2 ? <Bloc l={res.l2} lettres={T.lettres} /> : null}
             {res.c !== null ? (
               <>
-                <Text style={F.h2}>{T.couple} : {res.c}</Text>
+                <Text style={F.h2} accessibilityRole="header">{T.couple} : {res.c}</Text>
                 {/* le portrait du couple en image (src/images.ts, COUPLE, une scène par nombre) */}
                 <Illustration image={COUPLE[String(res.c)]} taille={300} style={{ width: '100%', aspectRatio: 1.5, height: undefined, marginBottom: 10 }} />
                 <Text style={F.texte}>{T.C[String(res.c)] || ''}</Text>

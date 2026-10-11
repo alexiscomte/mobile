@@ -91,7 +91,7 @@ export default function MotDePasse() {
   return (
     <>
       <Stack.Screen options={{ title: t.mdpChanger }} />
-      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         {P ? <Text style={styles.lead}>{P.lead}</Text> : null}
         {!compte ? (
           <View>

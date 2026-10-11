@@ -116,7 +116,7 @@ export default function Jeu2() {
   return (
     <>
       <Stack.Screen options={{ title: D.nom[lg] || D.nom.fr }} />
-      <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         {mode.m === 'erreur' ? (
           <>
             <Text style={styles.erreur}>{mode.msg}</Text>
@@ -138,7 +138,7 @@ export default function Jeu2() {
               <>
                 <Text style={styles.sousTitre}>{t.mes_parties}</Text>
                 {mesParties.map((p) => (
-                  <Pressable key={p.code} onPress={() => suivre(p.code, p.j)} style={styles.partie}>
+                  <Pressable accessibilityRole="button" key={p.code} onPress={() => suivre(p.code, p.j)} style={styles.partie}>
                     <Text style={styles.partieTxt}>{fmt(t.partie_du, new Date(p.t).toLocaleDateString(lg))} · {p.code}</Text>
                   </Pressable>
                 ))}
@@ -190,7 +190,7 @@ export default function Jeu2() {
 
 function Bouton({ titre, onPress, secondaire }: { titre: string; onPress: () => void; secondaire?: boolean }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [secondaire ? styles.boutonSec : styles.bouton, pressed && styles.presse]}>
+    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [secondaire ? styles.boutonSec : styles.bouton, pressed && styles.presse]}>
       <Text style={secondaire ? styles.boutonSecTxt : styles.boutonTxt}>{titre}</Text>
     </Pressable>
   );
@@ -223,9 +223,9 @@ function Questionnaire({ Q, N, t, autre, suite }: { Q: Q[]; N: number; t: Record
       <Text style={styles.muet}>{surMoi ? t.sur_moi : fmt(t.sur_autre, autre || t.partenaire)} · {i + 1}/{N}</Text>
       <Text style={styles.question}>{q[0]}</Text>
       {q[1].map((o, c) => (
-        <Pressable key={c} onPress={() => choisir(c)} style={({ pressed }) => [styles.choix, pressed && styles.presse]}><Text style={styles.choixTxt}>{o}</Text></Pressable>
+        <Pressable accessibilityRole="button" key={c} onPress={() => choisir(c)} style={({ pressed }) => [styles.choix, pressed && styles.presse]}><Text style={styles.choixTxt}>{o}</Text></Pressable>
       ))}
-      {k > 0 ? <Pressable onPress={() => { if (k === N) setPause(false); setK(k - 1); }}><Text style={styles.retour}>{t.precedent}</Text></Pressable> : null}
+      {k > 0 ? <Pressable accessibilityRole="button" onPress={() => { if (k === N) setPause(false); setK(k - 1); }}><Text style={styles.retour}>{t.precedent}</Text></Pressable> : null}
     </>
   );
 }
@@ -265,7 +265,7 @@ function Resultats({ Q, N, t, x, onNouveau }: { Q: Q[]; N: number; t: Record<str
 }
 
 const styles = StyleSheet.create({
-  contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   centre: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: COULEURS.fond },
   intro: { fontSize: 15, lineHeight: 22, color: COULEURS.texte, marginBottom: 10 },
   label: { fontSize: 14, fontWeight: '600', color: COULEURS.texte, marginTop: 8, marginBottom: 6 },

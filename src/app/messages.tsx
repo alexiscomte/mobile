@@ -15,11 +15,12 @@
 // Textes : ui.json messages (messages.js du site, app_moteurs.py).
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
 import { Bouton, Champ, F } from '@/components/form';
 import { Invitation, ListeConnexions, Pastille, Repliable, UI_M, dateHeure, dateJour, type TX } from '@/components/espace';
 import { noterNonLus, oublierSession } from '@/compte';
+import { erreur as vibrerErreur, succes } from '@/haptique';
 import { fmt } from '@/i18n';
 import { changerEtat, envoyer, fils as lireFils, garderBrouillon, historique, marquerLu, oublierTrace, preferenceMail, repondre, type Brouillon, type Connexion, type Fil, type Rep } from '@/messages';
 import ui from '@/moteur/ui.json';
@@ -60,7 +61,7 @@ function BlocAdmin({ f, t, lg, sessionFinie }: { f: Fil; t: TX; lg: string; sess
           <Text style={F.texte} selectable>
             {fmt(t.compteNo, String(k.id !== undefined ? k.id : f.compte_id)) + ' · ' + (k.courriel || f.courriel || '') + (k.cree ? ' · ' + fmt(t.compteCree, dateJour(k.cree, lg)) : '')}
           </Text>
-          <Text style={F.h3}>{t.connexionsTitre}</Text>
+          <Text style={F.h3} accessibilityRole="header">{t.connexionsTitre}</Text>
           <ListeConnexions liste={etat.liste} admin lg={lg} />
         </>
       ) : null}
@@ -98,6 +99,7 @@ function CarteFil({ f, admin, t, lg, recharger, sessionFinie }: { f: Fil; admin:
     setOccupe(false);
     if (j.statut === 401) { sessionFinie(); return; }
     if (!j.ok) { setStatut(erreur(t, j)); return; }
+    succes();
     setTexte(''); setNoteB('');                    // le serveur a effacé le brouillon de ce fil
     setStatut(t.repEnvoyee + (admin && j.mailDemande ? ' ' + (j.mail ? t.mailEnvoye : t.mailNon) : ''));
     setAjouts((a) => [...a, { auteur: admin ? 'admin' : 'membre', texte: x, cree: new Date().toISOString() }]);
@@ -171,6 +173,7 @@ export default function Messages() {
   const [fin, setFin] = useState(false);       // session refusée par le serveur : l'invitation le dit
   const [brouillon, setBrouillon] = useState<Brouillon | null>(null);   // brouillon du nouveau message gardé sur le serveur
   const [noteB, setNoteB] = useState('');
+  const [rafraichit, setRafraichit] = useState(false);   // tirer vers le bas : fils relus
   const router = useRouter();
   const session = compte ? compte.session : '';
 
@@ -221,7 +224,8 @@ export default function Messages() {
     setEnvoi(false);
     if (j.statut === 401) { setStatut(''); sessionFinie(); return; }
     if (j.statut === 403 && j.erreur === 'admin') { setStatut(t.adminEcrire); return; }
-    if (!j.ok) { setStatut(erreur(t, j)); return; }
+    if (!j.ok) { vibrerErreur(); setStatut(erreur(t, j)); return; }
+    succes();
     setSujet(''); setTexte(''); setNoteB(''); setBrouillon(null);     // le serveur a effacé le brouillon du nouveau message
     setStatut(t.envoye);
     recharger();
@@ -236,15 +240,16 @@ export default function Messages() {
   return (
     <>
       <Stack.Screen options={{ title: (UI_E[langue] || UI_E.fr).ongMessages }} />
-      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive"
+        refreshControl={compte ? <RefreshControl refreshing={rafraichit} tintColor={COULEURS.primaire} onRefresh={() => { setRafraichit(true); recharger().finally(() => setRafraichit(false)); }} /> : undefined}>
         {!compte ? (
           <>
-            <Text style={F.h2}>{t.ecrire}</Text>
+            <Text style={F.h2} accessibilityRole="header">{t.ecrire}</Text>
             <Invitation texte={fin ? t.sessionFinie : t.connecteSeul} lg={langue} />
           </>
         ) : !admin ? (
           <>
-            <Text style={F.h2}>{t.ecrire}</Text>
+            <Text style={F.h2} accessibilityRole="header">{t.ecrire}</Text>
             <Champ label={t.nom} value={nom} onChangeText={changerNom} maxLength={80} autoComplete="name" />
             <Champ label={t.sujet} value={sujet} onChangeText={setSujet} maxLength={150} />
             <Text style={F.label}>{t.message}</Text>
@@ -259,7 +264,7 @@ export default function Messages() {
 
         {compte ? (
           <>
-            <Text style={F.h2}>{admin ? t.boite : t.vosFils}</Text>
+            <Text style={F.h2} accessibilityRole="header">{admin ? t.boite : t.vosFils}</Text>
             {aValider ? <Bouton titre={fmt(t.aValider, String(aValider))} onPress={() => ouvrir(router, url('admin/reponses.html'), fmt(t.aValider, String(aValider)))} /> : null}
             <View style={styles.option}>
               <Text style={[F.texte, styles.flex]}>{admin ? t.nonLusSeuls : t.prefMail}</Text>

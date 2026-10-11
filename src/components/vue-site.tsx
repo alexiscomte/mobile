@@ -67,7 +67,7 @@ export const VueSite = React.forwardRef<VueSiteRef, Props>(function VueSite({ ur
       {erreur ? (
         <View style={styles.horsLigne}>
           <Text style={styles.horsLigneTxt}>{T.horsLigne}</Text>
-          <Pressable style={styles.bouton} onPress={() => { setErreur(false); setCle((k) => k + 1); }}>
+          <Pressable accessibilityRole="button" style={styles.bouton} onPress={() => { setErreur(false); setCle((k) => k + 1); }}>
             <Text style={styles.boutonTxt}>{T.reessayer}</Text>
           </Pressable>
         </View>

@@ -88,14 +88,14 @@ export default function EcranArticle() {
       if (outil) {
         const route = ROUTES[outil] || (outil === 'outil' && chemin ? routeDePage(chemin, langue) : undefined) || (outil === 'autres' && chemin ? routeAutres(chemin, langue) : undefined);
         return (
-          <Pressable onPress={() => (route ? router.push(route as never) : enLigne())} style={styles.marqueur}>
+          <Pressable accessibilityRole="button" onPress={() => (route ? router.push(route as never) : enLigne())} style={styles.marqueur}>
             <Text style={styles.marqueurTxt}>{route ? T3.ouvrirOutil : T3.enLigne} →</Text>
           </Pressable>
         );
       }
       if (quiz) {
         return (
-          <Pressable onPress={() => router.push({ pathname: '/quiz', params: { id: quiz } })} style={styles.marqueur}>
+          <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/quiz', params: { id: quiz } })} style={styles.marqueur}>
             <Text style={styles.marqueurTxt}>{T3.faireQuiz} →</Text>
           </Pressable>
         );
@@ -122,17 +122,17 @@ export default function EcranArticle() {
         {a === null ? (
           <View>
             <Text style={styles.erreur}>{T3.introuvable}</Text>
-            <Pressable onPress={enLigne} style={styles.bouton}><Text style={styles.boutonTxt}>{T3.enLigne}</Text></Pressable>
+            <Pressable accessibilityRole="button" onPress={enLigne} style={styles.bouton}><Text style={styles.boutonTxt}>{T3.enLigne}</Text></Pressable>
           </View>
         ) : null}
         {a ? (
           <>
             {/* fil d'Ariane, puis à droite pouce « j'aime » (et compteur) et icône de partage natif : comme la barre du site (09/10/2026) */}
             <Pouce u={chemin} titre={a.h1 || a.t} fil={a.fil} partager={partager} libellePartage={T.partagerPage} />
-            <Text style={styles.h1}>{a.h1 || a.t}</Text>
+            <Text style={styles.h1} accessibilityRole="header">{a.h1 || a.t}</Text>
             {a.lead ? <Text style={styles.lead}>{a.lead}</Text> : null}
             <RenderHtml
-              contentWidth={width - 32}
+              contentWidth={Math.min(width, 760) - 32}
               source={{ html: htmlLocal }}
               baseStyle={rendu.base}
               tagsStyles={rendu.tags}
@@ -152,10 +152,10 @@ export default function EcranArticle() {
               defaultTextProps={{ selectable: true }}
             />
             {sondage ? (
-              <Pressable onPress={() => router.push('/sondages')} style={styles.marqueur}><Text style={styles.marqueurTxt}>{T3.etVous} →</Text></Pressable>
+              <Pressable accessibilityRole="button" onPress={() => router.push('/sondages')} style={styles.marqueur}><Text style={styles.marqueurTxt}>{T3.etVous} →</Text></Pressable>
             ) : null}
             {a.maj ? <Text style={styles.maj}>{a.maj}</Text> : null}
-            <Pressable onPress={enLigne} style={styles.boutonSec}><Text style={styles.boutonSecTxt}>{T3.enLigne}</Text></Pressable>
+            <Pressable accessibilityRole="button" onPress={enLigne} style={styles.boutonSec}><Text style={styles.boutonSecTxt}>{T3.enLigne}</Text></Pressable>
           </>
         ) : null}
         </View>
@@ -199,7 +199,7 @@ return { base, tags, classes };
 }
 
 const styles = StyleSheet.create({
-  contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   h1: { fontSize: 26, lineHeight: 33, fontWeight: '800', color: COULEURS.primaire, marginBottom: 8 },
   lead: { fontSize: 17, lineHeight: 25, color: COULEURS.texteMuet, marginBottom: 14 },
   maj: { color: COULEURS.texteMuet, fontSize: 12, marginTop: 10 },

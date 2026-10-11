@@ -57,12 +57,12 @@ export default function Horoscope() {
         ) : (
           <View style={styles.bandeau}>
             <Text style={styles.bandeauTxt}>{T2.sansDate}</Text>
-            <Pressable onPress={() => router.push('/(tabs)/moi')} style={styles.lien}><Text style={styles.lienTxt}>{T2.renseigner} →</Text></Pressable>
+            <Pressable accessibilityRole="button" onPress={() => router.push('/(tabs)/moi')} style={styles.lien}><Text style={styles.lienTxt}>{T2.renseigner} →</Text></Pressable>
           </View>
         )}
 
         {miens ? (
-          <Pressable onPress={() => setTous((v) => !v)} style={({ pressed }) => [styles.bouton, pressed && styles.presse]}>
+          <Pressable accessibilityRole="button" onPress={() => setTous((v) => !v)} style={({ pressed }) => [styles.bouton, pressed && styles.presse]}>
             <Text style={styles.boutonTxt}>{tous ? T2.masquerAutres : T2.autresSignes}</Text>
           </Pressable>
         ) : null}
@@ -87,7 +87,7 @@ export default function Horoscope() {
           const premier = chinoisDuJour(TC, 0, maintenant);
           return (
             <>
-              <Text style={styles.sectionTitre}>{TITRE_CH[langue] || TITRE_CH.fr}</Text>
+              <Text style={styles.sectionTitre} accessibilityRole="header">{TITRE_CH[langue] || TITRE_CH.fr}</Text>
               <Text style={styles.entete}>{premier.entete}</Text>
               {animaux.map((a) => {
                 const h = chinoisDuJour(TC, a, maintenant);
@@ -113,7 +113,7 @@ export default function Horoscope() {
 }
 
 const styles = StyleSheet.create({
-  contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   entete: { color: COULEURS.texteMuet, fontSize: 14, marginBottom: 12 },
   bandeau: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, padding: 14, marginBottom: 12 },
   bandeauTitre: { color: 'rgba(255,255,255,0.8)', fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 },

@@ -72,10 +72,10 @@ export default function Signes() {
             {r.known && !r.lieu ? (
               <View style={F.encadre}>
                 <Text style={F.texte}>{T1.lieuNaissanceTxt}</Text>
-                <Pressable onPress={() => ouvrir(router, urlPage('horoscope', langue), page('horoscope', langue).t, 'espace')}><Text style={F.lien}>{T1.lieuBouton}</Text></Pressable>
+                <Pressable accessibilityRole="button" onPress={() => ouvrir(router, urlPage('horoscope', langue), page('horoscope', langue).t, 'espace')}><Text style={F.lien}>{T1.lieuBouton}</Text></Pressable>
               </View>
             ) : null}
-            <Text style={F.h2}>{U.lecture || ''}</Text>
+            <Text style={F.h2} accessibilityRole="header">{U.lecture || ''}</Text>
             <Text style={F.texte}><Text style={F.gras}>{U.soleil}</Text> — {T.soleil[ASTRO.sign(r.sun)]}</Text>
             {r.luneSure ? <Text style={F.texte}><Text style={F.gras}>{U.lune_s}</Text> — {T.lune[ASTRO.sign(r.moon)]}</Text> : null}
             {r.asc !== null ? <Text style={F.texte}><Text style={F.gras}>{U.asc}</Text> — {T.ascendant[ASTRO.sign(r.asc)]}</Text> : null}

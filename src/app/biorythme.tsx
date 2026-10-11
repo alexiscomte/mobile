@@ -63,11 +63,11 @@ export default function Biorythme() {
   return (
     <>
       <Stack.Screen options={{ title: t.titre }} />
-      <ScrollView contentContainerStyle={styles.contenu} onLayout={(e) => setLargeur(e.nativeEvent.layout.width - 32)}>
+      <ScrollView contentContainerStyle={styles.contenu} onLayout={(e) => setLargeur(Math.min(e.nativeEvent.layout.width, 760) - 32)}>
         {!r ? (
           <View style={styles.bandeau}>
             <Text style={styles.bandeauTxt}>{T2.sansDate}</Text>
-            <Pressable onPress={() => router.push('/(tabs)/moi')}><Text style={styles.lien}>{T2.renseigner} →</Text></Pressable>
+            <Pressable accessibilityRole="button" onPress={() => router.push('/(tabs)/moi')}><Text style={styles.lien}>{T2.renseigner} →</Text></Pressable>
           </View>
         ) : (
           <>
@@ -106,7 +106,7 @@ export default function Biorythme() {
 }
 
 const styles = StyleSheet.create({
-  contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   bandeau: { backgroundColor: COULEURS.primairePlein, borderRadius: 12, padding: 14, marginBottom: 14 },
   bandeauTitre: { color: 'rgba(255,255,255,0.8)', fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 },
   bandeauTxt: { color: '#fff', fontSize: 16, fontWeight: '600' },

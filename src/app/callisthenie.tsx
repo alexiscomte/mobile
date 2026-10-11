@@ -73,7 +73,7 @@ export default function Callisthenie() {
   return (
     <>
       <Stack.Screen options={{ title: page('callisthenie', langue).t }} />
-      <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         {!fini ? (
           <View>
             <Text style={styles.etape}>{fmt(T.ui.etape, [etape + 1, QS.length])}</Text>
@@ -102,7 +102,7 @@ export default function Callisthenie() {
           </View>
         ) : P && N ? (
           <View>
-            <Text style={styles.titre}>{T.plan.titre}</Text>
+            <Text style={styles.titre} accessibilityRole="header">{T.plan.titre}</Text>
             <Text style={styles.p}>{fmt(T.plan.resume, [r.freq!, r.duree!, T.niv_nom[r.niv!], T.obj_nom[r.obj!]])}{r.duo === 'duo' ? T.plan.resume_duo : ''}</Text>
             {P.seances.map((s, i) => (
               <View key={i} style={styles.seance}>
@@ -147,7 +147,7 @@ export default function Callisthenie() {
             {r.gene !== 'aucun' ? <><Text style={styles.h3}>{T.plan.gene_titre}</Text><Text style={styles.p}>{T.plan.gene[r.gene!]}</Text></> : null}
             <Text style={styles.h3}>{T.plan.conseils_titre}</Text>
             {T.plan.conseils.map((x, k) => <Text key={k} style={styles.puce}>• {x}</Text>)}
-            <Text style={styles.titre}>{T.nut.titre}</Text>
+            <Text style={styles.titre} accessibilityRole="header">{T.nut.titre}</Text>
             {N.kcal ? (
               <>
                 <Text style={styles.p}>{fmt(T.nut.kcal, [N.kcal, N.cible!])} {T.nut.kcal_detail[r.obj!]}.</Text>
@@ -179,7 +179,7 @@ export default function Callisthenie() {
 }
 
 const styles = StyleSheet.create({
-  contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   etape: { fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase', color: COULEURS.texteMuet, marginBottom: 6 },
   question: { fontSize: 19, fontWeight: '700', color: COULEURS.primaireFonce, marginBottom: 12 },
   rangee: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },

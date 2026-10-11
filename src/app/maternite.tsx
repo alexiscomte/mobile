@@ -53,15 +53,15 @@ export default function Maternite() {
   return (
     <>
       <Stack.Screen options={{ title: page('maternite', langue).t }} />
-      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled">
-        <Text style={F.h2}>{T.ou}</Text>
+      <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
+        <Text style={F.h2} accessibilityRole="header">{T.ou}</Text>
         <ChoixLieu langue={langue} valeur={lieu} onChange={setLieu} labelPays={T3.pays} labelVille={T3.ville} />
         <Bouton titre={T.go} onPress={go} disabled={enCours} />
         <Bouton titre={T.position} onPress={position} secondaire disabled={enCours} />
         {msg ? <View style={styles.etat}>{enCours ? <ActivityIndicator color={COULEURS.primaire} /> : null}<Text style={styles.etatTxt}>{msg}</Text></View> : null}
         {out ? (
           <>
-            <Text style={F.h2}>{out.fr ? fmt(T.resultats, out.liste.length) : T.osm_titre}</Text>
+            <Text style={F.h2} accessibilityRole="header">{out.fr ? fmt(T.resultats, out.liste.length) : T.osm_titre}</Text>
             {out.note ? <View style={F.encadre}><Text style={F.texte}>{out.note}</Text></View> : null}
             {out.liste.map((e, i) => (
               <View key={i} style={F.ligne}>
@@ -77,9 +77,9 @@ export default function Maternite() {
                     <Text style={styles.meta}>{[e.adresse, e.tel].filter(Boolean).join(' · ')}</Text>
                   )}
                   <View style={styles.liens}>
-                    <Pressable onPress={() => itineraire(e.lat, e.lon)}><Text style={F.lien}>{T.itin}</Text></Pressable>
-                    <Pressable onPress={() => carte(e.lat, e.lon)}><Text style={F.lien}>{T.carte}</Text></Pressable>
-                    {e.site ? <Pressable onPress={() => Linking.openURL(e.site as string)}><Text style={F.lien}>site</Text></Pressable> : null}
+                    <Pressable accessibilityRole="button" onPress={() => itineraire(e.lat, e.lon)}><Text style={F.lien}>{T.itin}</Text></Pressable>
+                    <Pressable accessibilityRole="button" onPress={() => carte(e.lat, e.lon)}><Text style={F.lien}>{T.carte}</Text></Pressable>
+                    {e.site ? <Pressable accessibilityRole="button" onPress={() => Linking.openURL(e.site as string)}><Text style={F.lien}>site</Text></Pressable> : null}
                   </View>
                 </View>
               </View>

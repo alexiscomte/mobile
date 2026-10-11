@@ -9,6 +9,7 @@
 // Administrateur seulement (07/10/2026 nuit, cahier specs/admin-cle-0710.md ; entrée « a » du menu du site) : après un trait, « Réponses à
 // valider » avec le nombre ap.compte.a_valider (présence, messagerie, page de validation) ; elle ouvre la page de validation du site
 // (admin/reponses.html) dans la vue web avec la session : la validation reste sur le site.
+import * as Application from 'expo-application';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -23,6 +24,7 @@ import { TEXTES4 } from '@/i18n4';
 import { toutTelecharger } from '@/moteur/contenu';
 import ui from '@/moteur/ui.json';
 import { ouvrir, ouvrirCle } from '@/nav';
+import { choix } from '@/haptique';
 import { useProfil } from '@/profil';
 import { page, SITE, url } from '@/site';
 import { COULEURS } from '@/theme';
@@ -71,13 +73,14 @@ export default function Moi() {
   };
   const confirmerEffacer = () => {
     if (Platform.OS === 'web') { effacer(); return; }
-    Alert.alert(T.effacer, T.effacerConfirm + (compte ? '\n\n' + T4.effacerCompte : ''), [{ text: T.non, style: 'cancel' }, { text: T.oui, style: 'destructive', onPress: () => effacer() }]);
+    // alerte d'Apple : « Annuler » à gauche, le bouton destructif nommé par son action (pas « Oui / Non »)
+    Alert.alert(T.effacer, T.effacerConfirm + (compte ? '\n\n' + T4.effacerCompte : ''), [{ text: TC.annuler || T.non, style: 'cancel' }, { text: T.effacer, style: 'destructive', onPress: () => effacer() }]);
   };
 
   return (
     <SafeAreaView style={styles.fond} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled">
-        <Text style={styles.titre}>{E.espTitre}</Text>
+      <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
+        <Text style={styles.titre} accessibilityRole="header">{E.espTitre}</Text>
 
         {compte ? (
           <View style={styles.etat}>
@@ -115,7 +118,8 @@ export default function Moi() {
         <Titre>{T.langue}</Titre>
         <View style={styles.langues}>
           {LANGUES.map((lg: Langue) => (
-            <Pressable key={lg} onPress={() => setLangue(lg)} style={[styles.langue, lg === langue && styles.langueActive]}>
+            <Pressable accessibilityRole="button" accessibilityState={{ selected: lg === langue }} key={lg} hitSlop={{ top: 6, bottom: 6 }}
+              onPress={() => { if (lg !== langue) { choix(); setLangue(lg); } }} style={[styles.langue, lg === langue && styles.langueActive]}>
               <Text style={[styles.langueTxt, lg === langue && styles.langueTxtActive]}>{NOMS_LANGUES[lg]}</Text>
             </Pressable>
           ))}
@@ -123,10 +127,10 @@ export default function Moi() {
 
         <Titre>{T.infos}</Titre>
         <Text style={styles.aide}>{T3.horsLigneTxt}</Text>
-        <Pressable style={({ pressed }) => [styles.boutonSec, pressed && styles.presse]} onPress={telecharger}>
+        <Pressable accessibilityRole="button" style={({ pressed }) => [styles.boutonSec, pressed && styles.presse]} onPress={telecharger}>
           <Text style={styles.boutonSecTxt}>{T3.telecharger}</Text>
         </Pressable>
-        {progression ? <Text style={styles.progression}>{progression}</Text> : null}
+        {progression ? <Text style={styles.progression} accessibilityLiveRegion="polite">{progression}</Text> : null}
 
         <Titre>{T.aPropos}</Titre>
         <Text style={styles.aide}>{T.aProposTxt}</Text>
@@ -149,10 +153,10 @@ export default function Moi() {
           </>
         ) : null}
 
-        <Pressable style={({ pressed }) => [styles.boutonDanger, pressed && styles.presse]} onPress={confirmerEffacer}>
+        <Pressable accessibilityRole="button" style={({ pressed }) => [styles.boutonDanger, pressed && styles.presse]} onPress={confirmerEffacer}>
           <Text style={styles.boutonDangerTxt}>{T.effacer}</Text>
         </Pressable>
-        <Text style={styles.version}>{T.version} 1.0.0</Text>
+        <Text style={styles.version}>{T.version} {Application.nativeApplicationVersion || '1.0.0'}{Application.nativeBuildVersion ? ' (' + Application.nativeBuildVersion + ')' : ''}</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -160,8 +164,8 @@ export default function Moi() {
 
 const styles = StyleSheet.create({
   fond: { flex: 1, backgroundColor: COULEURS.fond },
-  contenu: { padding: 16, paddingBottom: 110 },
-  titre: { fontSize: 28, fontWeight: '800', color: COULEURS.primaire, marginBottom: 10 },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 110 },
+  titre: { fontSize: 34, lineHeight: 41, fontWeight: '800', color: COULEURS.primaire, marginBottom: 10 },
   etat: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: COULEURS.fondDoux, borderRadius: 12, padding: 12 },
   pastille: { width: 10, height: 10, borderRadius: 5 },
   flex: { flex: 1 },

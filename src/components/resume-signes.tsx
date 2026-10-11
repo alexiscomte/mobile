@@ -29,16 +29,16 @@ export function ResumeSignes({ clair }: { clair?: boolean }) {
   const c = clair ? styles.clair : styles.sombre;
   return (
     <View style={styles.bloc}>
-      <Pressable onPress={() => router.push('/horoscope')} accessibilityHint={T2.tipHoroscope} style={styles.medaillons}>
+      <Pressable accessibilityRole="button" onPress={() => router.push('/horoscope')} accessibilityHint={T2.tipHoroscope} style={styles.medaillons}>
         <Illustration image={ZODIAQUE[r.s.soleil]} taille={44} rond alt={TA.signes[r.s.soleil]} />
         <Illustration image={CHINOIS[r.s.chinois.animal]} taille={44} rond style={styles.second} alt={TA.chinois.animaux[r.s.chinois.animal]} />
       </Pressable>
       <View style={styles.ligne}>
-        <Pressable onPress={() => router.push('/horoscope')} accessibilityHint={T2.tipHoroscope}>
+        <Pressable accessibilityRole="button" onPress={() => router.push('/horoscope')} accessibilityHint={T2.tipHoroscope}>
           <Text style={[styles.item, c]}>{TA.signes[r.s.soleil]} · {TA.chinois.animaux[r.s.chinois.animal]}{r.s.ascendant !== null ? ` · ${T2.ascendant.toLowerCase()} ${TA.signes[r.s.ascendant]}` : ''}</Text>
         </Pressable>
         {r.forme >= 0 ? (
-          <Pressable onPress={() => router.push('/biorythme')} accessibilityHint={T2.tipBio}>
+          <Pressable accessibilityRole="button" onPress={() => router.push('/biorythme')} accessibilityHint={T2.tipBio}>
             <Text style={[styles.item, c]}>· {T2.forme} : {T2.niveaux[r.forme]}</Text>
           </Pressable>
         ) : null}

@@ -63,12 +63,12 @@ export default function Compteur() {
   return (
     <>
       <Stack.Screen options={{ title: page('compteur', langue).t }} />
-      <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <Text style={styles.label}>{t.rencontre}</Text>{champDate(rencontre, setRencontre)}
         <Text style={styles.label}>{t.mariage}</Text>{champDate(mariage, setMariage)}
         <Text style={styles.label}>{t.noms}</Text>
         <TextInput style={styles.entree} value={noms} onChangeText={setNoms} maxLength={60} />
-        <Pressable style={({ pressed }) => [styles.bouton, pressed && styles.presse]} onPress={calculer}><Text style={styles.boutonTxt}>{t.go}</Text></Pressable>
+        <Pressable accessibilityRole="button" style={({ pressed }) => [styles.bouton, pressed && styles.presse]} onPress={calculer}><Text style={styles.boutonTxt}>{t.go}</Text></Pressable>
         <Text style={styles.note}>{t.note}</Text>
         {erreur ? <Text style={styles.erreur}>{erreur}</Text> : null}
         {res ? (
@@ -80,7 +80,7 @@ export default function Compteur() {
             <Text style={styles.sousTitre}>{t.anniv}</Text>
             <Text style={styles.texte}>{res.anniv}</Text>
             {res.noces ? <><Text style={styles.sousTitre}>{t.noces}</Text><Text style={styles.texte}>{res.noces}</Text></> : null}
-            <Pressable style={({ pressed }) => [styles.boutonSec, pressed && styles.presse]} onPress={() => Share.share({ message: res.texte + ' ' + SITE + page('compteur', langue).u }).catch(() => undefined)}>
+            <Pressable accessibilityRole="button" style={({ pressed }) => [styles.boutonSec, pressed && styles.presse]} onPress={() => Share.share({ message: res.texte + ' ' + SITE + page('compteur', langue).u }).catch(() => undefined)}>
               <Text style={styles.boutonSecTxt}>{t.partager}</Text>
             </Pressable>
           </>
@@ -91,7 +91,7 @@ export default function Compteur() {
 }
 
 const styles = StyleSheet.create({
-  contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   label: { fontSize: 15, fontWeight: '600', color: COULEURS.texte, marginTop: 10, marginBottom: 6 },
   entree: { backgroundColor: COULEURS.fondDoux, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, fontSize: 17, color: COULEURS.texte },
   picker: { alignSelf: 'flex-start', marginLeft: -8 },

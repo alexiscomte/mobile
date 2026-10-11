@@ -35,7 +35,7 @@ export default function Astro() {
   return (
     <SafeAreaView style={styles.fond} edges={['top']}>
       <ScrollView contentContainerStyle={styles.contenu}>
-        <Text style={styles.titre}>{T.astroTitre}</Text>
+        <Text style={styles.titre} accessibilityRole="header">{T.astroTitre}</Text>
         <Text style={styles.intro}>{T.astroIntro}</Text>
         {OUTILS.map(({ cle, sf, route, params, image }) => {
           const p = page(cle, langue);
@@ -51,7 +51,7 @@ export default function Astro() {
 
 const styles = StyleSheet.create({
   fond: { flex: 1, backgroundColor: COULEURS.fond },
-  contenu: { padding: 16, paddingBottom: 110 },
-  titre: { fontSize: 28, fontWeight: '800', color: COULEURS.primaire },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 110 },
+  titre: { fontSize: 34, lineHeight: 41, fontWeight: '800', color: COULEURS.primaire },
   intro: { fontSize: 15, color: COULEURS.texteMuet, marginBottom: 10 },
 });

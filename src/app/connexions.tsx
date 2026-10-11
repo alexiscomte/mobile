@@ -5,7 +5,7 @@
 // passe], lien vers l'écran « Changer mon mot de passe » (/mot-de-passe). Écran ouvert depuis une carte de « Mes outils » (plus dans le menu).
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { Invitation, ListeConnexions, PAGES_ESPACE, TexteCrochet, UI_E, UI_M } from '@/components/espace';
 import { F } from '@/components/form';
@@ -36,7 +36,8 @@ export default function MesConnexions() {
   return (
     <>
       <Stack.Screen options={{ title: E.ongConnexions }} />
-      <ScrollView contentContainerStyle={F.contenu}>
+      <ScrollView contentContainerStyle={F.contenu}
+        refreshControl={compte ? <RefreshControl refreshing={false} tintColor={COULEURS.primaire} onRefresh={() => { charger(); }} /> : undefined}>
         <Text style={styles.lead}>{P.lead}</Text>
         {!compte ? <Invitation texte={t.histConnecter} lg={langue} /> : (
           <>

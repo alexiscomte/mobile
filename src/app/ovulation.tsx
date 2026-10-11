@@ -38,7 +38,7 @@ export default function Ovulation() {
   return (
     <>
       <Stack.Screen options={{ title: page('ovulation', langue).t }} />
-      <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <Text style={styles.label}>{t.regles}</Text>
         {Platform.OS === 'web' ? (
           <TextInput style={styles.entree} value={regles} onChangeText={setRegles} placeholder="AAAA-MM-JJ" placeholderTextColor={COULEURS.texteMuet} />
@@ -47,12 +47,12 @@ export default function Ovulation() {
         )}
         <Text style={styles.label}>{t.cycle}</Text>
         <TextInput style={styles.entree} value={cycle} onChangeText={setCycle} keyboardType="number-pad" maxLength={2} />
-        <Pressable style={({ pressed }) => [styles.bouton, pressed && styles.presse]} onPress={calculer}><Text style={styles.boutonTxt}>{t.go}</Text></Pressable>
+        <Pressable accessibilityRole="button" style={({ pressed }) => [styles.bouton, pressed && styles.presse]} onPress={calculer}><Text style={styles.boutonTxt}>{t.go}</Text></Pressable>
         <Text style={styles.note}>{t.note}</Text>
         {erreur ? <Text style={styles.erreur}>{t.manque}</Text> : null}
         {res ? (
           <View style={styles.resultat}>
-            <Text style={styles.titre}>{t.titre}</Text>
+            <Text style={styles.titre} accessibilityRole="header">{t.titre}</Text>
             {/* frise du premier cycle : règles, fenêtre fertile, jour d'ovulation (schéma exact, components/schemas.tsx) */}
             <FriseCycle c={parseInt(cycle, 10)} legendes={{ regles: t.regles_s, fenetre: t.fenetre, ovulation: t.ovu }} />
             {res.map((r) => (
@@ -73,7 +73,7 @@ export default function Ovulation() {
 }
 
 const styles = StyleSheet.create({
-  contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   label: { fontSize: 15, fontWeight: '600', color: COULEURS.texte, marginTop: 10, marginBottom: 6 },
   entree: { backgroundColor: COULEURS.fondDoux, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, fontSize: 17, color: COULEURS.texte },
   picker: { alignSelf: 'flex-start', marginLeft: -8 },

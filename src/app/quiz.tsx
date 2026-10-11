@@ -4,12 +4,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 
 import { Banniere, Illustration } from '@/components/illustration';
-import { TEXTES } from '@/i18n';
+import { TEXTES, type Langue } from '@/i18n';
 import { ARCHETYPES } from '@/images';
 import { bilanQcm, chargerQuiz, lireScores, memoriserScore, resultatTest, teste, texteHtml, type Quiz, type Reponse, type Score } from '@/moteur/quiz';
 import { useProfil } from '@/profil';
 import { imageLocale } from '@/embarque';
 import { page, SITE } from '@/site';
+import { choix, erreur as vibrerErreur, succes } from '@/haptique';
 import { COULEURS } from '@/theme';
 
 export default function EcranQuiz() {
@@ -44,7 +45,7 @@ export default function EcranQuiz() {
             {qs.map((q) => {
               const sc = scores[q.id];
               return (
-                <Pressable key={q.id} onPress={() => router.push({ pathname: '/quiz', params: { id: q.id } })} style={({ pressed }) => [styles.ligne, pressed && styles.presse]}>
+                <Pressable accessibilityRole="button" key={q.id} onPress={() => router.push({ pathname: '/quiz', params: { id: q.id } })} style={({ pressed }) => [styles.ligne, pressed && styles.presse]}>
                   <Text style={styles.ligneTxt}>{q.m === 'qcm' ? 'QCM' : 'Test'} · {q.d.questions.length} {q.m === 'qcm' && sc ? `· ${sc.s}/${sc.n}` : ''}</Text>
                   <Text style={styles.chevron}>›</Text>
                 </Pressable>
@@ -85,7 +86,7 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
           <Text style={styles.texte}>{texteHtml(lot.corps)}</Text>
           {rates.length ? <><Text style={styles.sousTitre}>{texteHtml(d.revoir || '')}</Text>{rates.map((r, k) => <Text key={k} style={styles.texte}>• {texteHtml(r)}</Text>)}</> : null}
           <Bouton titre={texteHtml(d.refaire || '↻')} onPress={recommencer} />
-          <Bouton secondaire titre="↗" onPress={() => Share.share({ message: `${bons}/${d.questions.length} — ${quiz.t} — ${SITE}${quiz.u}` }).catch(() => undefined)} />
+          <Bouton secondaire titre="↗" label={(TEXTES[langue as Langue] || TEXTES.fr).partagerPage} onPress={() => Share.share({ message: `${bons}/${d.questions.length} — ${quiz.t} — ${SITE}${quiz.u}` }).catch(() => undefined)} />
           <Text style={styles.note}>{texteHtml(d.note || '')}</Text>
         </Ecran>
       );
@@ -115,13 +116,13 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
         <Text style={styles.question}>{texteHtml(q.q)}</Text>
         {correction ? (
           <>
-            <Text style={[styles.verdict, correction.juste ? styles.bon : styles.faux]}>{texteHtml(correction.juste ? d.juste || '✓' : d.errone || '✗')}</Text>
+            <Text style={[styles.verdict, correction.juste ? styles.bon : styles.faux]} accessibilityLiveRegion="polite">{texteHtml(correction.juste ? d.juste || '✓' : d.errone || '✗')}</Text>
             <Text style={styles.texte}>{correction.exp}</Text>
             <Bouton titre={texteHtml(i + 1 >= d.questions.length ? d.resultat || '→' : d.suivant || '→')} onPress={() => { setCorrection(null); if (i + 1 >= d.questions.length) setFini(true); else setI(i + 1); }} />
           </>
         ) : q.r.map((r, k) => (
-          <Pressable key={k} style={({ pressed }) => [styles.choix, pressed && styles.presse]} onPress={() => {
-            if (r.ok) setBons(bons + 1); else setRates([...rates, q.lien || q.q]);
+          <Pressable accessibilityRole="button" key={k} style={({ pressed }) => [styles.choix, pressed && styles.presse]} onPress={() => {
+            if (r.ok) { succes(); setBons(bons + 1); } else { vibrerErreur(); setRates([...rates, q.lien || q.q]); }
             setCorrection({ juste: !!r.ok, exp: texteHtml(q.exp || '') });
           }}><Text style={styles.choixTxt}>{texteHtml(r.t)}</Text></Pressable>
         ))}
@@ -135,15 +136,15 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
       <Text style={styles.question}>{texteHtml(q.q)}</Text>
       {q.aide ? <Text style={styles.aide}>{texteHtml(q.aide)}</Text> : null}
       {q.r.map((r, k) => (
-        <Pressable key={k} style={({ pressed }) => [styles.choix, pressed && styles.presse]} onPress={() => {
-          const sc = { ...score }; for (const c of Object.keys(r.p || {})) sc[c] = (sc[c] || 0) + (r.p as Record<string, number>)[c];
+        <Pressable accessibilityRole="button" key={k} style={({ pressed }) => [styles.choix, pressed && styles.presse]} onPress={() => {
+          choix(); const sc = { ...score }; for (const c of Object.keys(r.p || {})) sc[c] = (sc[c] || 0) + (r.p as Record<string, number>)[c];
           const nt = r.n ? [...notes, r.n] : notes;
           setScore(sc); setNotes(nt); setPile([...pile, { i, rep: r }]);
           const k2 = utile(i + 1, sc);
           if (k2 >= d.questions.length) setFini(true); else setI(k2);
         }}><Text style={styles.choixTxt}>{texteHtml(r.t)}</Text></Pressable>
       ))}
-      {pile.length ? <Pressable onPress={() => {
+      {pile.length ? <Pressable accessibilityRole="button" onPress={() => {
         const last = pile[pile.length - 1]; const sc = { ...score };
         for (const c of Object.keys(last.rep.p || {})) sc[c] -= (last.rep.p as Record<string, number>)[c];
         if (last.rep.n) { const nt = [...notes]; nt.splice(nt.lastIndexOf(last.rep.n), 1); setNotes(nt); }
@@ -156,16 +157,16 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
 function Ecran({ titre, children }: { titre: string; children: React.ReactNode }) {
   return (<><Stack.Screen options={{ title: titre }} /><ScrollView contentContainerStyle={styles.contenu}>{children}</ScrollView></>);
 }
-function Bouton({ titre, onPress, secondaire }: { titre: string; onPress: () => void; secondaire?: boolean }) {
+function Bouton({ titre, onPress, secondaire, label }: { titre: string; onPress: () => void; secondaire?: boolean; label?: string }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [secondaire ? styles.boutonSec : styles.bouton, pressed && styles.presse]}>
+    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={({ pressed }) => [secondaire ? styles.boutonSec : styles.bouton, pressed && styles.presse]}>
       <Text style={secondaire ? styles.boutonSecTxt : styles.boutonTxt}>{titre}</Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  contenu: { padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   erreur: { color: COULEURS.coeur },
   groupe: { marginBottom: 14 },
   groupeTitre: { fontSize: 16, fontWeight: '700', color: COULEURS.primaireFonce, marginBottom: 4 },

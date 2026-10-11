@@ -116,7 +116,7 @@ export default function MesInfos() {
   return (
     <>
       <Stack.Screen options={{ title: E.ongInfos }} />
-      <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <Text style={styles.label}>{T.prenom}</Text>
         <TextInput style={styles.entree} value={prenom} onChangeText={setPrenom} maxLength={40} autoComplete="given-name" autoCapitalize="words" />
         <Text style={styles.label}>{NF}</Text>
@@ -180,7 +180,7 @@ export default function MesInfos() {
 }
 
 const styles = StyleSheet.create({
-  contenu: { padding: 16, paddingBottom: 60 },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 60 },
   label: { fontSize: 15, fontWeight: '600', color: COULEURS.texte, marginTop: 14, marginBottom: 6 },
   entree: { backgroundColor: COULEURS.fondDoux, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, fontSize: 17, color: COULEURS.texte },
   picker: { alignSelf: 'flex-start', marginLeft: -8 },

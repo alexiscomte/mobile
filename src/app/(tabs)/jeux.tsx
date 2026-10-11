@@ -34,7 +34,7 @@ export default function Jeux() {
   return (
     <SafeAreaView style={styles.fond} edges={['top']}>
       <ScrollView contentContainerStyle={styles.contenu}>
-        <Text style={styles.titre}>{T.jeuxTitre}</Text>
+        <Text style={styles.titre} accessibilityRole="header">{T.jeuxTitre}</Text>
         <Text style={styles.intro}>{T.jeuxIntro}</Text>
         <View style={styles.grille}>
           <Carte large titre={page('jeu2', langue).t} texte={T.jeu2Txt} couleur={DEGRADES.jeux[0]} sf="person.2.fill" image={TUILES.jeu2} onPress={() => router.push('/jeu2')} />
@@ -55,8 +55,8 @@ export default function Jeux() {
 
 const styles = StyleSheet.create({
   fond: { flex: 1, backgroundColor: COULEURS.fond },
-  contenu: { padding: 16, paddingBottom: 110 },
-  titre: { fontSize: 28, fontWeight: '800', color: COULEURS.primaire },
+  contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 110 },
+  titre: { fontSize: 34, lineHeight: 41, fontWeight: '800', color: COULEURS.primaire },
   intro: { fontSize: 15, color: COULEURS.texteMuet, marginBottom: 14 },
   grille: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },
 });
