@@ -27,6 +27,8 @@ const ROUTES: Record<string, string> = { horoscope: '/horoscope', biorythme: '/b
 // conteneur generique div#outil : l'ecran natif se retrouve par la page du catalogue (02/10/2026 : plan callisthenique)
 const OUTILS_PAGE: Cle[] = ['ovulation', 'maternite', 'compteur', 'epoux', 'garde', 'callisthenie'];
 const routeDePage = (u: string, lg: Parameters<typeof page>[1]) => { const k = OUTILS_PAGE.find((c) => page(c, lg).u === u); return k ? '/' + k : undefined; };
+// pages « autres astrologies » (conteneur utres) : védique et maya ont leur écran (mode), la page de l'amour par signe chinois ouvre l'écran du signe chinois
+const routeAutres = (u: string, lg: Parameters<typeof page>[1]) => (page('maya', lg).u === u ? '/autres?mode=maya' : page('vedique', lg).u === u ? '/autres?mode=vedique' : '/chinois');
 const SONDAGES = (sondages as { sondages: { id: string; u: Record<string, string> }[] }).sondages;
 // éléments de bloc qui peuvent porter l'id visé par une ancre (sections des grosses pages droits, titres, FAQ, sources, sommaire)
 const BLOCS_ANCRE = ['section', 'h2', 'h3', 'h4', 'nav', 'details', 'p', 'ol', 'ul', 'table', 'figure', 'article'];
@@ -84,7 +86,7 @@ export default function EcranArticle() {
     r.div = ({ tnode, TDefaultRenderer, ...props }: any) => {
       const outil = tnode.attributes['data-app-outil'], quiz = tnode.attributes['data-app-quiz'];
       if (outil) {
-        const route = ROUTES[outil] || (outil === 'outil' && chemin ? routeDePage(chemin, langue) : undefined);
+        const route = ROUTES[outil] || (outil === 'outil' && chemin ? routeDePage(chemin, langue) : undefined) || (outil === 'autres' && chemin ? routeAutres(chemin, langue) : undefined);
         return (
           <Pressable onPress={() => (route ? router.push(route as never) : enLigne())} style={styles.marqueur}>
             <Text style={styles.marqueurTxt}>{route ? T3.ouvrirOutil : T3.enLigne} →</Text>
