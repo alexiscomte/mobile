@@ -5,9 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": ["affectionplus", "com.affectionplus.app"],
-    "userInterfaceStyle": "light",
-    "backgroundColor": "#FFFFFF",
+    "scheme": [
+      "affectionplus",
+      "com.affectionplus.app"
+    ],
+    "userInterfaceStyle": "automatic",
     "primaryColor": "#580378",
     "ios": {
       "bundleIdentifier": "com.affectionplus.app",
@@ -32,10 +34,44 @@
       },
       "scheme": [
         "com.googleusercontent.apps.271367624923-5cr1gk0rs0q9r86uj7q5m7llkfp45tlf"
-      ]
+      ],
+      "privacyManifests": {
+        "NSPrivacyTracking": false,
+        "NSPrivacyTrackingDomains": [],
+        "NSPrivacyAccessedAPITypes": [
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "CA92.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryFileTimestamp",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "C617.1",
+              "0A2A.1",
+              "3B52.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategorySystemBootTime",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "35F9.1"
+            ]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryDiskSpace",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "E174.1",
+              "85F4.1"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "package": "com.affectionplus.app",
+      "userInterfaceStyle": "light",
       "adaptiveIcon": {
         "backgroundColor": "#580378",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -63,13 +99,28 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Votre position sert uniquement à trouver la maternité la plus proche ; elle n'est ni envoyée ni conservée."
+          "locationWhenInUsePermission": "Votre position sert une seule fois à trouver la maternité la plus proche ; elle n'est ni envoyée ni conservée.",
+          "locationAlwaysAndWhenInUsePermission": false,
+          "locationAlwaysPermission": false,
+          "motionUsagePermission": false,
+          "isIosBackgroundLocationEnabled": false
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "locales": {
+      "fr": "./locales/fr.json",
+      "en": "./locales/en.json",
+      "de": "./locales/de.json",
+      "es": "./locales/es.json",
+      "it": "./locales/it.json",
+      "pt": "./locales/pt.json",
+      "nl": "./locales/nl.json",
+      "pl": "./locales/pl.json",
+      "tr": "./locales/tr.json"
     }
   }
 }

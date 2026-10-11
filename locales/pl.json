@@ -1,0 +1,6 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "AffectionPlus",
+    "NSLocationWhenInUseUsageDescription": "Twoja lokalizacja jest używana tylko raz, aby znaleźć najbliższy oddział położniczy; nie jest wysyłana ani przechowywana."
+  }
+}

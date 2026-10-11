@@ -1,0 +1,6 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "AffectionPlus",
+    "NSLocationWhenInUseUsageDescription": "Votre position sert une seule fois à trouver la maternité la plus proche ; elle n'est ni envoyée ni conservée."
+  }
+}

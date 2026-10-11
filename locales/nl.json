@@ -1,0 +1,6 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "AffectionPlus",
+    "NSLocationWhenInUseUsageDescription": "Je locatie wordt één keer gebruikt om het dichtstbijzijnde kraamcentrum te vinden; ze wordt niet verstuurd of bewaard."
+  }
+}

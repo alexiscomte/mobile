@@ -1,0 +1,6 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "AffectionPlus",
+    "NSLocationWhenInUseUsageDescription": "Konumunuz yalnızca bir kez, en yakın doğumhaneyi bulmak için kullanılır; gönderilmez ve saklanmaz."
+  }
+}

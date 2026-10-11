@@ -1,0 +1,6 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "AffectionPlus",
+    "NSLocationWhenInUseUsageDescription": "Ihr Standort wird nur einmal verwendet, um die nächstgelegene Geburtsklinik zu finden; er wird weder gesendet noch gespeichert."
+  }
+}

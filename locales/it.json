@@ -1,0 +1,6 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "AffectionPlus",
+    "NSLocationWhenInUseUsageDescription": "La tua posizione viene usata una sola volta per trovare il punto nascita più vicino; non viene né inviata né conservata."
+  }
+}

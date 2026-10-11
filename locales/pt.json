@@ -1,0 +1,6 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "AffectionPlus",
+    "NSLocationWhenInUseUsageDescription": "A sua localização é usada uma única vez para encontrar a maternidade mais próxima; não é enviada nem guardada."
+  }
+}
