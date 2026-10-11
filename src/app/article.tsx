@@ -15,6 +15,7 @@ import { localiserImages } from '@/embarque';
 import { Pouce } from '@/components/pouce';
 import { TEXTES } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
+import { TEXTES5 } from '@/i18n5';
 import { ancreDe, ancreRedirigee, article, cheminDe, type Article } from '@/moteur/contenu';
 import { ouvrir } from '@/nav';
 import { useProfil } from '@/profil';
@@ -70,6 +71,9 @@ export default function EcranArticle() {
   }, [u, chemin, langue, aller]);
 
   const sondage = useMemo(() => SONDAGES.find((s) => s.u[langue] === chemin), [chemin, langue]);
+  // rubriques Santé et Sexualité (dossier de la page d'accueil de la rubrique) : mention « ne remplace pas un avis médical »
+  // (règle 1.4.1 de l'App Store : contenu de santé), en bas de l'article
+  const sante = useMemo(() => (['sante', 'sexualite'] as Cle[]).some((k) => { const d = page(k, langue).u.replace(/[^/]*$/, ''); return !!d && chemin.startsWith(d); }), [chemin, langue]);
   const enLigne = () => ouvrir(router, url(u), a ? a.t : '');
   const renderers = useMemo(() => {
     const avecAncre = ({ tnode, TDefaultRenderer, ...props }: any) => {
@@ -154,6 +158,7 @@ export default function EcranArticle() {
             {sondage ? (
               <Pressable accessibilityRole="button" onPress={() => router.push('/sondages')} style={styles.marqueur}><Text style={styles.marqueurTxt}>{T3.etVous} →</Text></Pressable>
             ) : null}
+            {sante ? <Text style={styles.avis}>{TEXTES5[langue].avisMedical}</Text> : null}
             {a.maj ? <Text style={styles.maj}>{a.maj}</Text> : null}
             <Pressable accessibilityRole="button" onPress={enLigne} style={styles.boutonSec}><Text style={styles.boutonSecTxt}>{T3.enLigne}</Text></Pressable>
           </>
@@ -203,6 +208,7 @@ const styles = StyleSheet.create({
   h1: { fontSize: 26, lineHeight: 33, fontWeight: '800', color: COULEURS.primaire, marginBottom: 8 },
   lead: { fontSize: 17, lineHeight: 25, color: COULEURS.texteMuet, marginBottom: 14 },
   maj: { color: COULEURS.texteMuet, fontSize: 12, marginTop: 10 },
+  avis: { backgroundColor: COULEURS.avertFond, color: COULEURS.avertTexte, borderRadius: 10, padding: 12, fontSize: 14, lineHeight: 20, marginTop: 12, overflow: 'hidden' },
   erreur: { color: COULEURS.coeur, marginBottom: 12 },
   marqueur: { backgroundColor: COULEURS.fondDoux, borderRadius: 10, padding: 12, marginVertical: 10, borderWidth: 1, borderColor: COULEURS.bordure },
   marqueurTxt: { color: COULEURS.primaire, fontWeight: '700' },

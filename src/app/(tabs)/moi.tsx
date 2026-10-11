@@ -11,8 +11,8 @@
 // (admin/reponses.html) dans la vue web avec la session : la validation reste sur le site.
 import * as Application from 'expo-application';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
-import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Ligne, Titre } from '@/components/carte';
@@ -21,7 +21,8 @@ import { AVEC_OIDC, connexionOidc, marquerInvite } from '@/connexion';
 import { LANGUES, NOMS_LANGUES, TEXTES, fmt, type Langue } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
 import { TEXTES4 } from '@/i18n4';
-import { toutTelecharger } from '@/moteur/contenu';
+import { TEXTES5 } from '@/i18n5';
+import { infoContenu, surMaj, toutTelecharger, type EtatMaj } from '@/moteur/contenu';
 import ui from '@/moteur/ui.json';
 import { ouvrir, ouvrirCle } from '@/nav';
 import { choix } from '@/haptique';
@@ -52,6 +53,13 @@ export default function Moi() {
   const router = useRouter();
   const [msg, setMsg] = useState<{ t: string; ok: boolean } | null>(null);
   const [progression, setProgression] = useState('');
+  // indicateur discret de l'état du contenu embarqué : date de la version lue, dernier contrôle auprès du site, mise à jour en cours
+  const T5 = TEXTES5[langue];
+  const [maj, setMaj] = useState<EtatMaj>({ enCours: false, verifie: 0 });
+  const [info, setInfo] = useState<{ date: string; verifie: number }>({ date: '', verifie: 0 });
+  useEffect(() => surMaj(setMaj), []);
+  useEffect(() => { let actif = true; infoContenu(langue).then((x) => { if (actif) setInfo(x); }); return () => { actif = false; }; }, [langue, maj.enCours]);
+  const jour = (iso: string | number) => { try { return new Date(typeof iso === 'string' ? iso + 'T12:00:00' : iso).toLocaleDateString(langue, { day: 'numeric', month: 'long', year: 'numeric' }); } catch { return String(iso); } };
 
   const seConnecter = useCallback(async () => {
     const r = await connexionOidc(langue);
@@ -131,6 +139,11 @@ export default function Moi() {
           <Text style={styles.boutonSecTxt}>{T3.telecharger}</Text>
         </Pressable>
         {progression ? <Text style={styles.progression} accessibilityLiveRegion="polite">{progression}</Text> : null}
+        {maj.enCours && !progression ? (
+          <View style={styles.majLigne}><ActivityIndicator size="small" color={COULEURS.texteMuet} /><Text style={styles.majTxt}>{T5.majEnCours}</Text></View>
+        ) : info.date ? (
+          <Text style={styles.majTxt}>{fmt(T5.contenuDu, jour(info.date)) + (info.verifie ? ' · ' + fmt(T5.majFaite, jour(info.verifie)) : '')}</Text>
+        ) : null}
 
         <Titre>{T.aPropos}</Titre>
         <Text style={styles.aide}>{T.aProposTxt}</Text>
@@ -190,4 +203,6 @@ const styles = StyleSheet.create({
   reseau: { borderWidth: 1, borderColor: COULEURS.bordure, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   reseauTxt: { color: COULEURS.secondaire, fontWeight: '600', fontSize: 14 },
   version: { color: COULEURS.texteMuet, textAlign: 'center', marginTop: 16, fontSize: 12 },
+  majLigne: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 8 },
+  majTxt: { color: COULEURS.texteMuet, fontSize: 12, textAlign: 'center', marginTop: 8 },
 });

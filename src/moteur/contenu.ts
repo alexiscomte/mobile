@@ -105,6 +105,15 @@ export async function article(lg: Langue, u: string): Promise<Article | null> {
 /** Mise à jour du contenu de la langue (bouton de l'écran Moi) : compare l'index du site, télécharge les seuls paquets modifiés ; rend le
  *  nombre de paquets vérifiés. Lève une erreur si le site ne répond pas (le contenu embarqué reste lisible). */
 export async function toutTelecharger(lg: Langue, progression?: (fait: number, total: number) => void): Promise<number> {
+  noter({ enCours: true });
+  try {
+    const n = await toutTelechargerSansEtat(lg, progression);
+    noter({ enCours: false, verifie: Date.now() });
+    return n;
+  } catch (e) { noter({ enCours: false }); throw e; }
+}
+
+async function toutTelechargerSansEtat(lg: Langue, progression?: (fait: number, total: number) => void): Promise<number> {
   await index(lg);
   if (!(await rafraichirIndex(lg))) throw new Error('hors ligne');
   const idx = memIndex[lg] as Index;
@@ -121,6 +130,23 @@ export async function toutTelecharger(lg: Langue, progression?: (fait: number, t
     if (progression) progression(n, groupes.length);
   }
   return n;
+}
+
+// ---- état de la mise à jour (indicateur discret de l'écran Moi, 12/10/2026 : recommandations d'Apple sur les chargements)
+export type EtatMaj = { enCours: boolean; verifie: number };   // verifie : dernier contact réussi avec le site (ms), 0 = inconnu
+let etatMaj: EtatMaj = { enCours: false, verifie: 0 };
+const abonnes = new Set<(e: EtatMaj) => void>();
+function noter(e: Partial<EtatMaj>): void { etatMaj = { ...etatMaj, ...e }; abonnes.forEach((f) => f(etatMaj)); }
+/** Suit l'état de la mise à jour du contenu ; rend la fonction de désabonnement. */
+export function surMaj(f: (e: EtatMaj) => void): () => void { abonnes.add(f); f(etatMaj); return () => { abonnes.delete(f); }; }
+/** Date (AAAA-MM-JJ) du contenu lu dans cette langue et date du dernier contrôle auprès du site (fichier de l'index téléchargé). */
+export async function infoContenu(lg: Langue): Promise<{ date: string; verifie: number }> {
+  try {
+    const idx = await index(lg);
+    let verifie = etatMaj.verifie;
+    if (!verifie) { try { const f = fichier(lg + '-index.json'); if (f.exists) verifie = (f.info().modificationTime || 0) * 1000; } catch { /* inconnu */ } }
+    return { date: dateDe(idx), verifie };
+  } catch { return { date: '', verifie: 0 }; }
 }
 
 /** Mise à jour discrète au plus une fois par jour (au lancement de l'appli), sans message ni blocage. */
