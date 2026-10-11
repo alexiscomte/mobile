@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Ligne, Titre } from '@/components/carte';
 import { deconnecter } from '@/compte';
-import { AVEC_OIDC, connexionOidc, marquerInvite } from '@/connexion';
+import { connexionOidc, ecranNatif, marquerInvite } from '@/connexion';
 import { LANGUES, NOMS_LANGUES, TEXTES, fmt, type Langue } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
 import { TEXTES4 } from '@/i18n4';
@@ -62,12 +62,14 @@ export default function Moi() {
   const jour = (iso: string | number) => { try { return new Date(typeof iso === 'string' ? iso + 'T12:00:00' : iso).toLocaleDateString(langue, { day: 'numeric', month: 'long', year: 'numeric' }); } catch { return String(iso); } };
 
   const seConnecter = useCallback(async () => {
+    // aperçu web, ou iPhone avec Se connecter avec Apple (règle 4.8, 12/10/2026) : l'écran natif Mon compte (Apple, Google, adresse)
+    if (await ecranNatif()) { router.push('/compte'); return; }
     const r = await connexionOidc(langue);
     // réussite : le nom remplace « Se connecter » en tête, pas de message « Vous êtes connecté » en plus (revue du 07/10/2026 nuit)
     if (r === 'ok') setMsg(null);
     else if (r === 'invite') setMsg({ t: TC.invitePasse, ok: true });
     else if (r === 'echec') setMsg({ t: TC.oidcKo, ok: false });
-  }, [langue, TC]);
+  }, [langue, TC, router]);
   const seDeconnecter = async () => {
     await deconnecter();
     marquerInvite();   // pas de connexion proposée d'office juste après, pendant ce lancement (comme l'écran du compte)
@@ -99,7 +101,7 @@ export default function Moi() {
             </Pressable>
           </View>
         ) : (
-          <Pressable style={({ pressed }) => [styles.connexion, pressed && styles.presse]} onPress={AVEC_OIDC ? seConnecter : () => router.push('/compte')} accessibilityRole="button">
+          <Pressable style={({ pressed }) => [styles.connexion, pressed && styles.presse]} onPress={() => { seConnecter(); }} accessibilityRole="button">
             <Text style={styles.connexionTxt}>{E.seConnecter}</Text>
           </Pressable>
         )}

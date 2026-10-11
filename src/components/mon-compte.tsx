@@ -11,7 +11,7 @@ import { AccessibilityInfo, Platform, Pressable, StyleSheet, Text, View } from '
 
 import { F } from '@/components/form';
 import { ECHEC_DURABLE, echecsSynchro, supprimer, surCompte } from '@/compte';
-import { AVEC_OIDC, connexionOidc } from '@/connexion';
+import { connexionOidc, ecranNatif } from '@/connexion';
 import { TEXTES4 } from '@/i18n4';
 import ui from '@/moteur/ui.json';
 import { useProfil } from '@/profil';
@@ -97,7 +97,8 @@ export function MonCompte() {
   };
 
   const seConnecter = async (ecran?: string) => {
-    if (!AVEC_OIDC) { router.push('/compte'); return; }  // aperçu web : pas de service commun, l'écran du compte
+    // aperçu web (pas de service commun), ou iPhone avec Se connecter avec Apple (règle 4.8, 12/10/2026) : l'écran natif du compte
+    if (await ecranNatif()) { router.push('/compte'); return; }
     setMsg(null);
     const r = await connexionOidc(langue, ecran);
     // réussite : l'encadré « Mon compte » et le texte « enregistrées dans votre compte » le montrent ; pas de « Vous êtes connecté »

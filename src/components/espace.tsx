@@ -10,7 +10,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View, type StyleProp, type Tex
 import { Ligne } from '@/components/carte';
 import { Bouton, F } from '@/components/form';
 import { ResumeSignes } from '@/components/resume-signes';
-import { AVEC_OIDC, connexionOidc } from '@/connexion';
+import { connexionOidc, ecranNatif } from '@/connexion';
 import { fmt, estLangue } from '@/i18n';
 import { CHINOIS, TUILES, VIGNETTES, type Img } from '@/images';
 import type { Connexion } from '@/messages';
@@ -161,15 +161,16 @@ export function TexteCrochet({ texte, onPress, style }: { texte: string; onPress
 export function Invitation({ texte, lg, apres }: { texte: string; lg: string; apres?: () => void }) {
   const t = UI_M[lg] || UI_M.fr;
   const router = useRouter();
-  const aller = (ecran?: string) => {
-    if (!AVEC_OIDC) { router.push('/compte'); return; }       // aperçu web : pas de service commun, l'écran du compte
+  const aller = async (ecran?: string) => {
+    // aperçu web (pas de service commun), ou iPhone avec Se connecter avec Apple (règle 4.8, 12/10/2026) : l'écran natif du compte
+    if (await ecranNatif()) { router.push('/compte'); return; }
     connexionOidc(lg, ecran).then(() => { if (apres) apres(); }).catch(() => undefined);
   };
   return (
     <View style={styles.avert} accessibilityRole="summary">
       <Text style={styles.avertTxt}>{texte}</Text>
-      <Bouton titre={t.seConnecter} onPress={() => aller()} />
-      <Bouton titre={t.creerCompte} secondaire onPress={() => aller('inscription')} />
+      <Bouton titre={t.seConnecter} onPress={() => { aller(); }} />
+      <Bouton titre={t.creerCompte} secondaire onPress={() => { aller('inscription'); }} />
     </View>
   );
 }

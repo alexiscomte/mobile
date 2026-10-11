@@ -574,7 +574,8 @@ async function ouvrir(j: Reponse) {
   arreterEnvois();
   const depuis = new Date().toISOString().slice(0, 10);
   await garderCompte({ courriel, session, sync: null, depuis, mdp, newsletter, admin, messages_non_lus });
-  await recevoir(j, typeof j.prenom_google === 'string' ? j.prenom_google : '');
+  // prénom donné par Google (prenom_google) ou par Apple à la première autorisation (prenom_fournisseur, 12/10/2026)
+  await recevoir(j, typeof j.prenom_google === 'string' ? j.prenom_google : typeof j.prenom_fournisseur === 'string' ? j.prenom_fournisseur : '');
   await garderCompte({ courriel, session, sync: new Date().toISOString(), depuis, mdp, newsletter, admin, messages_non_lus });
   signaler('donnees');
   noter().then((d) => { if (d) pousserMaintenant(); }).catch(() => undefined);
@@ -661,6 +662,20 @@ export async function connecterGoogle(credential: string, langue: string, consen
   const corps: Record<string, string> = { credential, langue, jeton_local: await jetonLocal(), appareil: 'appli' };
   if (consentement) corps.consentement = 'oui';
   const j = await api('google', corps);
+  if (j.ok) await ouvrir(j);
+  return j;
+}
+
+/** Connexion « Se connecter avec Apple » (iPhone, 12/10/2026, règle App Store 4.8) : jeton d'identité Apple + nonce brut (Apple a reçu
+ *  son SHA-256), code d'autorisation (révocation à la suppression du compte), prénom donné à la première autorisation seulement.
+ *  POST /api/compte/apple. Erreurs : consentement (409, compte à créer), apple (401), courriel (400 : Apple n'a pas donné d'adresse),
+ *  trop, reseau. */
+export async function connecterApple(identityToken: string, nonce: string, code: string | null, prenom: string, langue: string, consentement: boolean): Promise<Reponse> {
+  const corps: Record<string, string> = { identityToken, nonce, langue, jeton_local: await jetonLocal(), appareil: 'appli' };
+  if (code) corps.code = code;
+  if (prenom) corps.prenom = prenom.slice(0, 40);
+  if (consentement) corps.consentement = 'oui';
+  const j = await api('apple', corps);
   if (j.ok) await ouvrir(j);
   return j;
 }
