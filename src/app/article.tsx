@@ -15,6 +15,7 @@ import { localiserImages } from '@/embarque';
 import { CarteJourArticle } from '@/components/horoscope-carte';
 import { Pouce } from '@/components/pouce';
 import { TEXTES } from '@/i18n';
+import { TEXTES2 } from '@/i18n2';
 import { TEXTES3 } from '@/i18n3';
 import { TEXTES5 } from '@/i18n5';
 import { ancreDe, ancreRedirigee, article, cheminDe, type Article } from '@/moteur/contenu';
@@ -91,15 +92,18 @@ export default function EcranArticle() {
     r.div = ({ tnode, TDefaultRenderer, ...props }: any) => {
       const outil = tnode.attributes['data-app-outil'], quiz = tnode.attributes['data-app-quiz'];
       // pages « horoscope du jour par signe / par animal » (12/10/2026) : la carte native du jour, en ligne, à la place du lien
+      // data-app-jour="1" : page « horoscope de demain » (J+1, textes au lendemain)
+      const jour = outil === 'horoscope' ? Number(tnode.attributes['data-app-jour']) || 0 : 0;
       if (outil === 'horoscope' && (tnode.attributes['data-app-sign'] !== undefined || tnode.attributes['data-app-animal'] !== undefined)) {
         const s = tnode.attributes['data-app-sign'], an = tnode.attributes['data-app-animal'];
-        return <CarteJourArticle signe={s !== undefined ? Number(s) : undefined} animal={an !== undefined ? Number(an) : undefined} dates={tnode.attributes['data-app-dates']} langue={langue} />;
+        return <CarteJourArticle signe={s !== undefined ? Number(s) : undefined} animal={an !== undefined ? Number(an) : undefined} dates={tnode.attributes['data-app-dates']} langue={langue} jour={jour} />;
       }
       if (outil) {
         const route = ROUTES[outil] || (outil === 'outil' && chemin ? routeDePage(chemin, langue) : undefined) || (outil === 'autres' && chemin ? routeAutres(chemin, langue) : undefined);
+        const ouvrirRoute = () => (jour ? router.push({ pathname: '/horoscope', params: { jour: String(jour) } }) : router.push(route as never));
         return (
-          <Pressable accessibilityRole="button" onPress={() => (route ? router.push(route as never) : enLigne())} style={styles.marqueur}>
-            <Text style={styles.marqueurTxt}>{route ? T3.ouvrirOutil : T3.enLigne} →</Text>
+          <Pressable accessibilityRole="button" onPress={() => (route ? ouvrirRoute() : enLigne())} style={styles.marqueur}>
+            <Text style={styles.marqueurTxt}>{route ? (jour ? TEXTES2[langue].voirDemain : T3.ouvrirOutil) : T3.enLigne} →</Text>
           </Pressable>
         );
       }

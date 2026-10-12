@@ -34,11 +34,34 @@ export function ciel(quand: Date = new Date()): Ciel {
   };
 }
 
-/** En-tête du jour : « Mis à jour le … — Premier quartier, Lune en Lion. » */
+/** En-tête du jour : « Positions du … (heure locale) — Premier quartier, Lune en Lion. » (même forme que horoscope.js du site) */
 export function entete(c: Ciel, lg: Langue, quand: Date = new Date()): string {
   const T = textes(lg), U = T.ui;
   const date = quand.toLocaleDateString(lg, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  return U.maj + ' ' + date + ' — ' + T.phases[c.phase.idx] + ', ' + String(U.lune_en || '').toLowerCase() + ' ' + T.signes[c.signes.moon] + '.';
+  return U.maj + ' ' + date + (U.heure_locale ? ' (' + U.heure_locale + ')' : '') + ' — ' + T.phases[c.phase.idx] + ', ' + String(U.lune_en || '').toLowerCase() + ' ' + T.signes[c.signes.moon] + '.';
+}
+
+/** La date locale décalée de `jour` jours (1 = demain, page « horoscope de demain » du site), même heure. */
+export function dateDecalee(jour: number, base: Date = new Date()): Date {
+  const d = new Date(base.getTime());
+  if (jour) d.setDate(d.getDate() + jour);
+  return d;
+}
+
+/** Page de demain : « aujourd'hui » -> « demain » dans un texte du jour (table ui.demain d'astro_txt.js, copie de la fonction
+ *  auLendemain de horoscope.js du site : mots entiers, accents compris, majuscule initiale conservée). Sans table : texte inchangé. */
+export function auLendemain(s: string, lg: Langue): string {
+  const table = (textes(lg).ui as unknown as Record<string, unknown>).demain as [string, string][] | undefined;
+  if (!Array.isArray(table)) return s;
+  for (const paire of table) {
+    const re = new RegExp('(^|[^\\p{L}])(' + paire[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')(?![\\p{L}])', 'giu');
+    s = s.replace(re, (_m: string, avant: string, mot: string) => {
+      let r = paire[1];
+      if (mot.charAt(0) !== mot.charAt(0).toLowerCase()) r = r.charAt(0).toUpperCase() + r.slice(1);
+      return avant + r;
+    });
+  }
+  return s;
 }
 
 /** Les phrases du jour pour un signe (0 = Bélier … 11 = Poissons) et le conseil du jour. */

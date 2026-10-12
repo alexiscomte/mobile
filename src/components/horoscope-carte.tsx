@@ -11,7 +11,7 @@ import { GLYPHES, TEXTES2 } from '@/i18n2';
 import { TEXTES3 } from '@/i18n3';
 import { CHINOIS as CHINOIS_IMG, ZODIAQUE, type Img } from '@/images';
 import { chinoisDuJour, type TextesChinois } from '@/moteur/chinois';
-import { ciel, entete, horoscope, textes } from '@/moteur/horoscope';
+import { auLendemain, ciel, dateDecalee, entete, horoscope, textes } from '@/moteur/horoscope';
 import ui from '@/moteur/ui.json';
 import { COULEURS } from '@/theme';
 
@@ -53,33 +53,38 @@ export function HoroscopeCarte({ image, titre, alt, sousTitre, texte, conseil, l
   );
 }
 
+// jour : 0 = aujourd'hui, 1 = demain (page « horoscope de demain » du site, 12/10/2026) : `quand` est alors la date locale + 1 jour
+// et les textes passent par auLendemain (« aujourd'hui » -> « demain », table ui.demain, comme horoscope.js et chinois_jour.js du site)
+type JourProps = { langue: Langue; quand?: Date; jour?: number; mienne?: boolean; onPress?: () => void };
+const lendemain = (s: string, lg: Langue, jour?: number) => (jour ? auLendemain(s, lg) : s);
+
 /** Carte du jour d'un signe du zodiaque (0 = Bélier … 11 = Poissons), calculée sur l'appareil. */
-export function CarteSigneJour({ signe, langue, dates, quand, mienne, onPress }: { signe: number; langue: Langue; dates?: string; quand?: Date; mienne?: boolean; onPress?: () => void }) {
-  const maintenant = useMemo(() => quand || new Date(), [quand]);
+export function CarteSigneJour({ signe, langue, dates, quand, jour, mienne, onPress }: JourProps & { signe: number; dates?: string }) {
+  const maintenant = useMemo(() => quand || dateDecalee(jour || 0), [quand, jour]);
   const c = useMemo(() => ciel(maintenant), [maintenant]);
   const TA = textes(langue);
   const h = horoscope(c, signe, langue);
   return (
-    <HoroscopeCarte image={ZODIAQUE[signe]} titre={GLYPHES[signe] + ' ' + TA.signes[signe]} alt={TA.signes[signe]} sousTitre={dates} texte={h.phrases.join(' ')}
-      conseil={h.conseil} langue={langue} mienne={mienne} onPress={onPress} />
+    <HoroscopeCarte image={ZODIAQUE[signe]} titre={GLYPHES[signe] + ' ' + TA.signes[signe]} alt={TA.signes[signe]} sousTitre={dates}
+      texte={lendemain(h.phrases.join(' '), langue, jour)} conseil={lendemain(h.conseil, langue, jour)} langue={langue} mienne={mienne} onPress={onPress} />
   );
 }
 
 /** Carte du jour d'un animal chinois (0 = Rat … 11 = Cochon), calculée sur l'appareil ; rien si les textes manquent. */
-export function CarteAnimalJour({ animal, langue, quand, mienne, onPress }: { animal: number; langue: Langue; quand?: Date; mienne?: boolean; onPress?: () => void }) {
-  const maintenant = useMemo(() => quand || new Date(), [quand]);
+export function CarteAnimalJour({ animal, langue, quand, jour, mienne, onPress }: JourProps & { animal: number }) {
+  const maintenant = useMemo(() => quand || dateDecalee(jour || 0), [quand, jour]);
   const TC = textesChinois(langue), TA = textes(langue);
   if (!TC) return null;
   const h = chinoisDuJour(TC, animal, maintenant);
   return (
     <HoroscopeCarte image={CHINOIS_IMG[animal]} titre={TA.chinois.animaux[animal]} alt={TA.chinois.animaux[animal]} sousTitre={TC.annees + ' ' + h.annees.join(', ') + '…'}
-      texte={h.texte} conseil={h.conseil} langue={langue} mienne={mienne} onPress={onPress} />
+      texte={lendemain(h.texte, langue, jour)} conseil={lendemain(h.conseil, langue, jour)} langue={langue} mienne={mienne} onPress={onPress} />
   );
 }
 
-/** Carte du jour EN LIGNE dans un article (marqueur data-app-sign / data-app-animal) : l'en-tête du jour, puis la carte. */
-export function CarteJourArticle({ signe, animal, dates, langue }: { signe?: number; animal?: number; dates?: string; langue: Langue }) {
-  const maintenant = useMemo(() => new Date(), []);
+/** Carte du jour EN LIGNE dans un article (marqueur data-app-sign / data-app-animal, data-app-jour) : l'en-tête du jour, puis la carte. */
+export function CarteJourArticle({ signe, animal, dates, langue, jour }: { signe?: number; animal?: number; dates?: string; langue: Langue; jour?: number }) {
+  const maintenant = useMemo(() => dateDecalee(jour || 0), [jour]);
   const c = useMemo(() => ciel(maintenant), [maintenant]);
   if (animal !== undefined) {
     const TC = textesChinois(langue);
@@ -87,7 +92,7 @@ export function CarteJourArticle({ signe, animal, dates, langue }: { signe?: num
     return (
       <View style={styles.bloc}>
         <Text style={styles.entete}>{chinoisDuJour(TC, animal, maintenant).entete}</Text>
-        <CarteAnimalJour animal={animal} langue={langue} quand={maintenant} />
+        <CarteAnimalJour animal={animal} langue={langue} quand={maintenant} jour={jour} />
       </View>
     );
   }
@@ -95,7 +100,7 @@ export function CarteJourArticle({ signe, animal, dates, langue }: { signe?: num
   return (
     <View style={styles.bloc}>
       <Text style={styles.entete}>{entete(c, langue, maintenant)}</Text>
-      <CarteSigneJour signe={signe} langue={langue} dates={dates} quand={maintenant} />
+      <CarteSigneJour signe={signe} langue={langue} dates={dates} quand={maintenant} jour={jour} />
     </View>
   );
 }

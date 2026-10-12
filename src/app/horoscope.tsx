@@ -1,7 +1,9 @@
 // Horoscope du jour, natif : positions réelles du jour (moteur du site), vos signes en premier.
 // Les cartes (components/horoscope-carte.tsx, 12/10/2026) ouvrent la page « horoscope du jour » du signe ou de l'animal dans l'appli
 // (article hors ligne), quand l'index du contenu la connaît (tables hs / ha écrites par app_contenu.py) ; sinon elles ne sont pas pressables.
-import { Stack, useRouter } from 'expo-router';
+// Paramètre `jour` (12/10/2026) : 1 = « horoscope de demain » (page du site horoscope-de-demain.html) : date locale + 1 jour, titre
+// et textes au lendemain (auLendemain, table ui.demain) ; absent ou 0 : aujourd'hui.
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -12,7 +14,7 @@ import { GLYPHES, TEXTES2 } from '@/i18n2';
 import { CHINOIS as CHINOIS_IMG, ZODIAQUE } from '@/images';
 import { chinoisDuJour } from '@/moteur/chinois';
 import { pagesHoroscope } from '@/moteur/contenu';
-import { ciel, entete, signesDe, textes } from '@/moteur/horoscope';
+import { ciel, dateDecalee, entete, signesDe, textes } from '@/moteur/horoscope';
 import { ouvrirArticle } from '@/nav';
 import { useProfil } from '@/profil';
 import { COULEURS } from '@/theme';
@@ -21,8 +23,10 @@ export default function Horoscope() {
   const { langue, profil } = useProfil();
   const T = TEXTES[langue], T2 = TEXTES2[langue], TA = textes(langue);
   const router = useRouter();
+  const { jour: jourParam } = useLocalSearchParams<{ jour?: string }>();
+  const jour = Number(jourParam) || 0;
   const [tous, setTous] = useState(false);
-  const maintenant = useMemo(() => new Date(), []);
+  const maintenant = useMemo(() => dateDecalee(jour), [jour]);
   const c = useMemo(() => ciel(maintenant), [maintenant]);
   const miens = useMemo(() => {
     if (!profil.naissance) return null;
@@ -39,7 +43,7 @@ export default function Horoscope() {
 
   return (
     <>
-      <Stack.Screen options={{ title: T.horoscopeDuJour }} />
+      <Stack.Screen options={{ title: jour ? T2.horoscopeDemain : T.horoscopeDuJour }} />
       <ScrollView contentContainerStyle={styles.contenu}>
         <Text style={styles.entete}>{entete(c, langue, maintenant)}</Text>
 
@@ -71,7 +75,7 @@ export default function Horoscope() {
         ) : null}
 
         {liste.map((s) => (
-          <CarteSigneJour key={s} signe={s} langue={langue} quand={maintenant} mienne={enAvant.includes(s)} onPress={lien(pages.signes[s])} />
+          <CarteSigneJour key={s} signe={s} langue={langue} quand={maintenant} jour={jour} mienne={enAvant.includes(s)} onPress={lien(pages.signes[s])} />
         ))}
         {TC ? (() => {
           const animaux = miens && !tous ? [miens.chinois.animal] : Array.from({ length: 12 }, (_, i) => i);
@@ -81,7 +85,7 @@ export default function Horoscope() {
               <Text style={styles.sectionTitre} accessibilityRole="header">{TITRE_CHINOIS[langue] || TITRE_CHINOIS.fr}</Text>
               <Text style={styles.entete}>{premier.entete}</Text>
               {animaux.map((a) => (
-                <CarteAnimalJour key={'c' + a} animal={a} langue={langue} quand={maintenant} mienne={!!miens && miens.chinois.animal === a} onPress={lien(pages.animaux[a])} />
+                <CarteAnimalJour key={'c' + a} animal={a} langue={langue} quand={maintenant} jour={jour} mienne={!!miens && miens.chinois.animal === a} onPress={lien(pages.animaux[a])} />
               ))}
             </>
           );

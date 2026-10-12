@@ -5,6 +5,19 @@ type T2 = {
   mesSignes: string; votreSigne: string; signeChinois: string; ascendant: string; sansDate: string; renseigner: string;
   autresSignes: string; masquerAutres: string; conseil: string; lesDouze: string; calculSurAppareil: string;
   tipHoroscope: string; tipBio: string; forme: string; niveaux: string[];
+  horoscopeDemain: string; voirDemain: string;
+};
+// page « horoscope de demain » du site (12/10/2026) : titre de l'écran /horoscope?jour=1 et lien depuis un article
+const DEMAIN: Record<Langue, Pick<T2, 'horoscopeDemain' | 'voirDemain'>> = {
+  fr: { horoscopeDemain: 'Horoscope de demain', voirDemain: 'Voir l’horoscope de demain' },
+  en: { horoscopeDemain: 'Tomorrow’s horoscope', voirDemain: 'See tomorrow’s horoscope' },
+  de: { horoscopeDemain: 'Horoskop für morgen', voirDemain: 'Das Horoskop für morgen ansehen' },
+  es: { horoscopeDemain: 'Horóscopo de mañana', voirDemain: 'Ver el horóscopo de mañana' },
+  it: { horoscopeDemain: 'Oroscopo di domani', voirDemain: 'Vedere l’oroscopo di domani' },
+  pt: { horoscopeDemain: 'Horóscopo de amanhã', voirDemain: 'Ver o horóscopo de amanhã' },
+  nl: { horoscopeDemain: 'Horoscoop van morgen', voirDemain: 'De horoscoop van morgen bekijken' },
+  pl: { horoscopeDemain: 'Horoskop na jutro', voirDemain: 'Zobacz horoskop na jutro' },
+  tr: { horoscopeDemain: 'Yarınki burç yorumu', voirDemain: 'Yarınki burç yorumunu görün' },
 };
 // info-bulles et forme du jour (mêmes mots que le bandeau du site, espace.js)
 const RESUME: Record<Langue, Pick<T2, 'tipHoroscope' | 'tipBio' | 'forme' | 'niveaux'>> = {
@@ -19,7 +32,7 @@ const RESUME: Record<Langue, Pick<T2, 'tipHoroscope' | 'tipBio' | 'forme' | 'niv
   tr: { tipHoroscope: 'Burç yorumunuzu görün', tipBio: 'Bugünkü biyoritimleriniz', forme: 'form', niveaux: ['iyi', 'orta', 'kendinizi koruyun', 'kritik gün'] },
 };
 
-const BASE2: Record<Langue, Omit<T2, 'tipHoroscope' | 'tipBio' | 'forme' | 'niveaux'>> = {
+const BASE2: Record<Langue, Omit<T2, 'tipHoroscope' | 'tipBio' | 'forme' | 'niveaux' | 'horoscopeDemain' | 'voirDemain'>> = {
   fr: { mesSignes: 'Vos signes', votreSigne: 'Votre signe', signeChinois: 'Signe chinois', ascendant: 'Ascendant',
         sansDate: 'Renseignez votre date de naissance pour voir vos signes en premier.', renseigner: 'Mes infos',
         autresSignes: 'Voir les horoscopes des autres signes', masquerAutres: 'Ne garder que mes signes', conseil: 'Conseil du jour',
@@ -59,7 +72,7 @@ const BASE2: Record<Langue, Omit<T2, 'tipHoroscope' | 'tipBio' | 'forme' | 'nive
 };
 
 export const TEXTES2: Record<Langue, T2> = Object.fromEntries(
-  (Object.keys(BASE2) as Langue[]).map((lg) => [lg, { ...BASE2[lg], ...RESUME[lg] }]),
+  (Object.keys(BASE2) as Langue[]).map((lg) => [lg, { ...BASE2[lg], ...RESUME[lg], ...DEMAIN[lg] }]),
 ) as Record<Langue, T2>;
 
 export const GLYPHES = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'];
