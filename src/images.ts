@@ -87,6 +87,7 @@ export const VIGNETTES: Record<string, Img> = {
   "epoux": require('../assets/images/ia/vignettes/epoux.webp'),
   "garde": require('../assets/images/ia/vignettes/garde.webp'),
   "distance": require('../assets/images/ia/vignettes/distance.webp'),
+  "pension": require('../assets/images/ia/vignettes/pension.webp'),
 };
 export const EXERCICES: Record<string, Img> = {
   "push_mur": require('../assets/images/ia/exercices/push_mur.webp'),
