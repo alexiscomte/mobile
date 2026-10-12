@@ -110,64 +110,64 @@
    "fr": {
     "u": "fr/astrologie/horoscope-du-jour.html",
     "t": "Mon horoscope du jour (zodiaque et signe chinois)",
-    "d": "Horoscope du jour gratuit pour les 12 signes, calculé chaque jour à partir des positions réelles de la Lune et des planètes : amour, échanges, énergie, conseil du jour. Avec l’horoscope chinois du jou"
+    "d": "Horoscope du jour gratuit pour les 12 signes, calculé chaque matin d’après la Lune et les planètes : amour, énergie, conseil, et horoscope chinois."
    },
    "en": {
     "u": "en/astrology/daily-horoscope.html",
     "t": "My daily horoscope (zodiac and Chinese sign)",
-    "d": "Free daily horoscope for the 12 signs, calculated every day from the real positions of the Moon and planets: love, exchanges, energy, advice of the day. With today’s Chinese horoscope for the 12 anima"
+    "d": "Free daily horoscope for all 12 zodiac signs, worked out each morning from the real Moon and planets: love, energy, advice, plus the Chinese signs."
    },
    "de": {
     "u": "de/astrologie/tageshoroskop.html",
     "t": "Mein Tageshoroskop (Tierkreis und chinesisches Zeichen)",
-    "d": "Kostenloses Tageshoroskop für die zwölf Zeichen, täglich aus den tatsächlichen Positionen von Mond und Planeten berechnet: Liebe, Austausch, Energie, Rat des Tages. Mit dem chinesischen Tageshoroskop "
+    "d": "Kostenloses Tageshoroskop für alle 12 Sternzeichen, jeden Morgen aus Mond und Planeten berechnet: Liebe, Energie, Rat des Tages, chinesische Zeichen."
    },
    "es": {
     "u": "es/astrologia/horoscopo-del-dia.html",
     "t": "Mi horóscopo del día (zodiaco y signo chino)",
-    "d": "Horóscopo del día gratuito para los 12 signos, calculado cada día a partir de las posiciones reales de la Luna y los planetas: amor, intercambios, energía, consejo del día. Con el horóscopo chino del "
+    "d": "Horóscopo de hoy gratis para los 12 signos, calculado cada mañana con la Luna y los planetas reales: amor, energía, consejo y horóscopo chino del día."
    },
    "it": {
     "u": "it/astrologia/oroscopo-del-giorno.html",
     "t": "Il mio oroscopo del giorno (zodiaco e segno cinese)",
-    "d": "Oroscopo del giorno gratuito per i 12 segni, calcolato ogni giorno dalle posizioni reali della Luna e dei pianeti: amore, scambi, energia, consiglio del giorno. Con l’oroscopo cinese del giorno per i "
+    "d": "Oroscopo di oggi gratis per i 12 segni, calcolato ogni mattina dalle posizioni reali di Luna e pianeti: amore, energia, consiglio e oroscopo cinese."
    },
    "pt": {
     "u": "pt/astrologia/horoscopo-do-dia.html",
     "t": "O meu horóscopo do dia (zodíaco e signo chinês)",
-    "d": "Horóscopo do dia gratuito para os 12 signos, calculado todos os dias a partir das posições reais da Lua e dos planetas: amor, trocas, energia, conselho do dia. Com o horóscopo chinês do dia para os 12"
+    "d": "Horóscopo diário grátis para os 12 signos, calculado todas as manhãs a partir da Lua e dos planetas: amor, energia, conselho e horóscopo chinês."
    },
    "nl": {
     "u": "nl/astrologie/daghoroscoop.html",
     "t": "Mijn daghoroscoop (dierenriem en Chinees teken)",
-    "d": "Gratis daghoroscoop voor de 12 tekens, elke dag berekend uit de werkelijke posities van de Maan en de planeten: liefde, contacten, energie, raad van de dag. Met de Chinese daghoroscoop voor de 12 dier"
+    "d": "Gratis horoscoop van vandaag voor de 12 sterrenbeelden, elke ochtend berekend uit Maan en planeten: liefde, energie, tip van de dag en Chinese tekens."
    },
    "pl": {
     "u": "pl/astrologia/horoskop-dnia.html",
     "t": "Mój horoskop dnia (zodiak i znak chiński)",
-    "d": "Darmowy horoskop dnia dla 12 znaków, obliczany codziennie z rzeczywistych położeń Księżyca i planet: miłość, relacje, energia, rada dnia. Z chińskim horoskopem dnia dla 12 zwierząt."
+    "d": "Darmowy horoskop dzienny dla 12 znaków zodiaku, liczony co rano z położeń Księżyca i planet: miłość, energia, rada dnia oraz horoskop chiński."
    },
    "tr": {
     "u": "tr/astroloji/gunluk-burc-yorumu.html",
     "t": "Günlük burç yorumum (zodyak ve Çin burcu)",
-    "d": "12 burç için ücretsiz günlük burç yorumu, her gün Ay'ın ve gezegenlerin gerçek konumlarından hesaplanır: aşk, ilişkiler, enerji, günün tavsiyesi. 12 hayvan için günlük Çin burcu yorumuyla."
+    "d": "12 burç için ücretsiz günlük burç yorumları, her sabah Ay ve gezegenlerin gerçek konumlarından hesaplanır: aşk, enerji, tavsiye ve Çin burçları."
    }
   },
   "themeAstral": {
    "fr": {
     "u": "fr/astrologie/theme-astral.html",
     "t": "Lire un thème astral",
-    "d": "Planètes, signes, maisons et aspects : comprendre la structure d'une carte du ciel."
+    "d": "Calculez gratuitement votre thème astral : positions des planètes, ascendant, maisons et aspects à partir de la date, de l’heure et du lieu de naissance."
    },
    "en": {
     "u": "en/astrology/birth-chart.html",
     "t": "Reading a birth chart",
-    "d": "Planets, signs, houses and aspects: how an astrological birth chart is structured."
+    "d": "Calculate your birth chart for free: planets, ascendant, houses and aspects from your date, time and place of birth, with a reading of each element."
    },
    "de": {
     "u": "de/astrologie/geburtshoroskop.html",
     "t": "Das Geburtshoroskop",
-    "d": "Häuser, Planeten und Aspekte: wie ein Radix aufgebaut ist — Der Bauplan der Astrologie, Schritt für Schritt erklärt."
+    "d": "Berechnen Sie Ihr Geburtshoroskop kostenlos: Planeten, Aszendent, Häuser und Aspekte aus Datum, Uhrzeit und Ort der Geburt, mit Deutung und Grenzen."
    },
    "es": {
     "u": "es/astrologia/tema-natal.html",
@@ -197,54 +197,54 @@
    "tr": {
     "u": "tr/astroloji/dogum-haritasi.html",
     "t": "Doğum haritası",
-    "d": "Doğum haritası nedir, yükselen ve neden burç kadar önemlidir, gezegenler ve geleneğin onlara yüklediği anlamlar, on iki ev ve doğum tarihi, saati ve yeriyle haritanızı nasıl hesaplarsınız."
+    "d": "Doğum tarihi, saati ve yeriyle doğum haritanızı ve yükselen burcunuzu ücretsiz hesaplayın: gezegenler, evler, açılar ve her birinin okuması."
    }
   },
   "compat": {
    "fr": {
     "u": "fr/conseils/compatibilite-amoureuse.html",
     "t": "Compatibilité amoureuse : le test complet",
-    "d": "Test de compatibilité amoureuse gratuit : entrez deux prénoms et deux dates de naissance pour obtenir la compatibilité par signes du zodiaque, signes chinois, biorythmes, numérologie et chemin de vie,"
+    "d": "Entrez deux prénoms et deux dates de naissance : compatibilité par signes, signe chinois, biorythmes, numérologie, chemin de vie, chaque lecture expliquée."
    },
    "en": {
     "u": "en/advice/love-compatibility.html",
     "t": "Love compatibility: the full test",
-    "d": "Free love compatibility test: enter two first names and two dates of birth to get compatibility by zodiac sign, Chinese sign, biorhythms, numerology and life path, with the detail of each reading."
+    "d": "Enter two first names and two dates of birth: compatibility by zodiac sign, Chinese sign, biorhythms, numerology and life path, each reading explained."
    },
    "de": {
     "u": "de/ratgeber/liebeskompatibilitaet.html",
     "t": "Liebeskompatibilität: der große Test",
-    "d": "Kostenloser Liebeskompatibilitäts-Test: Geben Sie zwei Vornamen und zwei Geburtsdaten ein und erhalten Sie die Verträglichkeit nach Tierkreis, chinesischem Zeichen, Biorhythmus, Numerologie und Lebens"
+    "d": "Zwei Vornamen und zwei Geburtsdaten eingeben: Verträglichkeit nach Tierkreis, chinesischem Zeichen, Biorhythmus, Numerologie, Lebensweg, jeweils erklärt."
    },
    "es": {
     "u": "es/consejos/compatibilidad-amorosa.html",
     "t": "Compatibilidad amorosa",
-    "d": "Test de compatibilidad amorosa gratuito: introduzca dos nombres y dos fechas de nacimiento para obtener la compatibilidad por signos del zodiaco, signos chinos, biorritmos, numerología y camino de vid"
+    "d": "Escriba dos nombres y dos fechas de nacimiento: compatibilidad por signo, signo chino, biorritmos, numerología y camino de vida, cada lectura explicada."
    },
    "it": {
     "u": "it/consigli/compatibilita-amorosa.html",
     "t": "Compatibilità amorosa",
-    "d": "Test di compatibilità amorosa gratuito: inserite due nomi e due date di nascita per ottenere la compatibilità per segni zodiacali, segni cinesi, bioritmi, numerologia e cammino di vita, con il dettagl"
+    "d": "Inserite due nomi e due date di nascita: affinità per segno zodiacale, segno cinese, bioritmi, numerologia e cammino di vita, ogni lettura spiegata."
    },
    "pt": {
     "u": "pt/conselhos/compatibilidade-amorosa.html",
     "t": "Compatibilidade amorosa",
-    "d": "Teste de compatibilidade amorosa gratuito: introduza dois nomes e duas datas de nascimento para obter a compatibilidade por signos do zodíaco, signos chineses, biorritmos, numerologia e caminho de vid"
+    "d": "Indique dois nomes e duas datas de nascimento: compatibilidade por signo, signo chinês, biorritmos, numerologia, caminho de vida, cada leitura explicada."
    },
    "nl": {
     "u": "nl/advies/liefdescompatibiliteit.html",
     "t": "Liefdescompatibiliteit",
-    "d": "Gratis liefdescompatibiliteitstest: voer twee voornamen en twee geboortedata in en krijg de compatibiliteit volgens sterrenbeeld, Chinees teken, bioritmen, numerologie en levenspad, met het detail van"
+    "d": "Twee voornamen en twee geboortedata: compatibiliteit volgens sterrenbeeld, Chinees teken, bioritmen, numerologie en levenspad, elke lezing toegelicht."
    },
    "pl": {
     "u": "pl/porady/zgodnosc-milosna.html",
     "t": "Zgodność miłosna",
-    "d": "Darmowy test zgodności miłosnej: wpisz dwa imiona i dwie daty urodzenia i poznaj zgodność według znaku zodiaku, znaku chińskiego, biorytmów, numerologii i drogi życia, ze szczegółem każdego odczytu."
+    "d": "Wpisz dwa imiona i dwie daty urodzenia: zgodność według znaku zodiaku, znaku chińskiego, biorytmów, numerologii i drogi życia, z objaśnieniem odczytów."
    },
    "tr": {
     "u": "tr/tavsiyeler/ask-uyumu.html",
     "t": "Aşk uyumu",
-    "d": "Ücretsiz aşk uyumu testi: iki ad ve iki doğum tarihi girin; burca, Çin burcuna, bioritimlere, numerolojiye ve yaşam yoluna göre uyumu her okumanın ayrıntısıyla öğrenin."
+    "d": "İki ad ve iki doğum tarihi girin: burca, Çin burcuna, bioritimlere, numerolojiye ve yaşam yoluna göre aşk uyumu, her okuma açıklamasıyla."
    }
   },
   "biorythme": {
@@ -303,12 +303,12 @@
    "en": {
     "u": "en/astrology/chinese-zodiac.html",
     "t": "Chinese astrology",
-    "d": "The twelve animal signs of the Chinese zodiac and the five elements — Unlike the Western zodiac, which is based on the month of birth"
+    "d": "Find your Chinese sign from your date of birth (the lunar year starts in late January or February), then read the 12 animals and the five elements."
    },
    "de": {
     "u": "de/astrologie/chinesisches-horoskop.html",
     "t": "Chinesisches Horoskop",
-    "d": "Die zwölf Tiere, die fünf Elemente und der Mondkalender — Ein anderes System, eine andere Logik — und ein anderer Jahresbeginn."
+    "d": "Ihr chinesisches Tierzeichen nach Geburtsdatum (das Mondjahr beginnt Ende Januar oder im Februar), die zwölf Tiere, die fünf Elemente und ihre Deutung."
    },
    "es": {
     "u": "es/astrologia/horoscopo-chino.html",
@@ -1050,47 +1050,47 @@
    "fr": {
     "u": "fr/astrologie/signes.html",
     "t": "Les 12 signes du zodiaque et l’ascendant",
-    "d": "Les 12 signes du zodiaque, l’ascendant, et un calculateur gratuit : signe solaire, signe lunaire et ascendant à partir de la date, de l’heure et du lieu de naissance."
+    "d": "Dates des 12 signes du zodiaque, éléments et caractère, avec un calculateur gratuit du signe solaire, du signe lunaire et de l’ascendant."
    },
    "en": {
     "u": "en/astrology/zodiac-signs.html",
     "t": "The 12 zodiac signs and the ascendant",
-    "d": "The 12 zodiac signs, the ascendant, and a free calculator: sun sign, moon sign and ascendant from your date, time and place of birth."
+    "d": "Dates of the 12 zodiac signs and what each is said to mean, with a free calculator for your sun sign, moon sign and ascendant (rising sign)."
    },
    "de": {
     "u": "de/astrologie/sternzeichen.html",
     "t": "Die zwölf Sternzeichen und der Aszendent",
-    "d": "Die zwölf Sternzeichen, der Aszendent und ein kostenloser Rechner: Sonnenzeichen, Mondzeichen und Aszendent aus Geburtsdatum, Geburtszeit und Geburtsort."
+    "d": "Kostenloser Rechner für Sternzeichen, Mondzeichen und Aszendent aus Geburtsdatum, -zeit und -ort, dazu Aufbau des Tierkreises und Forschungsstand."
    },
    "es": {
     "u": "es/astrologia/signos.html",
     "t": "Los doce signos del zodiaco",
-    "d": "Las fechas de cada signo, los cuatro elementos y las tres modalidades, el retrato tradicional de cada signo en el amor, y por qué las fechas cambian de un año a otro."
+    "d": "Las fechas de los 12 signos, los cuatro elementos y las tres modalidades, con una calculadora gratuita del signo solar, el signo lunar y el ascendente."
    },
    "it": {
     "u": "it/astrologia/segni.html",
     "t": "I dodici segni",
-    "d": "Le date dei dodici segni, i quattro elementi — fuoco, terra, aria, acqua —, le tre modalità — cardinale, fisso, mutevole —, e da dove viene lo zodiaco: Babilonia, la Grecia, e uno spostamento di un me"
+    "d": "Le date dei 12 segni zodiacali, i quattro elementi e le tre modalità, con un calcolatore gratuito del segno solare, del segno lunare e dell’ascendente."
    },
    "pt": {
     "u": "pt/astrologia/signos.html",
     "t": "Os doze signos",
-    "d": "As datas dos doze signos, os quatro elementos — fogo, terra, ar, água —, as três modalidades — cardinal, fixo, mutável —, e de onde vem o zodíaco: a Babilónia, a Grécia, e um desfasamento de um mês em"
+    "d": "As datas dos 12 signos do zodíaco, os quatro elementos e as três modalidades, com uma calculadora gratuita do signo solar, lunar e do ascendente."
    },
    "nl": {
     "u": "nl/astrologie/sterrenbeelden.html",
     "t": "De twaalf sterrenbeelden",
-    "d": "De data van de twaalf sterrenbeelden, de vier elementen — vuur, aarde, lucht, water —, de drie modaliteiten — hoofd, vast, beweeglijk —, en waar de dierenriem vandaan komt: Babylon, Griekenland, en ee"
+    "d": "De data van de 12 sterrenbeelden, de vier elementen en drie modaliteiten, met een gratis rekenmodule voor zonneteken, maanteken en ascendant."
    },
    "pl": {
     "u": "pl/astrologia/znaki-zodiaku.html",
     "t": "Dwanaście znaków zodiaku",
-    "d": "Daty dwunastu znaków zodiaku, cztery żywioły — ogień, ziemia, powietrze, woda — trzy jakości — kardynalna, stała, zmienna — i skąd wziął się zodiak: Babilon, Grecja i przesunięcie o miesiąc względem n"
+    "d": "Daty 12 znaków zodiaku, cztery żywioły i trzy jakości, z darmowym kalkulatorem znaku słonecznego, znaku księżycowego i ascendentu."
    },
    "tr": {
     "u": "tr/astroloji/burclar.html",
     "t": "On iki burç",
-    "d": "On iki burcun tarihleri, dört element — ateş, toprak, hava, su —, üç nitelik — öncü, sabit, değişken — ve zodyakın nereden geldiği: Babil, Yunanistan ve gökyüzüne göre bir aylık kayma."
+    "d": "On iki burcun tarihleri, dört element ve üç nitelik; doğum bilgilerinizle güneş burcunuzu, Ay burcunuzu ve yükseleninizi ücretsiz hesaplayın."
    }
   },
   "vedique": {
@@ -1144,47 +1144,47 @@
    "fr": {
     "u": "fr/astrologie/astrologie-maya.html",
     "t": "L’astrologie maya et le tzolk’in",
-    "d": "Astrologie maya : calculateur de signe tzolk’in (nombre, signe du jour, équivalent aztèque), les 20 signes et leur sens, les 13 nombres, haab, compte long et 2012, gardiens du calendrier k’iche’, Drea"
+    "d": "Calculez votre signe maya (nombre et signe du jour du tzolk’in), puis découvrez les 20 signes, les 13 nombres et ce que vaut cette « astrologie »."
    },
    "en": {
     "u": "en/astrology/maya-astrology.html",
     "t": "Maya astrology and the tzolk’in",
-    "d": "Maya astrology: tzolk’in sign calculator (number, day sign, Aztec equivalent), the 20 signs and their meaning, the 13 numbers, haab, Long Count and 2012, K’iche’ daykeepers, Dreamspell versus the trad"
+    "d": "Work out your Maya sign (tzolk’in number and day sign), then read the 20 day signs, the 13 numbers, the calendars and what this astrology is worth."
    },
    "de": {
     "u": "de/astrologie/maya-astrologie.html",
     "t": "Die Maya-Astrologie und der Tzolk’in",
-    "d": "Maya-Astrologie: Tzolk’in-Rechner (Zahl, Tageszeichen, aztekische Entsprechung), die 20 Zeichen und ihre Bedeutung, die 13 Zahlen, Haab, Lange Zählung und 2012, K’iche’-Kalenderhüter, Dreamspell gegen"
+    "d": "Berechnen Sie Ihr Maya-Zeichen (Zahl und Tageszeichen des Tzolk’in) und lesen Sie die 20 Zeichen, die 13 Zahlen, die Kalender und ihren Wert."
    },
    "es": {
     "u": "es/astrologia/astrologia-maya.html",
     "t": "La astrología maya y el tzolk'in",
-    "d": "Astrología maya: calculador de signo tzolk'in (número, signo del día, equivalente azteca), los 20 signos y su sentido, los 13 números, haab, cuenta larga y 2012, guardianes del calendario k'iche', Dre"
+    "d": "Calcule su signo maya (número y signo del día del tzolk&#x27;in) y conozca los 20 signos, los 13 números, los calendarios y lo que vale esta astrología."
    },
    "it": {
     "u": "it/astrologia/astrologia-maya.html",
     "t": "L'astrologia maya e il tzolk'in",
-    "d": "Astrologia maya: calcolatore del segno tzolk'in (numero, segno del giorno, equivalente azteco), i 20 segni e il loro senso, i 13 numeri, haab, lungo computo e 2012, custodi del calendario k'iche', Dre"
+    "d": "Calcolate il vostro segno maya (numero e segno del giorno del tzolk&#x27;in) e scoprite i 20 segni, i 13 numeri, i calendari e quanto vale questa astrologia."
    },
    "pt": {
     "u": "pt/astrologia/astrologia-maia.html",
     "t": "A astrologia maia e o tzolk'in",
-    "d": "Astrologia maia: calculadora de signo tzolk'in (número, signo do dia, equivalente asteca), os 20 signos e o seu sentido, os 13 números, haab, conta longa e 2012, guardiões do calendário k'iche', Dream"
+    "d": "Calcule o seu signo maia (número e signo do dia do tzolk&#x27;in) e conheça os 20 signos, os 13 números, os calendários e o que vale esta astrologia."
    },
    "nl": {
     "u": "nl/astrologie/maya-astrologie.html",
     "t": "De Maya-astrologie en de tzolk'in",
-    "d": "Maya-astrologie: rekenmodule voor het tzolk'in-teken (getal, dagteken, Azteeks equivalent), de 20 tekens en hun betekenis, de 13 getallen, haab, lange telling en 2012, kalenderbewaarders van de K'iche"
+    "d": "Bereken uw Maya-teken (getal en dagteken van de tzolk&#x27;in) en lees over de 20 dagtekens, de 13 getallen, de kalenders en wat deze astrologie waard is."
    },
    "pl": {
     "u": "pl/astrologia/astrologia-majow.html",
     "t": "Astrologia Majów i tzolk’in",
-    "d": "Astrologia Majów: kalkulator znaku tzolk’in (liczba, znak dnia, odpowiednik aztecki), 20 znaków i ich znaczenie, 13 liczb, haab, długa rachuba i 2012, strażnicy kalendarza K’iche’, Dreamspell i rachub"
+    "d": "Oblicz swój znak majański (liczba i znak dnia tzolk’in), a potem poznaj 20 znaków, 13 liczb, kalendarze Majów i wartość tej astrologii."
    },
    "tr": {
     "u": "tr/astroloji/maya-astrolojisi.html",
     "t": "Maya astrolojisi ve tzolk'in",
-    "d": "Maya astrolojisi: tzolk'in burcu hesaplayıcısı (sayı, gün işareti, Aztek karşılığı), 20 işaret ve anlamları, 13 sayı, haab, uzun sayım ve 2012, K'iche' takvim bekçileri, Dreamspell ve geleneksel sayım"
+    "d": "Maya burcunuzu (tzolk&#x27;in sayısı ve gün işareti) hesaplayın; 20 gün işaretini, 13 sayıyı, Maya takvimlerini ve bu astrolojinin değerini okuyun."
    }
   },
   "epoux": {
@@ -1253,7 +1253,7 @@
    "es": {
     "u": "es/consejos/separacion/calendario-de-custodia.html",
     "t": "Calendario de custodia compartida",
-    "d": "Calendario de custodia compartida para imprimir: semanas alternas, 2-2-3, 2-2-5-5 o fines de semana alternos, recuento de noches por progenitor, exportación a Google Calendar, Outlook o iPhone (.ics)."
+    "d": "Cree un calendario de custodia compartida: semanas alternas, 2-2-3, 2-2-5-5 o fines de semana, noches por progenitor, impresión y exportación .ics."
    },
    "it": {
     "u": "it/consigli/separazione/calendario-affido.html",
@@ -1278,7 +1278,7 @@
    "tr": {
     "u": "tr/tavsiyeler/ayrilik/velayet-takvimi.html",
     "t": "Ortak velayet takvimi",
-    "d": "Yazdırılabilir ortak velayet takvimi: hafta hafta, 2-2-3, 2-2-5-5 ya da iki haftada bir hafta sonu, ebeveyn başına gece sayımı, Google Takvim, Outlook ya da iPhone'a (.ics) dışa aktarma."
+    "d": "Yazdırılabilir ortak velayet takvimi: haftalık, 2-2-3, 2-2-5-5 ya da iki haftada bir hafta sonu; ebeveyn başına gece sayısı ve .ics dışa aktarma."
    }
   },
   "maternite": {
@@ -1802,7 +1802,7 @@
    "fr": {
     "u": "fr/conseils/pays.html",
     "t": "Le site pays par pays",
-    "d": "Toutes les pages d'AffectionPlus classées par pays : droit de la famille, mariage, divorce, santé, contraception, rencontre"
+    "d": "Les pages d'AffectionPlus classées par pays : droit de la famille, mariage, divorce, santé, contraception, rencontre — le détail national de chaque pays."
    },
    "en": {
     "u": "en/advice/countries.html",
@@ -1812,37 +1812,37 @@
    "de": {
     "u": "de/ratgeber/laender.html",
     "t": "Die Website Land für Land",
-    "d": "Alle AffectionPlus-Seiten nach Land sortiert: Familienrecht, Ehe, Scheidung, Gesundheit, Verhütung, Partnersuche — nationale Angaben, Land für Land gebündelt."
+    "d": "Alle AffectionPlus-Seiten nach Land sortiert: Familienrecht, Ehe, Scheidung, Gesundheit, Verhütung, Partnersuche — nationale Angaben, Land für Land."
    },
    "es": {
     "u": "es/consejos/paises.html",
     "t": "El sitio país por país",
-    "d": "Todos los países hispanohablantes, más Estados Unidos, la Unión Europea e Italia, país de destino de la emigración hispanohablante: para cada uno, una página que reúne sus fichas sobre el matrimonio, "
+    "d": "Matrimonio, divorcio, herencia, custodia, aborto, anticonceptivos y violencia: lo que dice la ley en cada país tratado en AffectionPlus.com."
    },
    "it": {
     "u": "it/consigli/paesi.html",
     "t": "Il sito paese per paese",
-    "d": "Italia, Svizzera italiana, San Marino, Unione europea e i paesi della grande emigrazione italiana, come Argentina, Brasile, Stati Uniti, Uruguay, Venezuela, Francia e Germania: per ciascuno, una pagin"
+    "d": "Matrimonio, divorzio, eredità, affidamento, aborto, contraccezione e violenza: cosa prevede la legge in ogni paese trattato su AffectionPlus.com."
    },
    "pt": {
     "u": "pt/conselhos/paises.html",
     "t": "O site país a país",
-    "d": "Todos os países de língua portuguesa, Macau, a União Europeia e os países da emigração portuguesa, a começar pela França: para cada um, uma página que reúne as suas fichas sobre o casamento, o divórci"
+    "d": "Casamento, divórcio, herança, guarda, aborto, contraceção e violência: o que diz a lei em cada país tratado no AffectionPlus.com."
    },
    "nl": {
     "u": "nl/advies/landen.html",
     "t": "De site land per land",
-    "d": "Nederland, België (Vlaanderen), Suriname, Aruba, Curaçao, Sint Maarten, Caribisch Nederland, de Europese Unie en de landen van de Nederlandse emigratie, te beginnen met Canada: voor elk een pagina die"
+    "d": "Huwelijk, scheiding, erfenis, gezag, abortus, anticonceptie en geweld: wat de wet zegt in elk land dat AffectionPlus.com behandelt."
    },
    "pl": {
     "u": "pl/porady/kraje.html",
     "t": "Serwis kraj po kraju",
-    "d": "Polska, Unia Europejska i kraje, w których żyją Polacy — Niemcy, Wielka Brytania, Irlandia, Holandia, Francja, Belgia, Włochy, Hiszpania, Austria, Szwajcaria, Luksemburg, Stany Zjednoczone, Kanada, Au"
+    "d": "Ślub, rozwód, spadek, opieka nad dzieckiem, aborcja, antykoncepcja i przemoc: co mówi prawo w każdym kraju opisanym na AffectionPlus.com."
    },
    "tr": {
     "u": "tr/tavsiyeler/ulkeler.html",
     "t": "Ülke ülke site",
-    "d": "Türkiye, Avrupa Birliği ve Türklerin yaşadığı ülkeler — Almanya, Fransa, Hollanda, Avusturya, Belçika, İsviçre, Birleşik Krallık, ABD, Avustralya, Kanada, İsveç, Danimarka, Kıbrıs: her biri için evlil"
+    "d": "Evlilik, boşanma, miras, velayet, kürtaj, doğum kontrolü ve şiddet: AffectionPlus.com'un ele aldığı her ülkede yasa ne diyor?"
    }
   },
   "recherche": {
