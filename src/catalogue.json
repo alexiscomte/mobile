@@ -1422,6 +1422,53 @@
     "d": "Önemli olan farklar, uzak mesafeli çift, vize ve aile birleşimi, bir yabancıyla evlilik, ve iki uluslu bir çiftin günlük hayatı — Türkiye'de ve Türk diasporasının ülkelerinde."
    }
   },
+  "pension": {
+   "fr": {
+    "u": "fr/conseils/separation/pension-alimentaire-calcul.html",
+    "t": "Pension alimentaire : calcul indicatif 2026 par pays et barème",
+    "d": "Estimation indicative de la pension alimentaire d’un enfant en 2026 : barèmes officiels de cinq pays, détail du calcul et règles de l’enfant majeur."
+   },
+   "en": {
+    "u": "en/advice/separation/child-maintenance-calculator.html",
+    "t": "Child maintenance calculator 2026: UK formula and other countries",
+    "d": "Indicative child maintenance estimate for 2026: the CMS formula, the French, German and Dutch official scales, Spain’s method, and the rules for adult children."
+   },
+   "de": {
+    "u": "de/ratgeber/trennung/unterhaltsrechner.html",
+    "t": "Unterhaltsrechner 2026: Kindesunterhalt nach Düsseldorfer Tabelle",
+    "d": "Unverbindliche Schätzung des Kindesunterhalts 2026: Düsseldorfer Tabelle mit Kindergeld und Selbstbehalt, dazu die Tabellen von vier weiteren Ländern."
+   },
+   "es": {
+    "u": "es/consejos/separacion/pension-de-alimentos-calculo.html",
+    "t": "Pensión de alimentos: cálculo orientativo 2026 por país y baremo",
+    "d": "Estimación orientativa de la pensión de alimentos de un hijo en 2026: método del CGPJ, baremos de cuatro países, detalle del cálculo y reglas del hijo mayor."
+   },
+   "it": {
+    "u": "it/consigli/separazione/assegno-di-mantenimento-calcolo.html",
+    "t": "Assegno di mantenimento figli: calcolo indicativo 2026 per paese",
+    "d": "Stima indicativa dell’assegno di mantenimento di un figlio nel 2026: art. 337-ter, tabelle di quattro paesi, calcolo dettagliato, figlio maggiorenne."
+   },
+   "pt": {
+    "u": "pt/conselhos/separacao/pensao-de-alimentos-calculo.html",
+    "t": "Pensão de alimentos: cálculo indicativo 2026 por país e tabela",
+    "d": "Estimativa indicativa da pensão de alimentos de um filho em 2026: critérios do artigo 2004, tabelas de quatro países, cálculo detalhado e regras do filho maior."
+   },
+   "nl": {
+    "u": "nl/advies/scheiding/alimentatie-berekenen.html",
+    "t": "Alimentatie berekenen 2026: kinderalimentatie per land en tabel",
+    "d": "Indicatieve schatting van de kinderalimentatie in 2026: behoeftetabel en draagkracht (Tremanormen), tabellen van vier andere landen, berekening in detail."
+   },
+   "pl": {
+    "u": "pl/porady/rozstanie/alimenty-wyliczenie.html",
+    "t": "Alimenty na dziecko: orientacyjne wyliczenie 2026 według kraju",
+    "d": "Orientacyjne oszacowanie alimentów na dziecko w 2026 r.: kryteria art. 133 i 135 KRO, tabele czterech krajów, wyliczenie krok po kroku, dziecko pełnoletnie."
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/ayrilik/nafaka-hesaplama.html",
+    "t": "Nafaka hesaplama 2026: çocuk nafakası ülkeye göre tahmini",
+    "d": "2026 çocuk nafakası için yol gösterici tahmin: Türk Medeni Kanunu ölçütleri, dört ülkenin resmi tabloları, satır satır hesap ve reşit çocuğa ilişkin kurallar."
+   }
+  },
   "conseils": {
    "fr": {
     "u": "fr/conseils/index.html",

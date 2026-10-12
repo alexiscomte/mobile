@@ -26,8 +26,8 @@ import { COULEURS, useCouleurs, type NomCouleur } from '@/theme';
 
 const ROUTES: Record<string, string> = { horoscope: '/horoscope', biorythme: '/biorythme', theme: '/theme', jeu2: '/jeu2', qdj: '/qdj', sondages: '/sondages', scores: '/quiz',
   compat: '/compat', chinois: '/chinois', distance: '/distance', maternite: '/maternite', ovulation: '/ovulation', garde: '/garde', epoux: '/epoux' };
-// conteneur generique div#outil : l'ecran natif se retrouve par la page du catalogue (02/10/2026 : plan callisthenique)
-const OUTILS_PAGE: Cle[] = ['ovulation', 'maternite', 'compteur', 'epoux', 'garde', 'callisthenie'];
+// conteneur generique div#outil : l'ecran natif se retrouve par la page du catalogue (02/10/2026 : plan callisthenique ; 12/10 : pension)
+const OUTILS_PAGE: Cle[] = ['ovulation', 'maternite', 'compteur', 'epoux', 'garde', 'callisthenie', 'pension'];
 const routeDePage = (u: string, lg: Parameters<typeof page>[1]) => { const k = OUTILS_PAGE.find((c) => page(c, lg).u === u); return k ? '/' + k : undefined; };
 // pages « autres astrologies » (conteneur utres) : védique et maya ont leur écran (mode), la page de l'amour par signe chinois ouvre l'écran du signe chinois
 const routeAutres = (u: string, lg: Parameters<typeof page>[1]) => (page('maya', lg).u === u ? '/autres?mode=maya' : page('vedique', lg).u === u ? '/autres?mode=vedique' : '/chinois');

@@ -28,6 +28,7 @@ const OUTILS: { cle: Cle; sf: string; route?: string; image?: Img }[] = [
   { cle: 'compteur', sf: 'heart.circle.fill', route: '/compteur', image: VIGNETTES.compteur },
   { cle: 'epoux', sf: 'textformat.abc', route: '/epoux', image: VIGNETTES.epoux },
   { cle: 'garde', sf: 'calendar', route: '/garde', image: VIGNETTES.garde },
+  { cle: 'pension', sf: 'banknote', route: '/pension', image: VIGNETTES.pension },
   { cle: 'distance', sf: 'globe', route: '/distance', image: VIGNETTES.distance },
 ];
 
