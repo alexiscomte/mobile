@@ -1,22 +1,20 @@
 // Horoscope du jour, natif : positions réelles du jour (moteur du site), vos signes en premier.
+// Les cartes (components/horoscope-carte.tsx, 12/10/2026) ouvrent la page « horoscope du jour » du signe ou de l'animal dans l'appli
+// (article hors ligne), quand l'index du contenu la connaît (tables hs / ha écrites par app_contenu.py) ; sinon elles ne sont pas pressables.
 import { Stack, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { CarteAnimalJour, CarteSigneJour, textesChinois, TITRE_CHINOIS } from '@/components/horoscope-carte';
 import { Illustration } from '@/components/illustration';
 import { TEXTES } from '@/i18n';
 import { GLYPHES, TEXTES2 } from '@/i18n2';
 import { CHINOIS as CHINOIS_IMG, ZODIAQUE } from '@/images';
-import { chinoisDuJour, type TextesChinois } from '@/moteur/chinois';
-import { ciel, entete, horoscope, signesDe, textes } from '@/moteur/horoscope';
-import ui from '@/moteur/ui.json';
+import { chinoisDuJour } from '@/moteur/chinois';
+import { pagesHoroscope } from '@/moteur/contenu';
+import { ciel, entete, signesDe, textes } from '@/moteur/horoscope';
+import { ouvrirArticle } from '@/nav';
 import { useProfil } from '@/profil';
-
-const CHINOIS = (ui as unknown as { chinoisJour: Record<string, TextesChinois> }).chinoisJour;
-const TITRE_CH: Record<string, string> = {
-  fr: 'L’horoscope chinois du jour', en: 'Today’s Chinese horoscope', de: 'Das chinesische Tageshoroskop', es: 'El horóscopo chino del día',
-  it: 'L’oroscopo cinese del giorno', pt: 'O horóscopo chinês do dia', nl: 'De Chinese daghoroscoop', pl: 'Chiński horoskop dnia', tr: 'Günün Çin burcu yorumu',
-};
 import { COULEURS } from '@/theme';
 
 export default function Horoscope() {
@@ -33,6 +31,11 @@ export default function Horoscope() {
   }, [profil]);
   const enAvant = miens ? [miens.soleil, ...(miens.ascendant !== null && miens.ascendant !== miens.soleil ? [miens.ascendant] : [])] : [];
   const liste = miens && !tous ? enAvant : Array.from({ length: 12 }, (_, i) => i);
+  // pages de contenu de chaque carte (index hors ligne) : la carte s'ouvre sur sa page quand elle existe
+  const [pages, setPages] = useState<{ signes: Record<number, string>; animaux: Record<number, string> }>({ signes: {}, animaux: {} });
+  useEffect(() => { let actif = true; pagesHoroscope(langue).then((p) => { if (actif) setPages(p); }, () => undefined); return () => { actif = false; }; }, [langue]);
+  const lien = (u?: string) => (u ? () => ouvrirArticle(router, u) : undefined);
+  const TC = textesChinois(langue);
 
   return (
     <>
@@ -67,42 +70,19 @@ export default function Horoscope() {
           </Pressable>
         ) : null}
 
-        {liste.map((s) => {
-          const h = horoscope(c, s, langue);
-          const mien = enAvant.includes(s);
-          return (
-            <View key={s} style={[styles.carte, mien && styles.carteMienne]}>
-              <View style={styles.carteTete}>
-                <Illustration image={ZODIAQUE[s]} taille={56} alt={TA.signes[s]} />
-                <Text style={[styles.carteTitre, styles.carteTitreTete]}>{GLYPHES[s]} {TA.signes[s]}</Text>
-              </View>
-              <Text style={styles.texte}>{h.phrases.join(' ')}</Text>
-              <Text style={styles.conseil}>{T2.conseil} — <Text style={styles.italique}>{h.conseil}</Text></Text>
-            </View>
-          );
-        })}
-        {CHINOIS ? (() => {
-          const TC = CHINOIS[langue] || CHINOIS.fr;
+        {liste.map((s) => (
+          <CarteSigneJour key={s} signe={s} langue={langue} quand={maintenant} mienne={enAvant.includes(s)} onPress={lien(pages.signes[s])} />
+        ))}
+        {TC ? (() => {
           const animaux = miens && !tous ? [miens.chinois.animal] : Array.from({ length: 12 }, (_, i) => i);
           const premier = chinoisDuJour(TC, 0, maintenant);
           return (
             <>
-              <Text style={styles.sectionTitre} accessibilityRole="header">{TITRE_CH[langue] || TITRE_CH.fr}</Text>
+              <Text style={styles.sectionTitre} accessibilityRole="header">{TITRE_CHINOIS[langue] || TITRE_CHINOIS.fr}</Text>
               <Text style={styles.entete}>{premier.entete}</Text>
-              {animaux.map((a) => {
-                const h = chinoisDuJour(TC, a, maintenant);
-                const mien = !!miens && miens.chinois.animal === a;
-                return (
-                  <View key={'c' + a} style={[styles.carte, mien && styles.carteMienne]}>
-                    <View style={styles.carteTete}>
-                      <Illustration image={CHINOIS_IMG[a]} taille={56} alt={TA.chinois.animaux[a]} />
-                      <Text style={[styles.carteTitre, styles.carteTitreTete]}>{TA.chinois.animaux[a]} <Text style={styles.dates}>{TC.annees} {h.annees.join(', ')}…</Text></Text>
-                    </View>
-                    <Text style={styles.texte}>{h.texte}</Text>
-                    <Text style={styles.conseil}>{T2.conseil} — <Text style={styles.italique}>{h.conseil}</Text></Text>
-                  </View>
-                );
-              })}
+              {animaux.map((a) => (
+                <CarteAnimalJour key={'c' + a} animal={a} langue={langue} quand={maintenant} mienne={!!miens && miens.chinois.animal === a} onPress={lien(pages.animaux[a])} />
+              ))}
             </>
           );
         })() : null}
@@ -123,16 +103,7 @@ const styles = StyleSheet.create({
   bouton: { borderWidth: 1, borderColor: COULEURS.primaire, borderRadius: 12, paddingVertical: 10, alignItems: 'center', marginBottom: 12 },
   boutonTxt: { color: COULEURS.primaire, fontWeight: '600' },
   presse: { opacity: 0.8 },
-  carte: { borderWidth: 1, borderColor: COULEURS.bordure, borderRadius: 14, padding: 14, marginBottom: 12, backgroundColor: COULEURS.fondMuet },
-  carteMienne: { borderColor: COULEURS.primaire, borderWidth: 2, backgroundColor: COULEURS.fondDoux },
-  carteTitre: { fontSize: 18, fontWeight: '700', color: COULEURS.primaireFonce, marginBottom: 6 },
-  carteTete: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 },
-  carteTitreTete: { flex: 1, marginBottom: 0 },
   mesImages: { flexDirection: 'row', gap: 10, marginBottom: 10 },
-  texte: { fontSize: 15, lineHeight: 22, color: COULEURS.texte },
-  conseil: { marginTop: 8, fontSize: 14, color: COULEURS.secondaireFonce },
-  italique: { fontStyle: 'italic' },
   sectionTitre: { fontSize: 20, fontWeight: '700', color: COULEURS.primaireFonce, marginTop: 14, marginBottom: 4 },
-  dates: { fontSize: 12, fontWeight: '400', color: COULEURS.texteMuet },
   note: { color: COULEURS.texteMuet, fontSize: 12, textAlign: 'center', marginTop: 8 },
 });

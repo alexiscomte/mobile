@@ -12,6 +12,7 @@ import { ActivityIndicator, Linking, Pressable, ScrollView, Share, StyleSheet, T
 import RenderHtml, { type MixedStyleDeclaration } from 'react-native-render-html';
 
 import { localiserImages } from '@/embarque';
+import { CarteJourArticle } from '@/components/horoscope-carte';
 import { Pouce } from '@/components/pouce';
 import { TEXTES } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
@@ -89,6 +90,11 @@ export default function EcranArticle() {
     const r: Record<string, any> = Object.fromEntries(BLOCS_ANCRE.map((t) => [t, avecAncre]));
     r.div = ({ tnode, TDefaultRenderer, ...props }: any) => {
       const outil = tnode.attributes['data-app-outil'], quiz = tnode.attributes['data-app-quiz'];
+      // pages « horoscope du jour par signe / par animal » (12/10/2026) : la carte native du jour, en ligne, à la place du lien
+      if (outil === 'horoscope' && (tnode.attributes['data-app-sign'] !== undefined || tnode.attributes['data-app-animal'] !== undefined)) {
+        const s = tnode.attributes['data-app-sign'], an = tnode.attributes['data-app-animal'];
+        return <CarteJourArticle signe={s !== undefined ? Number(s) : undefined} animal={an !== undefined ? Number(an) : undefined} dates={tnode.attributes['data-app-dates']} langue={langue} />;
+      }
       if (outil) {
         const route = ROUTES[outil] || (outil === 'outil' && chemin ? routeDePage(chemin, langue) : undefined) || (outil === 'autres' && chemin ? routeAutres(chemin, langue) : undefined);
         return (

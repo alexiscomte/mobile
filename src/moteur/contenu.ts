@@ -12,7 +12,8 @@ export type EntreeIndex = [string, string, string, string, string];   // u, titr
 export type Article = { t: string; d: string; fil: string; h1: string; lead: string; h: string; maj: string };
 // r : ancienne adresse -> nouvelle (« fr/…/x.html#ancre »), fiches pays fusionnées dans les grosses pages droits (droits_pays.py, 08/10/2026)
 // v : « AAAA-MM-JJ-empreinte » ; pv : version (empreinte) de chaque paquet, par groupe
-type Index = { v: string; pv?: Record<string, string>; pages: EntreeIndex[]; r?: Record<string, string> };
+// hs / ha : numéro de signe du zodiaque / d'animal chinois -> page « horoscope du jour par signe / par animal » (12/10/2026)
+type Index = { v: string; pv?: Record<string, string>; pages: EntreeIndex[]; r?: Record<string, string>; hs?: Record<string, string>; ha?: Record<string, string> };
 type Paquet = { v: string; pages: Record<string, Article> };
 
 const memIndex: Partial<Record<Langue, Index>> = {};
@@ -163,6 +164,16 @@ export async function ancreRedirigee(lg: Langue, u: string): Promise<string> {
   const v = idx.r ? idx.r[u] : undefined;
   const i = v ? v.indexOf('#') : -1;
   return v && i >= 0 ? v.slice(i + 1) : '';
+}
+
+/** Pages « horoscope du jour » par signe (0-11) et par animal chinois (0-11) de la langue, si l'index les connaît (12/10/2026). */
+export async function pagesHoroscope(lg: Langue): Promise<{ signes: Record<number, string>; animaux: Record<number, string> }> {
+  const vide = { signes: {}, animaux: {} };
+  try {
+    const idx = await index(lg);
+    const table = (t?: Record<string, string>) => Object.fromEntries(Object.entries(t || {}).map(([n, u]) => [Number(n), u])) as Record<number, string>;
+    return { signes: table(idx.hs), animaux: table(idx.ha) };
+  } catch { return vide; }
 }
 
 /** L'ancre d'une adresse (« …/x.html#mariage-civil » -> « mariage-civil »), décodée ; '' sans ancre. */
