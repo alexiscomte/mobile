@@ -1,6 +1,7 @@
 {
   "ios": {
     "CFBundleDisplayName": "AffectionPlus",
-    "NSLocationWhenInUseUsageDescription": "La tua posizione viene usata una sola volta per trovare il punto nascita più vicino; non viene né inviata né conservata."
+    "NSLocationWhenInUseUsageDescription": "La tua posizione viene usata una sola volta per trovare il reparto maternità più vicino; non viene conservata (fuori dalla Francia, viene inviata a OpenStreetMap per la ricerca).",
+    "NSMotionUsageDescription": "AffectionPlus non utilizza i sensori di movimento del dispositivo."
   }
 }

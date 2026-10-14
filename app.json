@@ -13,7 +13,6 @@
     "primaryColor": "#580378",
     "ios": {
       "bundleIdentifier": "com.affectionplus.app",
-      "buildNumber": "1",
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "icon": "./assets/images/icon.png",
@@ -31,7 +30,8 @@
           "pl",
           "tr"
         ],
-        "CFBundleDevelopmentRegion": "fr"
+        "CFBundleDevelopmentRegion": "fr",
+        "NSMotionUsageDescription": "AffectionPlus n'utilise pas les capteurs de mouvement de l'appareil."
       },
       "scheme": [
         "com.googleusercontent.apps.271367624923-5cr1gk0rs0q9r86uj7q5m7llkfp45tlf"
@@ -105,10 +105,10 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Votre position sert une seule fois à trouver la maternité la plus proche ; elle n'est ni envoyée ni conservée.",
+          "locationWhenInUsePermission": "Votre position sert une seule fois à trouver la maternité la plus proche ; elle n'est pas conservée (hors de France, elle est transmise à OpenStreetMap pour la recherche).",
           "locationAlwaysAndWhenInUsePermission": false,
           "locationAlwaysPermission": false,
-          "motionUsagePermission": false,
+          "motionUsagePermission": "AffectionPlus n'utilise pas les capteurs de mouvement de l'appareil.",
           "isIosBackgroundLocationEnabled": false
         }
       ]
