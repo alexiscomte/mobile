@@ -12,18 +12,22 @@
 // brouillon de chaque fil) et s'efface à l'envoi ; celui d'un fil revient aussi après un rechargement de la liste si le champ est vide.
 // Admin : « Réponses à valider (N) » ouvre la page de validation du site (admin/reponses.html, vue web avec la session) : la validation
 // des réponses préparées reste sur le site ; N est gardé dans ap.compte.a_valider (entrée de l'onglet Moi, comme le menu du site).
-// Textes : ui.json messages (messages.js du site, app_moteurs.py).
+// Notifications (14/10/2026, notifications.ts) : la demande d'autorisation d'iOS s'ouvre après l'envoi d'un message (une réponse est
+// attendue) ou par le bouton « Me prévenir des nouveaux messages » ; autorisation refusée : phrase + « Ouvrir les Réglages ».
+// Textes : ui.json messages (messages.js du site, app_moteurs.py) ; notifications : i18n7.ts.
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
 import { Bouton, Champ, F } from '@/components/form';
 import { Invitation, ListeConnexions, Pastille, Repliable, UI_M, dateHeure, dateJour, type TX } from '@/components/espace';
 import { noterNonLus, oublierSession } from '@/compte';
 import { erreur as vibrerErreur, succes } from '@/haptique';
 import { fmt } from '@/i18n';
+import { TEXTES7 } from '@/i18n7';
 import { changerEtat, envoyer, fils as lireFils, garderBrouillon, historique, marquerLu, oublierTrace, preferenceMail, repondre, type Brouillon, type Connexion, type Fil, type Rep } from '@/messages';
 import ui from '@/moteur/ui.json';
+import { etatNotif, inscrire as inscrireNotif, type EtatNotif } from '@/notifications';
 import { ouvrir } from '@/nav';
 import { useProfil } from '@/profil';
 import { url } from '@/site';
@@ -174,6 +178,8 @@ export default function Messages() {
   const [brouillon, setBrouillon] = useState<Brouillon | null>(null);   // brouillon du nouveau message gardé sur le serveur
   const [noteB, setNoteB] = useState('');
   const [rafraichit, setRafraichit] = useState(false);   // tirer vers le bas : fils relus
+  const [notif, setNotif] = useState<EtatNotif>('sans');  // autorisation des notifications sur cet appareil
+  const t7 = TEXTES7[langue] || TEXTES7.fr;
   const router = useRouter();
   const session = compte ? compte.session : '';
 
@@ -198,7 +204,8 @@ export default function Messages() {
     // badge de Mes messages et, pour l'admin, nombre de « Réponses à valider » de l'onglet Moi (comme messages.js : ap.compte.a_valider)
     noterNonLus(r.fils.filter((f) => f.non_lu).length, r.admin, r.admin ? r.fils.filter((f) => f.a_valider).length : undefined).catch(() => undefined);
   }, [session, sessionFinie, t]);
-  useFocusEffect(useCallback(() => { recharger(); }, [recharger]));
+  useFocusEffect(useCallback(() => { recharger(); etatNotif().then(setNotif).catch(() => undefined); }, [recharger]));
+  const demanderNotif = useCallback(() => { inscrireNotif(langue, true).then(setNotif).catch(() => undefined); }, [langue]);
   // brouillon du nouveau message (cet appareil ou un autre) : repris seulement si la personne n'a encore rien écrit
   useEffect(() => {
     if (!brouillon || sujet.trim() || texte.trim()) return;
@@ -229,6 +236,7 @@ export default function Messages() {
     setSujet(''); setTexte(''); setNoteB(''); setBrouillon(null);     // le serveur a effacé le brouillon du nouveau message
     setStatut(t.envoye);
     recharger();
+    demanderNotif();     // une réponse est attendue : c'est le moment de proposer les notifications (une seule fois, par iOS)
   };
   const changerMail = (v: boolean) => {
     setMail(v); setNoteMail('');
@@ -272,6 +280,13 @@ export default function Messages() {
                 onValueChange={(v) => { if (admin) setNonLusSeuls(v); else changerMail(v); }} />
             </View>
             {noteMail ? <Text style={F.muet}>{noteMail}</Text> : null}
+            {notif === 'a-demander' ? <Bouton titre={t7.notifActiver} secondaire onPress={demanderNotif} /> : null}
+            {notif === 'non' ? (
+              <>
+                <Text style={F.muet}>{t7.notifOff}</Text>
+                <Bouton titre={t7.notifReglages} secondaire onPress={() => { Linking.openSettings().catch(() => undefined); }} />
+              </>
+            ) : null}
             {liste === null ? <ActivityIndicator color={COULEURS.primaire} style={styles.attente} /> : null}
             {erreurListe ? <Text style={styles.statut}>{erreurListe}</Text> : null}
             {liste && !visibles.length && !erreurListe ? <Text style={F.muet}>{t.aucun}</Text> : null}

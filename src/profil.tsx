@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
+import { inscrire as inscrireNotif, oublier as oublierNotif, pastille, surReception } from './notifications';
 import { chargerCompte, compteActuel, envoyerEnAttente, pousser, presence, surCompte, synchroAuLancement, deconnecter, oublierSynchro, type Compte } from './compte';
 import { estLangue, langueAppareil, type Langue } from './i18n';
 import { paysParCode } from './moteur/lieux';
@@ -233,6 +234,21 @@ export function ProfilProvider({ children }: { children: React.ReactNode }) {
     const abo = AppState.addEventListener('change', (s) => { if (s === 'active') tic(); });
     return () => { clearTimeout(premier); clearInterval(minuterie); abo.remove(); };
   }, [pret, session, paysIp]);
+
+  // notifications de l'appli (notifications.ts, 14/10/2026) : à chaque session (lancement, connexion) et changement de langue, le jeton
+  // de l'appareil est envoyé au serveur si l'autorisation est DÉJÀ donnée (aucune demande ici) ; la pastille de l'icône suit le nombre de
+  // fils non lus (présence, messagerie) et disparaît à la déconnexion ; une notification reçue appli ouverte relance la présence
+  const nonLus = compte ? compte.messages_non_lus || 0 : 0;
+  useEffect(() => {
+    if (!pret) return;
+    if (session) inscrireNotif(langue, false).catch(() => undefined);
+    else oublierNotif();
+  }, [pret, session, langue]);
+  useEffect(() => { if (pret && session) pastille(nonLus).catch(() => undefined); }, [pret, session, nonLus]);
+  useEffect(() => surReception(() => {
+    presDerniere.current = { session: '', t: 0 };
+    presence().catch(() => undefined);
+  }), []);
 
   const setLangue = useCallback(async (l: Langue) => {
     setLangueEtat(l);
