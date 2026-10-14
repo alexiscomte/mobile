@@ -1990,47 +1990,47 @@
    "fr": {
     "u": "fr/contact.html",
     "t": "Nous écrire",
-    "d": "Une question, une correction, une suggestion, une proposition commerciale, un partenariat, un signalement : écrivez-nous ci-dessous, nous lisons tout."
+    "d": "Une question, une correction, une suggestion, une proposition commerciale, un partenariat, un signalement : écrivez-nous à webmaster@affection.org, nous lisons tout."
    },
    "en": {
     "u": "en/contact.html",
     "t": "Contact us",
-    "d": "A question, a correction, a suggestion, a commercial proposal, a partnership, a report: write to us below, we read everything."
+    "d": "A question, a correction, a suggestion, a commercial proposal, a partnership, a report: write to us at webmaster@affection.org, we read everything."
    },
    "de": {
     "u": "de/kontakt.html",
     "t": "Kontakt",
-    "d": "Eine Frage, eine Korrektur, ein Vorschlag, ein kommerzielles Angebot, eine Partnerschaft, eine Meldung: Schreiben Sie uns unten, wir lesen alles."
+    "d": "Eine Frage, eine Korrektur, ein Vorschlag, ein kommerzielles Angebot, eine Partnerschaft, eine Meldung: Schreiben Sie uns an webmaster@affection.org, wir lesen alles."
    },
    "es": {
     "u": "es/contacto.html",
     "t": "Escríbanos",
-    "d": "Para todo, escríbanos con el formulario de abajo. Las correcciones se tratan primero."
+    "d": "Una pregunta, una corrección, una sugerencia, una propuesta comercial, una colaboración, un aviso: escríbanos a webmaster@affection.org, lo leemos todo."
    },
    "it": {
     "u": "it/contatti.html",
     "t": "Scrivici",
-    "d": "Per tutto, scriveteci con il modulo qui sotto. Le correzioni si trattano per prime."
+    "d": "Una domanda, una correzione, un suggerimento, una proposta commerciale, una collaborazione, una segnalazione: scriveteci a webmaster@affection.org, leggiamo tutto."
    },
    "pt": {
     "u": "pt/contacto.html",
     "t": "Escreva-nos",
-    "d": "Para tudo, escreva-nos com o formulário abaixo. As correções tratam-se primeiro."
+    "d": "Uma pergunta, uma correção, uma sugestão, uma proposta comercial, uma parceria, um aviso: escreva-nos para webmaster@affection.org, lemos tudo."
    },
    "nl": {
     "u": "nl/contact.html",
     "t": "Schrijf ons",
-    "d": "Voor alles: schrijf ons via het formulier hieronder. De correcties worden het eerst behandeld."
+    "d": "Een vraag, een correctie, een suggestie, een commercieel voorstel, een samenwerking, een melding: schrijf ons op webmaster@affection.org, we lezen alles."
    },
    "pl": {
     "u": "pl/kontakt.html",
     "t": "Napisz do nas",
-    "d": "W każdej sprawie napisz do nas przez formularz poniżej. Poprawki załatwia się najpierw."
+    "d": "Pytanie, poprawka, sugestia, propozycja handlowa, współpraca, zgłoszenie: napisz do nas na adres webmaster@affection.org, czytamy wszystko."
    },
    "tr": {
     "u": "tr/iletisim.html",
     "t": "Bize yazın",
-    "d": "Her şey için aşağıdaki formla bize yazın. Düzeltmeler önce ele alınır."
+    "d": "Bir soru, bir düzeltme, bir öneri, ticari bir teklif, bir iş birliği, bir bildirim: bize webmaster@affection.org adresinden yazın, hepsini okuyoruz."
    }
   },
   "confidentialite": {
