@@ -93,7 +93,6 @@
       "expo-router",
       "expo-localization",
       "expo-apple-authentication",
-      "expo-notifications",
       [
         "expo-splash-screen",
         {

@@ -1,14 +1,14 @@
 // Moi = accueil de l'espace membre (Alexis, 07/10/2026 ; menu regroupé le soir, cahier specs/espace-membre-reduit-0710.md, point 8),
 // comme le menu de l'icône « Mes infos » du site : « Se connecter » (ou le nom de la personne, sinon son adresse, qui mène à « Mes
 // informations personnelles » ; vu par elle seule) en tête, puis les mêmes entrées (table MENU d'espace.js : depuis le 07/10/2026 nuit,
-// cahier specs/espace-membre-retouches-0710.md, décisions 6 et 7, Mes informations personnelles, Mes messages, Mes favoris, Mes outils ;
+// cahier specs/espace-membre-retouches-0710.md, décisions 6 et 7, Mes informations personnelles, Mes favoris, Mes outils ;
 // Mes sondages, Mes compatibilités et Mon historique de connexion sont des cartes de Mes outils, « Mon astrologie » y est fusionnée)
-// vers les écrans natifs, avec le nombre de favoris et de messages non lus, puis « Se déconnecter » ; langue, lecture hors ligne,
+// vers les écrans natifs, avec le nombre de favoris, puis « Se déconnecter » ; langue, lecture hors ligne,
 // à propos, effacement ; « Suivez-nous sur les réseaux sociaux » en français. Plus de « Gérer mon compte » : mot de passe et
 // suppression du compte sont dans « Mes informations personnelles » (encadré « Mon compte »). Sans compte, tout reste sur l'appareil.
-// Administrateur seulement (07/10/2026 nuit, cahier specs/admin-cle-0710.md ; entrée « a » du menu du site) : après un trait, « Réponses à
-// valider » avec le nombre ap.compte.a_valider (présence, messagerie, page de validation) ; elle ouvre la page de validation du site
-// (admin/reponses.html) dans la vue web avec la session : la validation reste sur le site.
+// Messagerie interne supprimée le 14/10/2026 (Alexis : plus besoin de compte pour nous écrire, contact par courriel sur la page Contact
+// du site) : plus d'entrée « Mes messages » ni « Réponses à valider », plus de compteur de non-lus. Une entrée du menu du site sans
+// écran dans ECRANS est ignorée.
 import * as Application from 'expo-application';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -34,16 +34,14 @@ type TX = Record<string, string>;
 const UI_COMPTE = (ui as { compte: Record<string, TX> }).compte;
 const UI_E = (ui as unknown as { espace: Record<string, TX> }).espace;
 const RESEAUX = (ui as unknown as { reseaux: { titre: TX; texte: TX; liens: [string, string][] } }).reseaux;
-// menu de l'icône « Mes infos » du site (espace_menu.py) : mêmes entrées, mêmes libellés ; ici chaque entrée ouvre son écran natif,
-// sauf « Réponses à valider » (« a » : administrateur seulement), page de validation du site ouverte dans la vue web (cible null)
+// menu de l'icône « Mes infos » du site (espace_menu.py) : mêmes entrées, mêmes libellés ; ici chaque entrée ouvre son écran natif
+// (cible null : la page du site dans la vue web)
 const MENU = (ui as unknown as { menu: { c: string; t: TX; u: TX; k?: number; a?: number }[] }).menu;
 type Cible = { route: string; params?: Record<string, string> } | null;   // null : la page du site dans la vue web
 const ECRANS: Record<string, { sf: string; cible: Cible }> = {
   infos: { sf: 'person.text.rectangle.fill', cible: { route: '/mes-infos' } },
-  messages: { sf: 'bubble.left.and.bubble.right.fill', cible: { route: '/messages' } },
   favoris: { sf: 'hand.thumbsup.fill', cible: { route: '/favoris' } },
   outils: { sf: 'wrench.and.screwdriver.fill', cible: { route: '/outils' } },
-  reponses: { sf: 'checkmark.circle.fill', cible: null },
 };
 
 export default function Moi() {
@@ -112,8 +110,7 @@ export default function Moi() {
           const e = ECRANS[m.c]; const u = m.u[langue];
           // « k » : seulement avec un compte connecté ; « a » : seulement pour l'administrateur (ap.compte.admin)
           if (!e || !u || (m.k && !compte) || (m.a && !(compte && compte.admin))) return null;
-          // « Mes messages » est une carte de « Mes outils » depuis le 08/10/2026 : ses non-lus s'affichent sur l'entrée « Mes outils »
-          const n = m.c === 'favoris' ? favoris.length : (m.c === 'messages' || m.c === 'outils') ? (compte?.messages_non_lus || 0) : m.c === 'reponses' ? (compte?.a_valider || 0) : 0;
+          const n = m.c === 'favoris' ? favoris.length : 0;
           const aller = () => {
             if (!e.cible) { ouvrir(router, url(u), m.t[langue] || m.t.fr); return; }
             // routes typées : les écrans du menu existent tous (_layout.tsx) ; la cible vient d'une table fixe

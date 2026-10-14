@@ -1,6 +1,5 @@
 // Briques communes des écrans de l'espace membre (07/10/2026, soir ; cahier specs/espace-membre-reduit-0710.md) : texte avec un lien
-// à la place de « %s » ou entre crochets, invitation à se connecter (Se connecter / Créer un compte), pastille de présence, liste des
-// connexions, dates ; écran « Mes outils » (PageOutils : « Mon astrologie » y est fusionnée depuis le 07/10/2026 nuit, cahier
+// à la place de « %s » ou entre crochets, invitation à se connecter (Se connecter / Créer un compte), liste des connexions, dates ; écran « Mes outils » (PageOutils : « Mon astrologie » y est fusionnée depuis le 07/10/2026 nuit, cahier
 // specs/espace-membre-retouches-0710.md, décisions 5 et 7).
 // Tout texte venu d'un utilisateur ou du serveur est affiché tel quel dans un <Text> (jamais interprété).
 import { Stack, useRouter } from 'expo-router';
@@ -13,7 +12,7 @@ import { ResumeSignes } from '@/components/resume-signes';
 import { connexionOidc, ecranNatif } from '@/connexion';
 import { fmt, estLangue } from '@/i18n';
 import { CHINOIS, TUILES, VIGNETTES, type Img } from '@/images';
-import type { Connexion } from '@/messages';
+import type { Connexion } from '@/connexions-api';
 import { paysParCode } from '@/moteur/lieux';
 import ui from '@/moteur/ui.json';
 import { ouvrir } from '@/nav';
@@ -22,7 +21,7 @@ import { url } from '@/site';
 import { COULEURS } from '@/theme';
 
 export type TX = Record<string, string>;
-/** Textes de messages.js (messagerie, présence, historique), exportés par app_moteurs.py. */
+/** Textes de messages.js du site (connexion, historique des connexions), exportés par app_moteurs.py. */
 export const UI_M = (ui as unknown as { messages: Record<string, TX> }).messages;
 /** Textes d'espace.js (ongOutils, astroVos, aime…). */
 export const UI_E = (ui as unknown as { espace: Record<string, TX> }).espace;
@@ -51,24 +50,24 @@ const CIBLES: Record<string, { route?: string; params?: Record<string, string>; 
   distance: { route: '/distance', sf: 'globe', image: VIGNETTES.distance },
   compteur: { route: '/compteur', sf: 'heart.circle.fill', image: VIGNETTES.compteur },
   noces: { sf: 'gift.fill', image: TUILES.mariage },                                        // pas d'écran natif : la page du site
-  // groupe « moi » (sous-pages de l'espace sorties du menu, 07/10/2026 nuit) : leurs écrans natifs ; « Mes messages » en tête depuis le
-  // 08/10/2026 (Alexis : plus dans le menu, « les seuls messages que l'utilisateur va recevoir sont ceux de l'admin »)
-  messages: { route: '/messages', sf: 'bubble.left.and.bubble.right.fill' },
+  // groupe « moi » (sous-pages de l'espace sorties du menu, 07/10/2026 nuit) : leurs écrans natifs ; plus de « Mes messages » depuis le
+  // 14/10/2026 (messagerie interne supprimée : la carte est ignorée si le site l'exporte encore, voir SANS)
   sondages: { route: '/sondages', params: { mes: '1' }, sf: 'chart.bar.fill', image: TUILES.sondages },
   compat: { route: '/mes-compat', sf: 'heart.text.square.fill', image: VIGNETTES['amour-signes'] },
   connexions: { route: '/connexions', sf: 'clock.arrow.circlepath' },                        // toujours affichée : l'écran invite à se connecter
 };
+/** Cartes retirées de l'appli (messagerie interne supprimée le 14/10/2026) : jamais affichées, même si ui.json les contient encore. */
+const SANS = new Set(['messages']);
 
 /** Écran « Mes outils » (page du site fr/mes-outils.html…, espace_membre.py) : chapeau, intro avec le lien vers « Mes informations
  *  personnelles », rappel des signes SEULEMENT si la date de naissance est connue (sinon rien, comme le site), puis trois groupes de
  *  cartes : astrologie (9), outils du couple et de la famille (4), Mes sondages / Mes compatibilités amoureuses / Mon historique de
  *  connexion. Une carte sans page dans la langue est omise, comme sur le site. */
 export function PageOutils() {
-  const { langue, profil, compte } = useProfil();
+  const { langue, profil } = useProfil();
   const router = useRouter();
   const E = UI_E[langue] || UI_E.fr;
   const P = (PAGES_ESPACE.outils || {})[langue] || PAGES_ESPACE.outils.fr;
-  const nonLus = compte?.messages_non_lus || 0;                                 // nombre affiché sur la carte « Mes messages »
   const versInfos = () => router.push('/mes-infos');
   return (
     <>
@@ -83,7 +82,7 @@ export function PageOutils() {
           </View>
         ) : null}
         {GROUPES.map((g) => {
-          const cartes = (CARTES_ESPACE[g] || []).filter((k) => !!k.u[langue]);
+          const cartes = (CARTES_ESPACE[g] || []).filter((k) => !!k.u[langue] && !SANS.has(k.c));
           if (!cartes.length) return null;
           const titre = (P as Record<string, string | undefined>)['h2_' + g];
           return (
@@ -94,8 +93,7 @@ export function PageOutils() {
                 const aller = c && c.route
                   ? () => router.push((c.params ? { pathname: c.route, params: c.params } : c.route) as never)
                   : () => ouvrir(router, url(u), t);
-                const n = k.c === 'messages' ? nonLus : 0;
-                return <Ligne key={k.c} titre={t} texte={n ? String(n) : undefined} sf={c ? c.sf : 'link'} image={c ? c.image : undefined} onPress={aller} />;
+                return <Ligne key={k.c} titre={t} sf={c ? c.sf : 'link'} image={c ? c.image : undefined} onPress={aller} />;
               })}
             </View>
           );

@@ -28,24 +28,19 @@ construisent dans le nuage d'Expo (EAS Build), sans Mac.
   vie d'époux selon le prénom, calendrier de garde alternée (export .ics), distance et différences (deux lieux :
   distance, vol, décalage horaire du jour, repères culturels, fiches pays).
 - **Moi** = espace membre, même menu que l'icône « Mes infos » du site (table `MENU` d'espace.js, exportée dans `ui.json`) :
-  « Se connecter » ou le nom (vers Mes informations personnelles), puis Mes informations personnelles, Mes messages (badge),
+  « Se connecter » ou le nom (vers Mes informations personnelles), puis Mes informations personnelles,
   Mes favoris, Mes outils, Se déconnecter (connecté) ; langue, lecture hors ligne, effacement (07/10/2026 nuit, cahier
-  `specs/espace-membre-retouches-0710.md`). Pour l'administrateur seulement (entrée « a » du menu, même nuit, cahier
-  `specs/admin-cle-0710.md`) : après un trait, « Réponses à valider » avec le nombre `ap.compte.a_valider` (rendu par la présence, la
-  messagerie et la page de validation elle-même), qui ouvre la page de validation du site `admin/reponses.html` dans la vue web avec la
-  session : la validation des réponses préparées reste sur le site. **Mes informations personnelles** (`mes-infos`) : le formulaire d'abord, puis le
+  `specs/espace-membre-retouches-0710.md`). Une entrée du menu du site sans écran natif (`ECRANS` de `moi.tsx`) est ignorée.
+  **Mes informations personnelles** (`mes-infos`) : le formulaire d'abord, puis le
   rappel des signes, le texte selon l'état et l'encadré « Mon compte » (`components/mon-compte.tsx` : « Changer mon mot de
   passe » vers l'écran `mot-de-passe`, « Supprimer mon compte » avec un panneau de confirmation) ; aucun « Connecté : … », ni
   « Synchroniser maintenant », ni « Se déconnecter » ailleurs que dans Moi. **Mes outils** (`outils`) : rappel des signes (date
   connue), cartes d'astrologie (« Mon astrologie » y est fusionnée), outils du couple et de la famille, puis Mes sondages, Mes
   compatibilités amoureuses et Mon historique de connexion (`connexions`).
-- **Messagerie** (`messages`, 07/10/2026 soir) : avec l'admin seulement et pour les comptes connectés ; l'interlocuteur du
-  membre s'appelle toujours « AffectionPlus » (aucun nom d'autre membre), présence, case « copie par courriel » ; l'admin
-  voit le bloc « Informations administrateur ». **« Enregistrer le brouillon »** (07/10/2026 nuit, pour tous) à côté de « Envoyer »,
-  dans le formulaire du membre et dans chaque fil (membre et admin) : `POST /api/messages/brouillon`, vu par son auteur seul, rechargé
-  depuis `GET /api/messages` (`brouillon_nouveau`, `brouillon` de chaque fil) seulement si le champ est vide, effacé à l'envoi. Admin :
-  bouton « Réponses à valider (N) » vers la page de validation du site. **Présence** : `POST /api/presence {appareil:'appli'}` toutes
-  les 60 s au premier plan quand un compte est connecté (badge, pays de résidence vide rempli une fois ; `a_valider` pour l'admin).
+- **Messagerie interne supprimée (14/10/2026, Alexis)** : plus d'écran `messages`, plus de notifications ni de pastille (icône et
+  onglet Moi), plus d'`expo-notifications` ; il n'est plus besoin de compte pour nous écrire : contact par courriel (page Contact
+  du site). L'historique des connexions reste (`src/connexions-api.ts`, écran `connexions`). **Présence** : `POST /api/presence
+  {appareil:'appli'}` toutes les 60 s au premier plan quand un compte est connecté (pays de résidence vide rempli une fois).
 - **Protection anti-robot** (07/10/2026 nuit, cahier `specs/anti-robot-0710.md`) : l'inscription à la lettre sans compte joint une
   preuve de travail invisible (`src/robot.ts`, protocole ALTCHA du site : défi `GET /api/robot/defi`, empreintes natives expo-crypto),
   préparée à l'affichage de l'écran Newsletter et dès qu'on approche l'adresse ou la case de Mes informations personnelles ; échec =
@@ -77,9 +72,9 @@ non envoyées (`oublierSynchro`). Pendant une série d'échecs, ni le passage en
 calendrier (`ap.compte.essai` ; pas de rafale : essai `C:\Claude\Claude\outils\tests\appli_synchro.js`, compte.ts transpilé,
 faux serveur = vraie fusion de `compte_api.js`, appels comptés sur 10 min simulées, 30 / 30). « Supprimer mon compte »
 refusé par 401 (session déjà fermée) = rien de supprimé : message `supprSession`, jamais « Compte supprimé. ».
-Session gardée sous `ap.compte` (`{ courriel, session, sync, depuis, mdp, newsletter, admin, messages_non_lus, a_valider }`, même forme que le site) et injectée dans
-les pages du site ouvertes dans l'appli (avec `admin` pour l'admin) ; une connexion ou une déconnexion faite dans la page revient dans l'appli, ainsi que
-les compteurs posés par la page avec la même session (messages non lus, `a_valider` de la page de validation : `adopterCompte`). « Effacer mes données »
+Session gardée sous `ap.compte` (`{ courriel, session, sync, depuis, mdp, newsletter, admin }`, même forme que le site) et injectée dans
+les pages du site ouvertes dans l'appli (avec `admin` pour l'admin) ; une connexion ou une déconnexion faite dans la page revient dans l'appli
+(`adopterCompte`). « Effacer mes données »
 vide l'appareil et déconnecte, sans toucher au compte ; « Supprimer mon compte » (encadré « Mon compte » de Mes informations
 personnelles, avec confirmation) efface le compte sur le serveur ; « Changer mon mot de passe » est un écran à part (même route
 que le site, `/api/compte/mot-de-passe`).

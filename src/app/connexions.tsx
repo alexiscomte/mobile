@@ -10,7 +10,7 @@ import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text } from 
 import { Invitation, ListeConnexions, PAGES_ESPACE, TexteCrochet, UI_E, UI_M } from '@/components/espace';
 import { F } from '@/components/form';
 import { oublierSession } from '@/compte';
-import { historique, type Connexion } from '@/messages';
+import { historique, type Connexion } from '@/connexions-api';
 import { useProfil } from '@/profil';
 import { COULEURS } from '@/theme';
 

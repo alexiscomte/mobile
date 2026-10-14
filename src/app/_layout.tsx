@@ -1,4 +1,4 @@
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider, useRouter } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
@@ -6,7 +6,6 @@ import React, { useEffect, useMemo } from 'react';
 
 import { TEXTES } from '@/i18n';
 import { majArrierePlan } from '@/moteur/contenu';
-import { surOuverture } from '@/notifications';
 import { ProfilProvider, useProfil } from '@/profil';
 import { COULEURS, useCouleurs } from '@/theme';
 
@@ -19,12 +18,6 @@ function Pile() {
   useEffect(() => { if (pret) SplashScreen.hideAsync(); }, [pret]);
   // tout le contenu est embarqué dans l'appli : le réseau ne sert qu'à la mise à jour, discrète, une fois par jour
   useEffect(() => { if (pret) majArrierePlan(langue); }, [pret, langue]);
-  // notification touchée (réponse d'AffectionPlus, notifications.ts) : Mes messages s'ouvre, même si elle a lancé l'appli
-  const router = useRouter();
-  useEffect(() => {
-    if (!pret) return;
-    return surOuverture((ecran) => { if (ecran === 'messages') router.push('/messages'); });
-  }, [pret, router]);
   if (!pret) return null;
   return (
     // en-têtes natifs (UINavigationBar) : titre au centre, retour avec le titre de l'écran précédent ou « Retour », balayage depuis le
@@ -58,7 +51,6 @@ function Pile() {
       <Stack.Screen name="mes-compat" options={{ title: '' }} />
       <Stack.Screen name="mes-infos" options={{ title: '' }} />
       <Stack.Screen name="favoris" options={{ title: '' }} />
-      <Stack.Screen name="messages" options={{ title: '' }} />
       <Stack.Screen name="outils" options={{ title: '' }} />
       <Stack.Screen name="connexions" options={{ title: '' }} />
       <Stack.Screen name="mot-de-passe" options={{ title: '' }} />

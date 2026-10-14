@@ -4,7 +4,7 @@
 // remplissent l'appareil (profil, favoris, réponses aux sondages, scores des quiz) ; ensuite chaque changement local est renvoyé
 // au compte (pousser(), appelé par profil.tsx, moteur/quiz.ts, sondages.tsx, qdj.tsx, jeu2.tsx, compat.tsx, mes-compat.tsx). Sans
 // compte, rien ne change : tout reste sur l'appareil. Clé AsyncStorage « ap.compte » = { courriel, session, sync, depuis, mdp, newsletter,
-// admin, messages_non_lus, a_valider } (même forme que le localStorage du site).
+// admin } (même forme que le localStorage du site).
 // Synchronisation entièrement automatique depuis le 07/10/2026 (nuit, cahier specs/espace-membre-retouches-0710.md, décisions 3 et 7 :
 // plus de bouton « Synchroniser maintenant ») ; « le local gagne » depuis la même nuit (cahier specs/synchro-local-0710.md) : toute
 // modification faite sur l'appareil gagne, même hors ligne, même après une fermeture de l'appli, jusqu'à ce qu'elle soit envoyée ; une
@@ -22,10 +22,8 @@
 // faites hors compte depuis la déconnexion, qui suivent la règle des données d'invité. La vue web (site.ts injectionAvant) reçoit le
 // propriétaire de l'appli et vide ses propres données s'il diffère ; vue-site.tsx ignore le profil d'une page d'un autre propriétaire.
 // Détail : bloc « propriétaire des données locales » plus bas (mêmes noms que compte.js).
-// Compteurs du serveur gardés dans « ap.compte » (pas de la synchronisation) : messages_non_lus (badge de Mes messages) et, pour l'admin
-// seulement, a_valider (réponses préparées à relire sur la page de validation du site, entrée « Réponses à valider (N) » de l'onglet Moi,
-// 07/10/2026 nuit, cahier specs/admin-cle-0710.md) : donnés par /api/presence, par la messagerie et par les pages du site ouvertes dans
-// l'appli (adopterCompte), comme sur le site (espace.js presence, messages.js, admin_reponses.js).
+// Messagerie interne supprimée le 14/10/2026 (Alexis : contact par courriel, page Contact du site) : plus de compteurs messages_non_lus
+// ni a_valider dans « ap.compte » (ceux d'un ancien enregistrement sont ignorés par nettoyerCompte).
 // Ce module n'importe ni profil.tsx ni les écrans (pas de cycle) : il prévient le contexte par surCompte().
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SITE } from './site';
@@ -36,8 +34,7 @@ export type Compte = { courriel: string; session: string;
   depuis?: string;
   mdp?: boolean;                     // le compte a un mot de passe (sinon l'écran « Changer mon mot de passe » n'en demande pas l'actuel)
   newsletter?: string | null;        // état de la lettre pour l'adresse du compte ('confirme' | 'attente' | 'desinscrit' | null), donné par le serveur
-  admin?: boolean; messages_non_lus?: number;    // messagerie interne : compte ADMIN, fils non lus (badge de l'onglet Moi)
-  a_valider?: number };                          // admin seulement : réponses préparées à valider sur la page du site (admin/reponses.html)
+  admin?: boolean };                 // compte ADMIN (historique des connexions détaillé, entrées « a » du menu du site)
 export type Reponse = { ok?: boolean; erreur?: string; statut: number; [k: string]: unknown };
 type Score = { s?: number; n?: number; d?: string; t?: string; u?: string };
 type FavoriBrut = { url?: unknown; date?: unknown; [k: string]: unknown };
@@ -79,8 +76,6 @@ function nettoyerCompte(x: unknown): Compte | null {
   if (typeof c.mdp === 'boolean') out.mdp = c.mdp;
   if (typeof c.newsletter === 'string') out.newsletter = c.newsletter;
   if (typeof c.admin === 'boolean') out.admin = c.admin;
-  if (typeof c.messages_non_lus === 'number') out.messages_non_lus = c.messages_non_lus;
-  if (out.admin && typeof c.a_valider === 'number' && c.a_valider >= 0) out.a_valider = Math.floor(c.a_valider);
   return out;
 }
 function lireJson(v: string | null | undefined): unknown {
@@ -114,8 +109,8 @@ export function api(chemin: string, corps?: unknown, methode?: string): Promise<
   return appelApi('api/compte/' + chemin, corps, methode);
 }
 
-/** Appel JSON à SITE + chemin (« api/messages/envoyer », « api/presence », « api/likes?p=… ») : en-tête Bearer si connecté, délai
- *  15 s, cache « no-store » ; renvoie le JSON + statut HTTP (0 = réseau). Client commun de messages.ts et aime.ts. */
+/** Appel JSON à SITE + chemin (« api/presence », « api/likes?p=… », « api/compte/historique ») : en-tête Bearer si connecté, délai
+ *  15 s, cache « no-store » ; renvoie le JSON + statut HTTP (0 = réseau). Client commun de connexions-api.ts et aime.ts. */
 export async function appelApi(chemin: string, corps?: unknown, methode?: string): Promise<Reponse> {
   const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
   const minuterie = ctrl ? setTimeout(() => ctrl.abort(), DELAI) : null;
@@ -557,8 +552,7 @@ async function tirerALaConnexion(): Promise<boolean> {
   await garderCompte({ ...actuel, courriel: typeof j.courriel === 'string' && j.courriel ? j.courriel : actuel.courriel, sync: new Date().toISOString(),
     ...(typeof j.mdp === 'boolean' ? { mdp: j.mdp } : {}),
     ...(j.newsletter !== undefined ? { newsletter: typeof j.newsletter === 'string' ? j.newsletter : null } : {}),
-    ...(typeof j.admin === 'boolean' ? { admin: j.admin } : {}),
-    ...(typeof j.messages_non_lus === 'number' ? { messages_non_lus: j.messages_non_lus } : {}) });
+    ...(typeof j.admin === 'boolean' ? { admin: j.admin } : {}) });
   signaler('donnees');
   if (await noter()) pousserMaintenant();
   return true;
@@ -570,13 +564,13 @@ async function ouvrir(j: Reponse) {
   const session = typeof j.session === 'string' ? j.session : '';
   if (!session) return;
   const mdp = !!j.mdp, newsletter = typeof j.newsletter === 'string' ? j.newsletter : null;
-  const admin = !!j.admin, messages_non_lus = typeof j.messages_non_lus === 'number' ? j.messages_non_lus : 0;
+  const admin = !!j.admin;
   arreterEnvois();
   const depuis = new Date().toISOString().slice(0, 10);
-  await garderCompte({ courriel, session, sync: null, depuis, mdp, newsletter, admin, messages_non_lus });
+  await garderCompte({ courriel, session, sync: null, depuis, mdp, newsletter, admin });
   // prénom donné par Google (prenom_google) ou par Apple à la première autorisation (prenom_fournisseur, 12/10/2026)
   await recevoir(j, typeof j.prenom_google === 'string' ? j.prenom_google : typeof j.prenom_fournisseur === 'string' ? j.prenom_fournisseur : '');
-  await garderCompte({ courriel, session, sync: new Date().toISOString(), depuis, mdp, newsletter, admin, messages_non_lus });
+  await garderCompte({ courriel, session, sync: new Date().toISOString(), depuis, mdp, newsletter, admin });
   signaler('donnees');
   noter().then((d) => { if (d) pousserMaintenant(); }).catch(() => undefined);
 }
@@ -595,17 +589,6 @@ export async function connecterOidc(idToken: string): Promise<Reponse> {
   return j;
 }
 
-/** Nombre de fils non lus après une lecture de la messagerie (badge de l'onglet Moi) ; pour l'admin, aValider = nombre de fils dont une
- *  réponse préparée attend sur la page de validation (entrée « Réponses à valider (N) » de l'onglet Moi), comme messages.js du site. */
-export async function noterNonLus(n: number, admin?: boolean, aValider?: number): Promise<void> {
-  await assurer();
-  if (!actuel) return;
-  const suivant: Compte = { ...actuel, messages_non_lus: n, ...(admin !== undefined ? { admin } : {}) };
-  if (admin === false) delete suivant.a_valider;
-  else if (suivant.admin && typeof aValider === 'number') suivant.a_valider = aValider;
-  if (suivant.messages_non_lus !== actuel.messages_non_lus || suivant.admin !== actuel.admin || suivant.a_valider !== actuel.a_valider) await garderCompte(suivant);
-}
-
 /** Session refusée par le serveur (401 : expirée, supprimée) : le compte est oublié sur l'appareil s'il s'agit toujours de la même. */
 export async function oublierSession(session: string): Promise<void> {
   await assurer();
@@ -613,9 +596,8 @@ export async function oublierSession(session: string): Promise<void> {
 }
 
 /** Présence (activite_api.js, 07/10/2026 soir) : POST /api/presence {appareil:'appli'}, appelé toutes les 60 s par le contexte quand
- *  l'appli est au premier plan et qu'un compte est connecté ; met à jour le nombre de fils non lus (badge de l'onglet Moi) et, pour le
- *  compte admin seulement, a_valider (réponses préparées à valider : la réponse du serveur n'a ce champ que pour l'admin ; 07/10/2026 nuit,
- *  comme espace.js presence) ; 401 = la session est oubliée. Renvoie le pays déduit de l'adresse IP (code ISO à deux lettres) ou null. */
+ *  l'appli est au premier plan et qu'un compte est connecté (en ligne, dernière connexion) ; 401 = la session est oubliée. Renvoie le
+ *  pays déduit de l'adresse IP (code ISO à deux lettres) ou null. */
 export async function presence(): Promise<string | null> {
   await assurer();
   const c = actuel;
@@ -624,11 +606,6 @@ export async function presence(): Promise<string | null> {
   if (!actuel || actuel.session !== c.session) return null;   // déconnecté entre-temps
   if (j.statut === 401) { await oublierCompteLocal(); return null; }
   if (!j.ok) return null;
-  const suivant: Compte = { ...actuel };
-  if (typeof j.messages_non_lus === 'number') suivant.messages_non_lus = j.messages_non_lus;
-  if (typeof j.a_valider === 'number') { suivant.a_valider = j.a_valider; suivant.admin = true; }
-  else delete suivant.a_valider;
-  if (suivant.messages_non_lus !== actuel.messages_non_lus || suivant.a_valider !== actuel.a_valider || suivant.admin !== actuel.admin) await garderCompte(suivant);
   return typeof j.pays_ip === 'string' && /^[A-Z]{2}$/.test(j.pays_ip) ? j.pays_ip : null;
 }
 
@@ -712,10 +689,7 @@ export async function supprimer(): Promise<{ ok: boolean; erreur?: string }> {
 
 /** La page du site ouverte dans l'appli a changé « ap.compte » (connexion, déconnexion) : l'appli reprend la session.
  *  La date de synchro de la page n'est pas reprise : elle dit que la vue web a reçu le compte, pas l'appareil (scores, votes…).
- *  Même session : seuls l'adresse et les compteurs du serveur posés par la page sont repris (messages non lus ; pour l'admin, a_valider
- *  écrit par la présence de la page ou par la page de validation admin/reponses.html après un envoi : le badge de l'onglet Moi suit sans
- *  attendre la présence de l'appli). Un compteur ancien gardé par la vue web est corrigé par la présence de la page, 1,5 s après son
- *  chargement. */
+ *  Même session : seule l'adresse posée par la page est reprise. */
 export async function adopterCompte(brut: string | null): Promise<void> {
   await assurer();
   const c = nettoyerCompte(lireJson(brut));
@@ -726,10 +700,5 @@ export async function adopterCompte(brut: string | null): Promise<void> {
     tirerALaConnexion().catch(() => undefined);
     return;
   }
-  const suivant: Compte = { ...actuel };
-  if (c.courriel) suivant.courriel = c.courriel;
-  if (typeof c.messages_non_lus === 'number') suivant.messages_non_lus = c.messages_non_lus;
-  if (c.admin && typeof c.a_valider === 'number') { suivant.admin = true; suivant.a_valider = c.a_valider; }
-  if (suivant.courriel !== actuel.courriel || suivant.messages_non_lus !== actuel.messages_non_lus || suivant.admin !== actuel.admin ||
-    suivant.a_valider !== actuel.a_valider) await garderCompte(suivant);
+  if (c.courriel && c.courriel !== actuel.courriel) await garderCompte({ ...actuel, courriel: c.courriel });
 }
