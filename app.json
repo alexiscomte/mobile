@@ -14,7 +14,7 @@
     "ios": {
       "bundleIdentifier": "com.affectionplus.app",
       "usesAppleSignIn": true,
-      "supportsTablet": false,
+      "supportsTablet": true,
       "icon": "./assets/images/icon.png",
       "infoPlist": {
         "CFBundleDisplayName": "AffectionPlus",
