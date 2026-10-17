@@ -1,0 +1,3 @@
+CFBundleDisplayName = "AffectionPlus";
+NSLocationWhenInUseUsageDescription = "Konumunuz en yakın doğumhaneyi bulmak için yalnızca bir kez kullanılır; saklanmaz (Fransa dışında arama için OpenStreetMap'e gönderilir).";
+NSMotionUsageDescription = "AffectionPlus cihazın hareket sensörlerini kullanmaz.";

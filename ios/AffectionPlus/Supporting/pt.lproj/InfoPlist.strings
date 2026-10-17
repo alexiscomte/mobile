@@ -1,0 +1,3 @@
+CFBundleDisplayName = "AffectionPlus";
+NSLocationWhenInUseUsageDescription = "A sua localização é usada uma única vez para encontrar a maternidade mais próxima; não é guardada (fora de França, é enviada ao OpenStreetMap para a pesquisa).";
+NSMotionUsageDescription = "O AffectionPlus não utiliza os sensores de movimento do dispositivo.";

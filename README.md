@@ -1,8 +1,8 @@
 # AffectionPlus — application iOS (et Android)
 
 Application mobile du site [affectionplus.com](https://affectionplus.com), 9 langues (fr en de es it pt nl pl tr).
-Faite avec **Expo** (React Native, TypeScript, Expo Router), développée sous Windows : les versions iOS se
-construisent dans le nuage d'Expo (EAS Build), sans Mac.
+Faite avec **Expo** (React Native, TypeScript, Expo Router). Depuis le 17/10/2026, iOS se compile sur le Mac avec
+Xcode (projet natif `ios/` versionné) ; Android reste sur EAS Build.
 
 ## Ce que fait l'application
 
@@ -122,14 +122,18 @@ Dans un navigateur : `npx expo start --web` (les pages du site s'affichent alors
 Vérifications : `npx tsc --noEmit` et `npx expo-doctor`. Essais sans téléphone (dans `C:\Claude\Claude\outils\tests`, Node 22 portable) :
 `appli_synchro.js` (synchronisation et compteurs du compte, 37 / 37 au 07/10/2026 nuit) et `appli_robot.js` (preuve anti-robot, 11 / 11).
 
-## Construire pour l'App Store (sans Mac)
+## Construire pour l'App Store (sur le Mac, avec Xcode)
 
-1. Compte Expo (gratuit) : `npx expo login`. Compte **Apple Developer Program** (99 $/an) : developer.apple.com.
-2. `npx eas-cli build --platform ios --profile production` : EAS crée les certificats, construit dans le nuage et
-   donne un lien vers le fichier `.ipa`.
-3. `npx eas-cli submit --platform ios` : envoi sur App Store Connect ; puis TestFlight (test) et soumission à Apple.
+Depuis le 17/10/2026, `ios/` est versionné : le projet Xcode `ios/AffectionPlus.xcworkspace` est la référence.
+**Ne plus lancer `expo prebuild` pour iOS** (il régénérerait `ios/` et effacerait signature, scènes iOS 27 et réglages).
 
-Pour tester sur son propre iPhone sans App Store : `--profile preview` (build interne) puis installation par le lien.
+1. Une fois par Mac : Xcode, `brew install cocoapods`, puis dans le trousseau le certificat « Apple Distribution: CAPIT »
+   et le profil « AffectionPlus AppStore Mac » (créés par l'API App Store Connect ; clé `~/Developer/claude/Gandi/asc-api.p8`).
+2. Contenu hors ligne : `python outils/gen/app_embarquer.py` (dépôt Claude) remplit `assets/embarque/`.
+3. `scripts/ios-publier.sh` : `pod install`, numéro de build AAAAMMJJHH, archive Release signée, envoi sur App Store Connect.
+4. Dans App Store Connect : rattacher le build à la version, puis « Ajouter pour examen ».
+
+Essais : ouvrir `ios/AffectionPlus.xcworkspace` dans Xcode et lancer sur un simulateur (⌘R), ou `npx expo run:ios`.
 
 Identifiant de l'application : `com.affectionplus.app` (app.json). Icône et écran de démarrage : `assets/images/`.
 

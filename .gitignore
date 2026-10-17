@@ -38,8 +38,7 @@ yarn-error.*
 
 example
 
-# generated native folders
-/ios
+# Dossier natif Android généré (prebuild) ; ios/ est versionné (projet Xcode = source de vérité depuis le 17/10/2026)
 /android
 
 # Contenu embarqué (122 Mo, régénéré par outils/gen/app_embarquer.py du dépôt Claude ; le registre src/embarque-registre.ts est versionné)

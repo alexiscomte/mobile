@@ -111,7 +111,8 @@
           "motionUsagePermission": "AffectionPlus n'utilise pas les capteurs de mouvement de l'appareil.",
           "isIosBackgroundLocationEnabled": false
         }
-      ]
+      ],
+      "./plugins/withSceneLifecycle"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -1,0 +1,3 @@
+CFBundleDisplayName = "AffectionPlus";
+NSLocationWhenInUseUsageDescription = "Twoja lokalizacja jest używana jednorazowo, aby znaleźć najbliższy oddział położniczy; nie jest przechowywana (poza Francją jest wysyłana do OpenStreetMap w celu wyszukiwania).";
+NSMotionUsageDescription = "AffectionPlus nie korzysta z czujników ruchu urządzenia.";

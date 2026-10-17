@@ -31,11 +31,13 @@ Run lint and typecheck before declaring any task done.
 
 ## Building with EAS
 
-Use EAS to build, sign, and submit the app in the cloud (`eas build`, `eas submit`) and to ship over-the-air updates (`eas update`) — no local Xcode or Android Studio required. Run EAS CLI as `bunx eas-cli <command>` in Bun projects, or `npx eas-cli@latest <command>` otherwise; substitute that for bare `eas` in docs examples.
+iOS is built, signed and submitted locally on the Mac (see Rules and `scripts/ios-publier.sh`). EAS remains available for Android and over-the-air updates (`eas update`). Run EAS CLI as `bunx eas-cli <command>` in Bun projects, or `npx eas-cli@latest <command>` otherwise; substitute that for bare `eas` in docs examples.
 Docs: https://docs.expo.dev/eas/index.md
 
 ## Rules
 
-- If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
+- **iOS is native since 17/10/2026**: `ios/` is versioned and the Xcode project is the source of truth. **Never run `expo prebuild` for iOS** (it would regenerate `ios/` and wipe the native changes: signing, scene lifecycle, build number). Change native iOS behavior directly in `ios/` (Info.plist, AppDelegate.swift, project.pbxproj); `app.json` and config plugins no longer reach iOS. After adding a library with native code: `cd ios && pod install`. Build and publish on the Mac with `scripts/ios-publier.sh` (Xcode + App Store Connect API key), not EAS.
+- iOS 27 requires the scene life cycle: `Info.plist` declares `UIApplicationSceneManifest` with `EXExpoAppSceneDelegate`, and `AppDelegate` conforms to `ExpoReactNativeFactoryProvider` without creating the window. Keep it (`plugins/withSceneLifecycle.js` records how it was first applied).
+- `android/` is still generated (Continuous Native Generation): configure Android in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
