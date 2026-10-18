@@ -673,8 +673,9 @@ export async function deconnecter(): Promise<void> {
 /** Suppression du compte sur le serveur (POST /api/compte/supprimer, après la confirmation de « Mon compte ») : tout ce que le compte
  *  garde est effacé (informations, messages, j'aime, historique de connexion, abonnement à la lettre) ; les données de l'appareil
  *  restent. { ok } si c'est fait ; { ok: false, erreur: 'session' } si la session n'existait déjà plus (compte oublié sur l'appareil, rien
- *  de supprimé : il faut se reconnecter) ; sinon { ok: false, erreur: 'trop' | 'reseau' | … }. */
-export async function supprimer(): Promise<{ ok: boolean; erreur?: string }> {
+ *  de supprimé : il faut se reconnecter) ; sinon { ok: false, erreur: 'trop' | 'reseau' | … }.
+ *  apple_revocation précise si le retrait de l'autorisation Apple doit encore être finalisé après la suppression. */
+export async function supprimer(): Promise<{ ok: boolean; erreur?: string; apple_revocation?: 'en_attente' | 'manuelle' }> {
   await assurer();
   if (!actuel) return { ok: false, erreur: 'session' };
   const j = await api('supprimer', {});
@@ -682,7 +683,9 @@ export async function supprimer(): Promise<{ ok: boolean; erreur?: string }> {
     if (j.ok) await AsyncStorage.removeItem(K_SALE).catch(() => undefined);   // compte effacé : plus rien à lui envoyer
     await oublierCompteLocal();
     // 401 : la session était déjà fermée (expirée, mot de passe changé ailleurs) : RIEN n'a été supprimé (revue du 07/10/2026 nuit)
-    return j.ok ? { ok: true } : { ok: false, erreur: 'session' };
+    if (!j.ok) return { ok: false, erreur: 'session' };
+    if (j.apple_revocation === 'en_attente' || j.apple_revocation === 'manuelle') return { ok: true, apple_revocation: j.apple_revocation };
+    return { ok: true };
   }
   return { ok: false, erreur: typeof j.erreur === 'string' ? j.erreur : 'reseau' };
 }

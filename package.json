@@ -54,6 +54,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
+    "test": "node --test tests/*.test.cjs",
+    "test:contenu": "node --test tests/contenu.test.cjs",
     "postinstall": "node scripts/patch-react-native.cjs"
   },
   "private": true

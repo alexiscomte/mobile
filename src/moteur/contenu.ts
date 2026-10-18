@@ -18,6 +18,7 @@ type Paquet = { v: string; pages: Record<string, Article> };
 
 const memIndex: Partial<Record<Langue, Index>> = {};
 const memPaquets: Record<string, Paquet> = {};
+const paquetsEnCours = new Map<string, Promise<Paquet>>();
 const DUREE_INDEX = 24 * 3600 * 1000;
 
 function dossier(): Directory {
@@ -76,8 +77,19 @@ export async function index(lg: Langue): Promise<Index> {
   return idx;
 }
 
-/** Un paquet à la version voulue : mémoire, téléchargé, embarqué, sinon le site ; à défaut, la meilleure version disponible hors ligne. */
-async function paquet(lg: Langue, g: string, idx: Index): Promise<Paquet | null> {
+/** Une seule mise à jour par paquet, partagée entre lecture et téléchargement de la langue. */
+function rafraichirPaquet(nom: string): Promise<Paquet> {
+  const enCours = paquetsEnCours.get(nom);
+  if (enCours) return enCours;
+  const chargement = telecharger<Paquet>(nom)
+    .then((p) => (memPaquets[nom] = p))
+    .finally(() => { paquetsEnCours.delete(nom); });
+  paquetsEnCours.set(nom, chargement);
+  return chargement;
+}
+
+/** Lit une copie disponible sans attendre sa mise à jour ; seul un article absent de l'appareil nécessite le réseau. */
+async function paquet(lg: Langue, g: string, idx: Index, u: string): Promise<Paquet | null> {
   const nom = lg + '-' + g + '.json';
   const voulue = versionPaquet(idx, g);
   const m = memPaquets[nom];
@@ -86,10 +98,17 @@ async function paquet(lg: Langue, g: string, idx: Index): Promise<Paquet | null>
   if (local && local.data.v === voulue) return (memPaquets[nom] = local.data);
   const emb = await jsonEmbarque<Paquet>('c/' + nom);
   if (emb && emb.v === voulue) return (memPaquets[nom] = emb);
-  try { return (memPaquets[nom] = await telecharger<Paquet>(nom)); } catch { /* hors ligne : on se rabat sur l'ancienne version */ }
-  const reste = m || (local ? local.data : null) || emb;
-  if (reste) memPaquets[nom] = reste;
-  return reste;
+  // Une mise à jour peut s'être terminée pendant la lecture des fichiers locaux.
+  const copies = [memPaquets[nom], local?.data, emb];
+  const actuelle = copies.find((p) => p?.v === voulue);
+  if (actuelle) return (memPaquets[nom] = actuelle);
+  const disponible = copies.find((p) => p?.pages[u]);
+  if (disponible) {
+    memPaquets[nom] = disponible;
+    rafraichirPaquet(nom).catch(() => undefined);
+    return disponible;
+  }
+  try { return await rafraichirPaquet(nom); } catch { return null; }
 }
 
 /** Un article : depuis la mémoire, l'appareil ou l'appli (le site ne sert qu'aux mises à jour). */
@@ -99,7 +118,7 @@ export async function article(lg: Langue, u: string): Promise<Article | null> {
   const v = vers ? vers.split('#')[0] : u;
   const e = idx.pages.find((x) => x[0] === v);
   if (!e) return null;
-  const p = await paquet(lg, e[4], idx);
+  const p = await paquet(lg, e[4], idx, v);
   return p ? p.pages[v] || null : null;
 }
 
@@ -126,7 +145,7 @@ async function toutTelechargerSansEtat(lg: Langue, progression?: (fait: number, 
     const local = await lireLocal<Paquet>(nom);
     let ok = !!local && local.data.v === voulue;
     if (!ok) { const emb = await jsonEmbarque<Paquet>('c/' + nom); ok = !!emb && emb.v === voulue; }
-    if (!ok) { try { memPaquets[nom] = await telecharger<Paquet>(nom); } catch { /* on continue */ } }
+    if (!ok) { try { await rafraichirPaquet(nom); } catch { /* on continue */ } }
     n++;
     if (progression) progression(n, groupes.length);
   }

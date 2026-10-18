@@ -89,7 +89,8 @@ export function MonCompte() {
     // session déjà fermée (401 : expirée, mot de passe changé ailleurs) : rien n'a été supprimé ; le compte est oublié sur l'appareil
     // et le message invite à se reconnecter (revue du 07/10/2026 nuit : avant, « Compte supprimé. » s'affichait à tort)
     if (r.ok || r.erreur === 'session') {
-      const texte = r.ok ? t.supprime : t.supprSession;
+      const suiteApple = r.apple_revocation === 'en_attente' ? t.supprAppleAttente : r.apple_revocation === 'manuelle' ? t.supprAppleManuelle : '';
+      const texte = r.ok ? t.supprime + (suiteApple ? ' ' + suiteApple : '') : t.supprSession;
       setOuvert(false); setMsg({ t: texte, ok: !!r.ok }); annoncer(texte);
       setTimeout(() => focaliser(refMsg.current), 50);
       return;
