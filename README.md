@@ -16,12 +16,16 @@ Xcode (projet natif `ios/` versionné) ; Android reste sur EAS Build.
   mes scores, compteur de couple.
 - **Contenu EMBARQUÉ (11/10/2026, décision d'Alexis)** : tout le contenu du site est dans l'appli dès l'installation, 9 langues, hors ligne,
   aucun téléchargement nécessaire : articles et fiches pays (paquets `c/`), recherche (`s/`), quiz (`q/`), villes (`v/`) et images (`i/`),
-  soit 2 161 fichiers et 122 Mo dans `assets/embarque/` (IGNORÉ par git, régénéré ; `.easignore` le laisse partir à EAS Build). Génération :
-  `python C:\Claude\Claude\outils\gen\app_embarquer.py` après les six exports du site (écrit aussi `src/embarque-registre.ts`, versionné).
+  soit 2 177 fichiers et environ 140 Mo (4 164 pages au 18/10/2026) dans `assets/embarque/` (IGNORÉ par git, régénéré ; `.easignore` le laisse partir à EAS Build). Génération :
+  `python3 ../claude/outils/gen/app_embarquer.py` après les six exports du site (écrit aussi `src/embarque-registre.ts`, versionné).
   Lecture : `src/embarque.ts` (fichiers `.dat` = ressources Metro, `metro.config.js`). Le réseau ne sert qu'aux MISES À JOUR : au lancement
   (au plus une fois par jour, `majArrierePlan`) et par le bouton de l'écran Moi, l'index du site est comparé à celui de l'appli et seuls les
   paquets modifiés (version = empreinte, `pv` de l'index) sont téléchargés dans le dossier de l'appli ; la recherche et les quiz se
-  rafraîchissent de même en arrière-plan. Sur un nouveau PC : relancer `app_embarquer.py` avant tout build.
+  rafraîchissent de même en arrière-plan. Sur une nouvelle machine : relancer `app_embarquer.py` avant tout build.
+  `npm run verifier:contenu` contrôle chaque article, les versions, les résultats de recherche et les images dans les neuf langues ;
+  il compare également les ressources aux exports du dépôt voisin `affection` quand celui-ci est présent (`AP_SITE` pour un autre chemin).
+  Ce contrôle est obligatoire dans `scripts/ios-publier.sh`, même avec `--sans-tests`, et dans le hook EAS Android.
+  `npm test` vérifie aussi la lecture des 4 164 articles réels avec un cache vide et un réseau indisponible.
 - **Infos** : recherche dans toutes les pages du site (index `assets/search-<langue>.json`, gardé sur l'appareil
   24 h), les rubriques (Conseils, Santé, Sexualité, Astrologie, Pays) lues en natif et hors ligne, et les outils
   natifs : estimateur d'ovulation, maternité la plus proche (position du téléphone ou pays/ville), compteur de couple,

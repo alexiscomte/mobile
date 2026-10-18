@@ -13,7 +13,11 @@ const memoire: Partial<Record<Langue, Ligne[]>> = {};
 const DUREE = 24 * 3600 * 1000;
 
 function normaliser(s: string): string {
-  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’'`]/g, ' ');
+  // Même normalisation que la recherche du site : accents, lettres non décomposées
+  // (ł, ı) et ligatures, pour accepter aussi une saisie sur clavier ASCII.
+  const equivalents: Record<string, string> = { ł: 'l', ı: 'i', œ: 'oe', æ: 'ae', ß: 'ss' };
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[łıœæß]/g, (c) => equivalents[c]).replace(/[’'`]/g, ' ');
 }
 
 export async function chargerIndex(lg: Langue): Promise<Ligne[]> {
@@ -53,7 +57,7 @@ async function miseAJour(lg: Langue, cle: string): Promise<void> {
 
 /** Les pages dont le titre, la description, les sous-titres ou les mots-clés contiennent tous les mots cherchés. */
 export function chercher(lignes: Ligne[], question: string, max = 60): Resultat[] {
-  const mots = normaliser(question).split(/[^a-z0-9ßàâäçéèêëîïôöùûüÿñœæłśżźćń]+/i).filter((m) => m.length >= 2);
+  const mots = normaliser(question).split(/[^\p{L}\p{N}]+/u).filter((m) => m.length >= 2);
   if (!mots.length) return [];
   const out: Resultat[] = [];
   for (const [u, t, d, fil, sous, cles] of lignes) {

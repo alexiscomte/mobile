@@ -42,8 +42,8 @@ avertir_sans_tests() {
   print -u2 -P "%F{yellow}  Ce build part sur App Store Connect sans contrôle d'accessibilité ni de qualité.%f"
 }
 
-# Contenu hors ligne : sans assets/embarque/ (non versionné), la compilation JS échoue.
-[[ -n $(ls ../assets/embarque 2>/dev/null) ]] || { echo "assets/embarque/ vide : lancer d'abord outils/gen/app_embarquer.py"; exit 1; }
+# Contrôle obligatoire, même avec --sans-tests : tous les articles et images doivent être embarqués.
+(cd .. && npm run verifier:contenu) || echec "contenu hors ligne incomplet : régénérer les exports et lancer outils/gen/app_embarquer.py"
 
 pod install
 
