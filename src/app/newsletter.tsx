@@ -2,7 +2,7 @@
 // (compte.ts lettre, /api/compte/newsletter : adresse prouvée par la session) ; sans compte : inscription en double opt-in
 // (/api/newsletter, courriel de confirmation ; état gardé sur l'appareil, lettre.ts). Messages du site (outils_txt.json, ui.json espace).
 // Sans compte, la preuve anti-robot (robot.ts) se prépare dès que le formulaire est affiché ; échec : texte de robot.js (ui.json robot).
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Linking, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
@@ -24,6 +24,7 @@ const UI_R = (ui as unknown as { robot?: Record<string, TN> }).robot || {};
 
 export default function Newsletter() {
   const { langue, profil, compte, fusionnerProfil } = useProfil();
+  const router = useRouter();
   const T = TXT[langue] || TXT.en || TXT.fr;
   const E = UI_E[langue] || UI_E.fr;
   const { etat, courriel: courrielLettre, recharger } = useLettre(compte);
@@ -64,6 +65,7 @@ export default function Newsletter() {
     <>
       <Stack.Screen options={{ title: T.titre }} />
       <ScrollView contentContainerStyle={F.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
+        <Bouton titre={T.lire} secondaire onPress={() => router.push({ pathname: "/article", params: { u: langue + "/newsletter/index.html" } })} />
         <Text style={[F.texte, F.gras]}>{etatTxt}</Text>
         {compte && etat ? <Bouton titre={E.newsBoutonDesab} secondaire onPress={desabonner} disabled={envoi} /> : null}
         {!compte && etat === 'confirme' ? <Text style={[F.muet, styles.note]}>{E.newsInviteDesab}</Text> : null}
