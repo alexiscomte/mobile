@@ -40,6 +40,22 @@ Sur iOS 27 uniquement, l'audit de Mes infos peut signaler le sélecteur horaire 
 
 Tout diagnostic supplémentaire ou différent reste un échec. Le scénario avec l'heure inconnue contrôle séparément le formulaire sans ce sélecteur ; cette exception n'est pas une désactivation générale du contrôle de texte coupé.
 
+## Contrôles obligatoires avant publication
+
+`scripts/ios-publier.sh` lance ces contrôles avant de toucher au numéro de build, à l'archive Release ou à App Store Connect, et s'arrête au premier échec avec un message rouge et le chemin du journal :
+
+1. `CI=1 npx expo lint` ;
+2. `npx tsc --noEmit` ;
+3. compilation Release pour le simulateur d'audit et installation de l'app (les données du profil **Camille** sont conservées) ;
+4. la suite standard ci-dessus, deux fois : en clair avec le texte `large`, puis en mode sombre avec le texte maximal (`accessibility-extra-extra-extra-large`). L'apparence et la taille de texte initiales du simulateur sont rétablies à la fin, même en cas d'échec.
+
+Le simulateur utilisé est **Audit AffectionPlus iPhone** ; en choisir un autre avec `IOS_SIM_AUDIT=<UUID>`. Les journaux et `.xcresult` sont écrits dans `$TMPDIR/AffectionPlus-controles-<date>/`.
+
+- `scripts/ios-publier.sh --controles-seuls` exécute les contrôles et s'arrête sans compiler pour l'App Store ni rien envoyer : à utiliser pour vérifier une branche.
+- `scripts/ios-publier.sh --sans-tests` saute tous les contrôles. Un avertissement jaune s'affiche au début (avec dix secondes pour annuler par Ctrl-C) et à la fin. À réserver aux urgences, puis relancer `--controles-seuls` au plus tôt.
+
+Les lanceurs Dynamic Type à chaud et compte de test ci-dessous ne font pas partie de ce passage obligatoire.
+
 ## Dynamic Type à chaud
 
 Le test de changement de texte à chaud demande une coordination avec `simctl` et se lance séparément :
