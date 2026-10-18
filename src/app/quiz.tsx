@@ -29,7 +29,7 @@ export default function EcranQuiz() {
   }, [langue, id]);
 
   const quiz = useMemo(() => (liste && id ? liste.find((q) => q.id === id) : undefined), [liste, id]);
-  if (id && quiz) return <Jeu quiz={quiz} langue={langue} onFin={() => lireScores().then(setScores)} />;
+  if (id && quiz) return <Jeu key={langue + ':' + quiz.id} quiz={quiz} langue={langue} onFin={() => lireScores().then(setScores)} />;
 
   const parPage = new Map<string, Quiz[]>();
   for (const q of liste || []) { const l = parPage.get(q.u) || []; l.push(q); parPage.set(q.u, l); }
@@ -60,7 +60,8 @@ export default function EcranQuiz() {
 
 function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () => void }) {
   const d = quiz.d, qcm = quiz.m === 'qcm';
-  const [i, setI] = useState(0);
+  const utile = (k: number, sc: Record<string, number>) => { while (k < d.questions.length && !teste(d.questions[k], sc)) k++; return k; };
+  const [i, setI] = useState(() => (qcm ? 0 : utile(0, {})));
   const [bons, setBons] = useState(0);
   const [rates, setRates] = useState<string[]>([]);
   const [correction, setCorrection] = useState<{ juste: boolean; exp: string } | null>(null);
@@ -68,8 +69,6 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
   const [notes, setNotes] = useState<string[]>([]);
   const [pile, setPile] = useState<{ i: number; rep: Reponse }[]>([]);
   const [fini, setFini] = useState(false);
-  const utile = (k: number, sc: Record<string, number>) => { while (k < d.questions.length && !teste(d.questions[k], sc)) k++; return k; };
-  useEffect(() => { if (!qcm) setI(utile(0, {})); }, [quiz]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (fini && qcm) memoriserScore(quiz.id, bons, d.questions.length, quiz.t, SITE + quiz.u).then(onFin); }, [fini]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const recommencer = () => { setI(qcm ? 0 : utile(0, {})); setBons(0); setRates([]); setCorrection(null); setScore({}); setNotes([]); setPile([]); setFini(false); };

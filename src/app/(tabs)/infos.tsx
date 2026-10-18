@@ -5,6 +5,7 @@ import { ActivityIndicator, FlatList, Keyboard, Platform, Pressable, StyleSheet,
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Ligne, Titre } from '@/components/carte';
+import { useTabTopClearance } from '@/hooks/use-tab-top-clearance';
 import { TEXTES } from '@/i18n';
 import { TUILES, VIGNETTES, type Img } from '@/images';
 import { useProfil } from '@/profil';
@@ -33,18 +34,19 @@ const OUTILS: { cle: Cle; sf: string; route?: string; image?: Img }[] = [
 ];
 
 export default function Infos() {
+  const paddingTop = useTabTopClearance();
   const { langue } = useProfil();
   const T = TEXTES[langue];
   const router = useRouter();
   const [question, setQuestion] = useState('');
-  const [index, setIndex] = useState<LigneIndex[] | null>(null);
-  const [erreur, setErreur] = useState(false);
-  const [chargement, setChargement] = useState(false);
+  const [resultatIndex, setResultatIndex] = useState<{ langue: string; index: LigneIndex[] | null; erreur: boolean } | null>(null);
+  const chargement = resultatIndex?.langue !== langue;
+  const index = chargement ? null : resultatIndex.index;
+  const erreur = !chargement && resultatIndex.erreur;
 
   useEffect(() => {
     let actif = true;
-    setIndex(null); setErreur(false); setChargement(true);
-    chargerIndex(langue).then((l) => { if (actif) { setIndex(l); setChargement(false); } }, () => { if (actif) { setErreur(true); setChargement(false); } });
+    chargerIndex(langue).then((l) => { if (actif) setResultatIndex({ langue, index: l, erreur: false }); }, () => { if (actif) setResultatIndex({ langue, index: null, erreur: true }); });
     return () => { actif = false; };
   }, [langue]);
 
@@ -96,7 +98,7 @@ export default function Infos() {
   );
 
   return (
-    <SafeAreaView style={styles.fond} edges={['top']}>
+    <SafeAreaView style={[styles.fond, { paddingTop }]} edges={['top']}>
       <FlatList
         data={enRecherche ? resultats : []}
         keyExtractor={(r) => r.u}

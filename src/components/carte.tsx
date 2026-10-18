@@ -1,7 +1,7 @@
 // Tuiles et lignes de liste de l'application (couleurs du site, symbole SF sur iOS).
 import { SymbolView, type SFSymbol } from 'expo-symbols';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { FondTuile, Illustration } from '@/components/illustration';
 import type { Img } from '@/images';
@@ -12,17 +12,21 @@ import { COULEURS } from '@/theme';
 type CarteProps = { titre: string; texte?: string; couleur: string; sf: string; onPress: () => void; large?: boolean; image?: Img };
 
 export function Carte({ titre, texte, couleur, sf, onPress, large, image }: CarteProps) {
+  const { fontScale } = useWindowDimensions();
+  const grandsTextes = fontScale > 1.3;
+  // Aux grandes tailles, toute la largeur sert au texte ; la photo reste décorative.
+  const photo = image && !grandsTextes ? image : undefined;
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={texte ? titre + ', ' + texte : titre}
-      style={({ pressed }) => [styles.carte, { backgroundColor: couleur }, large && styles.large, image ? (large ? styles.largeImage : styles.avecImage) : null, pressed && styles.pressee]}>
-      {image ? <FondTuile image={image} couleur={couleur} horizontal={large} /> : (
+      style={({ pressed }) => [styles.carte, { backgroundColor: couleur }, (large || grandsTextes) && styles.large, photo ? (large ? styles.largeImage : styles.avecImage) : null, pressed && styles.pressee]}>
+      {photo ? <FondTuile image={photo} couleur={couleur} horizontal={large} /> : (
         <SymbolView name={sf as SFSymbol} tintColor="#fff" size={26} fallback={<Text style={styles.puce}>◆</Text>} />
       )}
-      <Text style={[styles.carteTitre, image && large ? styles.texteGauche : null]} numberOfLines={3}>{titre}</Text>
-      {texte ? <Text style={[styles.carteTexte, image && large ? styles.texteGauche : null]} numberOfLines={3}>{texte}</Text> : null}
+      <Text style={[styles.carteTitre, photo && large ? styles.texteGauche : null]} numberOfLines={grandsTextes ? undefined : 3}>{titre}</Text>
+      {texte ? <Text style={[styles.carteTexte, photo && large ? styles.texteGauche : null]} numberOfLines={grandsTextes ? undefined : 3}>{texte}</Text> : null}
     </Pressable>
   );
 }
@@ -30,6 +34,7 @@ export function Carte({ titre, texte, couleur, sf, onPress, large, image }: Cart
 type LigneProps = { titre: string; texte?: string; sf?: string; onPress: () => void; image?: Img };
 
 export function Ligne({ titre, texte, sf, onPress, image }: LigneProps) {
+  const { fontScale } = useWindowDimensions();
   return (
     // VoiceOver lit « titre, texte, bouton » (le chevron décoratif est ignoré)
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={texte ? titre + ', ' + texte : titre} style={({ pressed }) => [styles.ligne, pressed && styles.pressee]}>
@@ -40,7 +45,7 @@ export function Ligne({ titre, texte, sf, onPress, image }: LigneProps) {
       ) : null}
       <View style={styles.ligneTextes}>
         <Text style={styles.ligneTitre}>{titre}</Text>
-        {texte ? <Text style={styles.ligneTexte} numberOfLines={2}>{texte}</Text> : null}
+        {texte ? <Text style={styles.ligneTexte} numberOfLines={fontScale > 1.3 ? undefined : 2}>{texte}</Text> : null}
       </View>
       <Text style={styles.chevron} importantForAccessibility="no" accessibilityElementsHidden>›</Text>
     </Pressable>
@@ -60,7 +65,7 @@ const styles = StyleSheet.create({
   pressee: { opacity: 0.7 },
   puce: { color: '#fff', fontSize: 20 },
   carteTitre: { color: '#fff', fontSize: 16, fontWeight: '700', lineHeight: 20 },
-  carteTexte: { color: 'rgba(255,255,255,0.88)', fontSize: 13, lineHeight: 17 },
+  carteTexte: { color: '#fff', fontSize: 13, lineHeight: 17 },
   ligne: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 52, paddingVertical: 12, paddingHorizontal: 4, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COULEURS.bordure },
   ligneIcone: { width: 36, height: 36, borderRadius: 10, backgroundColor: COULEURS.fondDoux, alignItems: 'center', justifyContent: 'center' },
   ligneTextes: { flex: 1, gap: 2 },

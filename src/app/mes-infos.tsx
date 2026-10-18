@@ -8,9 +8,10 @@
 // compte). Plus de « Connecté : … », de synchronisation à la main ni de « Se déconnecter » ici (l'onglet Moi les a).
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Stack } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
+import { annoncerIOS } from '@/accessibilite';
 import { F, Puce } from '@/components/form';
 import { ChoixLieu, type LieuChoisi } from '@/components/lieu';
 import { MonCompte, texteInfos } from '@/components/mon-compte';
@@ -68,22 +69,25 @@ export default function MesInfos() {
   const { etat, courriel: courrielLettre, recharger } = useLettre(compte);
   const [noteLettre, setNoteLettre] = useState('');
   const [occupe, setOccupe] = useState(false);
+  const [profilAffiche, setProfilAffiche] = useState(profil);
   const natif = Platform.OS !== 'web';
 
-  useEffect(() => {
+  // Réconcilier avant d'afficher les champs : aucun ancien profil n'est visible après un changement de compte.
+  if (profil !== profilAffiche) {
+    setProfilAffiche(profil);
     setPrenom(profil.prenom || ''); setNom(profil.nom || ''); setSexe(profil.sexe || ''); setNaissance(profil.naissance || '');
     setHeure(profil.heure || ''); setHeureConnue(!!profil.heure); setCourriel(profil.courriel || '');
     // lieux aussi (appareil partagé, 08/10/2026) : après une connexion qui a remplacé les données d'un autre compte, ses lieux affichés
     // seraient restés et « Enregistrer » les aurait donnés au compte connecté
     setLieuN(versChoix(profil.naissance_lieu)); setLieuR(versChoix(profil.residence));
-  }, [profil]);
+  }
 
   const enregistrer = async () => {
     const c = courriel.trim().toLowerCase();
     await setProfil({ ...profil, prenom: prenom.trim(), nom: nom.trim() || undefined, sexe: sexe || undefined, naissance: naissance || undefined,
       heure: heureConnue && heure ? heure : undefined, courriel: c && RX_COURRIEL.test(c) ? c : undefined,
       naissance_lieu: versLieu(lieuN), residence: versLieu(lieuR) });
-    setMessage(T.enregistre); setTimeout(() => setMessage(''), 2000);
+    setMessage(T.enregistre); annoncerIOS(T.enregistre); setTimeout(() => setMessage(''), 2000);
   };
 
   // sans compte, cocher la case inscrit par courriel : la preuve anti-robot (robot.ts) se prépare dès qu'on approche l'adresse ou la case
@@ -115,52 +119,52 @@ export default function MesInfos() {
 
   return (
     <>
-      <Stack.Screen options={{ title: E.ongInfos }} />
+      <Stack.Screen options={{ title: T.moiTitre }} />
       <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <Text style={styles.label}>{T.prenom}</Text>
-        <TextInput style={styles.entree} value={prenom} onChangeText={setPrenom} maxLength={40} autoComplete="given-name" autoCapitalize="words" />
+        <TextInput style={styles.entree} value={prenom} accessibilityLabel={T.prenom} onChangeText={setPrenom} maxLength={40} autoComplete="given-name" autoCapitalize="words" />
         <Text style={styles.label}>{NF}</Text>
-        <TextInput style={styles.entree} value={nom} onChangeText={setNom} maxLength={60} autoComplete="family-name" autoCapitalize="words" />
+        <TextInput style={styles.entree} value={nom} accessibilityLabel={NF} onChangeText={setNom} maxLength={60} autoComplete="family-name" autoCapitalize="words" />
         <Text style={styles.label}>{TS.sexe}</Text>
         <View style={styles.puces}>
           {([['', TS.np], ['f', TS.f], ['m', TS.m]] as [string, string][]).map(([v, t]) => (
-            <Puce key={v || 'np'} titre={t} actif={sexe === v} onPress={() => setSexe(v)} />
+            <Puce key={v || 'np'} titre={t} label={`${TS.sexe} : ${t}`} actif={sexe === v} onPress={() => setSexe(v)} />
           ))}
         </View>
         <Text style={styles.label}>{T.naissance}</Text>
         {natif ? (
-          <DateTimePicker value={dateDe(naissance)} mode="date" display="compact" locale={langue} maximumDate={new Date()} minimumDate={new Date(1900, 0, 1)}
+          <DateTimePicker value={dateDe(naissance)} accessibilityLabel={T.naissance} mode="date" display="compact" locale={langue} maximumDate={new Date()} minimumDate={new Date(1900, 0, 1)}
             onChange={(_e: DateTimePickerEvent, d?: Date) => { if (d) setNaissance(isoDate(d)); }} style={styles.picker} />
         ) : (
-          <TextInput style={styles.entree} value={naissance} onChangeText={setNaissance} placeholder="AAAA-MM-JJ" placeholderTextColor={COULEURS.texteMuet} />
+          <TextInput style={styles.entree} value={naissance} accessibilityLabel={T.naissance} onChangeText={setNaissance} placeholder="AAAA-MM-JJ" placeholderTextColor={COULEURS.texteMuet} />
         )}
         <View style={styles.ligneOption}>
           <Text style={styles.label}>{T.heure}</Text>
           <View style={styles.optionDroite}>
             <Text style={styles.optionTxt}>{heureConnue ? '' : T.heureInconnue}</Text>
-            <Switch value={heureConnue} onValueChange={setHeureConnue} trackColor={{ true: COULEURS.secondaire }} />
+            <Switch value={heureConnue} accessibilityLabel={T.heure} onValueChange={setHeureConnue} trackColor={{ true: COULEURS.secondaire }} />
           </View>
         </View>
         {heureConnue ? (natif ? (
-          <DateTimePicker value={heureDe(heure)} mode="time" display="compact" locale={langue}
+          <DateTimePicker value={heureDe(heure)} accessibilityLabel={T.heure} mode="time" display="compact" locale={langue}
             onChange={(_e: DateTimePickerEvent, d?: Date) => { if (d) setHeure(isoHeure(d)); }} style={styles.picker} />
         ) : (
-          <TextInput style={styles.entree} value={heure} onChangeText={setHeure} placeholder="HH:MM" placeholderTextColor={COULEURS.texteMuet} />
+          <TextInput style={styles.entree} value={heure} accessibilityLabel={T.heure} onChangeText={setHeure} placeholder="HH:MM" placeholderTextColor={COULEURS.texteMuet} />
         )) : null}
 
         <Text style={styles.label}>{T.lieuNaissance}</Text>
         {/* clé = lieu du profil : ChoixLieu ne relit pas sa valeur après le montage ; remonté quand le profil change (connexion d'un
             autre compte, enregistrement), jamais pendant la saisie */}
-        <ChoixLieu key={'n' + cleLieu(profil.naissance_lieu)} langue={langue} valeur={lieuN} onChange={setLieuN} labelPays={T3.pays} labelVille={T3.ville} />
+        <ChoixLieu key={'n' + cleLieu(profil.naissance_lieu)} langue={langue} valeur={lieuN} onChange={setLieuN} labelPays={T3.pays} labelVille={T3.ville} contexte={T.lieuNaissance} />
         <Text style={styles.label}>{E.lieuR}</Text>
-        <ChoixLieu key={'r' + cleLieu(profil.residence)} langue={langue} valeur={lieuR} onChange={setLieuR} labelPays={T3.pays} labelVille={T3.ville} />
+        <ChoixLieu key={'r' + cleLieu(profil.residence)} langue={langue} valeur={lieuR} onChange={setLieuR} labelPays={T3.pays} labelVille={T3.ville} contexte={E.lieuR} />
 
         <Text style={styles.label}>{E.newsAdresse}</Text>
-        <TextInput style={styles.entree} value={courriel} onChangeText={setCourriel} maxLength={254} keyboardType="email-address" autoCapitalize="none"
+        <TextInput style={styles.entree} value={courriel} accessibilityLabel={E.newsAdresse} onChangeText={setCourriel} maxLength={254} keyboardType="email-address" autoCapitalize="none"
           autoCorrect={false} autoComplete="email" textContentType="emailAddress" onFocus={preparer} />
         <View style={styles.ligneOption}>
           <Text style={[styles.label, styles.flex]}>{E.newsCase}</Text>
-          <Switch value={!!etat} disabled={occupe} onValueChange={basculerLettre} trackColor={{ true: COULEURS.secondaire }} accessibilityLabel={E.newsCase}
+          <Switch value={!!etat} disabled={occupe} accessibilityState={{ disabled: occupe, busy: occupe }} onValueChange={basculerLettre} trackColor={{ true: COULEURS.secondaire }} accessibilityLabel={E.newsCase}
             onTouchStart={preparer} />
         </View>
         <Text style={styles.aide}>{note}</Text>
@@ -183,7 +187,7 @@ const styles = StyleSheet.create({
   contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 60 },
   label: { fontSize: 15, fontWeight: '600', color: COULEURS.texte, marginTop: 14, marginBottom: 6 },
   entree: { backgroundColor: COULEURS.fondDoux, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, fontSize: 17, color: COULEURS.texte },
-  picker: { alignSelf: 'flex-start', marginLeft: -8 },
+  picker: { alignSelf: 'flex-start', marginLeft: -8, minWidth: 120, minHeight: 44 },
   ligneOption: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   optionDroite: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 },
   optionTxt: { color: COULEURS.texteMuet },

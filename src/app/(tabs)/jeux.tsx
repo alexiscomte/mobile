@@ -5,6 +5,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Carte, Ligne, Titre } from '@/components/carte';
+import { useTabTopClearance } from '@/hooks/use-tab-top-clearance';
 import { TEXTES } from '@/i18n';
 import { TEXTES4 } from '@/i18n4';
 import { TUILES, VIGNETTES, type Img } from '@/images';
@@ -25,6 +26,7 @@ const AUTRES: { cle: Cle; sf: string; image?: Img }[] = [
 ];
 
 export default function Jeux() {
+  const paddingTop = useTabTopClearance();
   const { langue } = useProfil();
   const T = TEXTES[langue];
   const T4 = TEXTES4[langue];
@@ -32,7 +34,7 @@ export default function Jeux() {
   const go = (cle: Cle) => () => ouvrirCle(router, cle, langue);
   const sondage = sondageDuJour(langue);
   return (
-    <SafeAreaView style={styles.fond} edges={['top']}>
+    <SafeAreaView style={[styles.fond, { paddingTop }]} edges={['top']}>
       <ScrollView contentContainerStyle={styles.contenu}>
         <Text style={styles.titre} accessibilityRole="header">{T.jeuxTitre}</Text>
         <Text style={styles.intro}>{T.jeuxIntro}</Text>

@@ -111,7 +111,7 @@ export function useCouleurs(): Record<NomCouleur, string> & { sombre: boolean } 
 
 // dégradés des tuiles (accueil du site : .section-card) : identiques en clair et en sombre (texte blanc sur couleur franche)
 export const DEGRADES = {
-  conseils: ['#5C8A1E', '#446818'],
+  conseils: ['#4C7419', '#446818'],
   sante: ['#3F6FA8', '#2c5686'],
   sexualite: ['#7A1FA0', '#580378'],
   astro: ['#5E60D8', '#3E40A8'],

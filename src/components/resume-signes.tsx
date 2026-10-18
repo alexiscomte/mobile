@@ -34,11 +34,11 @@ export function ResumeSignes({ clair }: { clair?: boolean }) {
         <Illustration image={CHINOIS[r.s.chinois.animal]} taille={44} rond style={styles.second} alt={TA.chinois.animaux[r.s.chinois.animal]} />
       </Pressable>
       <View style={styles.ligne}>
-        <Pressable accessibilityRole="button" onPress={() => router.push('/horoscope')} accessibilityHint={T2.tipHoroscope}>
+        <Pressable accessibilityRole="button" onPress={() => router.push('/horoscope')} accessibilityHint={T2.tipHoroscope} style={styles.lien}>
           <Text style={[styles.item, c]}>{TA.signes[r.s.soleil]} · {TA.chinois.animaux[r.s.chinois.animal]}{r.s.ascendant !== null ? ` · ${T2.ascendant.toLowerCase()} ${TA.signes[r.s.ascendant]}` : ''}</Text>
         </Pressable>
         {r.forme >= 0 ? (
-          <Pressable accessibilityRole="button" onPress={() => router.push('/biorythme')} accessibilityHint={T2.tipBio}>
+          <Pressable accessibilityRole="button" onPress={() => router.push('/biorythme')} accessibilityHint={T2.tipBio} style={styles.lien}>
             <Text style={[styles.item, c]}>· {T2.forme} : {T2.niveaux[r.forme]}</Text>
           </Pressable>
         ) : null}
@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
   medaillons: { flexDirection: 'row', alignItems: 'center' },
   second: { marginLeft: -10, borderWidth: 2, borderColor: COULEURS.fondDoux },
   ligne: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' },
+  lien: { minHeight: 44, minWidth: 44, maxWidth: '100%', justifyContent: 'center' },
   item: { fontSize: 15, textDecorationLine: 'underline', fontWeight: '600' },
   sombre: { color: COULEURS.primaire },
   clair: { color: '#fff' },

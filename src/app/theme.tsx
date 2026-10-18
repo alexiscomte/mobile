@@ -21,11 +21,17 @@ function Roue({ c, largeur }: { c: Carte; largeur: number }) {
   if (typeof c.asc === 'number' && typeof c.mc === 'number') { items.push({ k: 'asc', lon: c.asc }); items.push({ k: 'mc', lon: c.mc }); }
   items.sort((a, b) => ((a.lon - rot) % 360 + 360) % 360 - ((b.lon - rot) % 360 + 360) % 360);
   let last = -99, level = 0;
-  const places = items.map((it) => { const rel = ((it.lon - rot) % 360 + 360) % 360; level = rel - last < 7 ? level + 1 : 0; last = rel; return { ...it, r: R - 44 - level * 14 }; });
+  const places: { k: string; lon: number; r: number }[] = [];
+  for (const it of items) {
+    const rel = ((it.lon - rot) % 360 + 360) % 360;
+    level = rel - last < 7 ? level + 1 : 0;
+    last = rel;
+    places.push({ ...it, r: R - 44 - level * 14 });
+  }
   return (
     <Svg width={largeur} height={largeur} viewBox="0 0 320 320">
       <Circle cx={cx} cy={cy} r={R} fill={COULEURS.fondDoux} stroke={COULEURS.bordure} />
-      <Circle cx={cx} cy={cy} r={R - 26} fill="#fff" stroke={COULEURS.bordure} />
+      <Circle cx={cx} cy={cy} r={R - 26} fill={COULEURS.fondEleve} stroke={COULEURS.bordure} />
       <Circle cx={cx} cy={cy} r={R - 90} fill="none" stroke={COULEURS.bordure} />
       {Array.from({ length: 12 }, (_, i) => {
         const p1 = pt(i * 30, R), p2 = pt(i * 30, R - 26), g = pt(i * 30 + 15, R - 13);
@@ -34,14 +40,14 @@ function Roue({ c, largeur }: { c: Carte; largeur: number }) {
           <React.Fragment key={i}>
             <Line x1={p1[0]} y1={p1[1]} x2={p2[0]} y2={p2[1]} stroke={COULEURS.bordure} />
             <SvgText x={g[0]} y={g[1] + 5} textAnchor="middle" fontSize="14" fill={COULEURS.primaire}>{GLYPHES[i]}</SvgText>
-            {typeof c.asc === 'number' ? (<><Line x1={h1[0]} y1={h1[1]} x2={h2[0]} y2={h2[1]} stroke="#e3e4f6" /><SvgText x={hn[0]} y={hn[1] + 3} textAnchor="middle" fontSize="8" fill={COULEURS.texteMuet}>{i + 1}</SvgText></>) : null}
+            {typeof c.asc === 'number' ? (<><Line x1={h1[0]} y1={h1[1]} x2={h2[0]} y2={h2[1]} stroke={COULEURS.grille} /><SvgText x={hn[0]} y={hn[1] + 3} textAnchor="middle" fontSize="8" fill={COULEURS.texteMuet}>{i + 1}</SvgText></>) : null}
           </React.Fragment>
         );
       })}
       {c.aspects.map((a, i) => {
         const p1 = pt(c.planets[a.a].lon, R - 92), p2 = pt(c.planets[a.b].lon, R - 92);
-        const col = a.type === 'sq' || a.type === 'opp' ? '#c04c4c' : a.type === 'conj' ? '#8a7a2a' : '#3f6fa8';
-        return <Line key={'a' + i} x1={p1[0]} y1={p1[1]} x2={p2[0]} y2={p2[1]} stroke={col} strokeWidth={1} opacity={0.7} />;
+        const col = a.type === 'sq' || a.type === 'opp' ? COULEURS.coeur : a.type === 'conj' ? COULEURS.orange : COULEURS.bleu;
+        return <Line key={'a' + i} x1={p1[0]} y1={p1[1]} x2={p2[0]} y2={p2[1]} stroke={col} strokeWidth={1} />;
       })}
       {places.map((it) => {
         const p = pt(it.lon, it.r), q1 = pt(it.lon, R - 26), q2 = pt(it.lon, R - 31);

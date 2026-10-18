@@ -36,10 +36,10 @@ export function ChampDate({ label, value, onChange, langue, max, min }: { label?
     <>
       {label ? <Label>{label}</Label> : null}
       {NATIF ? (
-        <DateTimePicker value={d} mode="date" display="compact" locale={langue} maximumDate={max} minimumDate={min || new Date(1900, 0, 1)}
+        <DateTimePicker value={d} accessibilityLabel={label} mode="date" display="compact" locale={langue} maximumDate={max} minimumDate={min || new Date(1900, 0, 1)}
           onChange={(_e, x) => { if (x) onChange(isoDate(x)); }} style={F.picker} />
       ) : (
-        <TextInput style={F.entree} value={value} onChangeText={onChange} placeholder="AAAA-MM-JJ" placeholderTextColor={COULEURS.texteMuet} />
+        <TextInput style={F.entree} value={value} accessibilityLabel={label} onChangeText={onChange} placeholder="AAAA-MM-JJ" placeholderTextColor={COULEURS.texteMuet} />
       )}
     </>
   );
@@ -55,13 +55,13 @@ export function ChampHeure({ label, inconnue, value, onChange, langue }: { label
         <Label>{label}</Label>
         <View style={F.optionDroite}>
           <Text style={F.optionTxt}>{connue ? '' : inconnue}</Text>
-          <Switch value={connue} onValueChange={(v) => { setConnue(v); if (!v) onChange(''); else if (!value) onChange('12:00'); }} trackColor={{ true: COULEURS.secondaire }} />
+          <Switch value={connue} accessibilityLabel={label} onValueChange={(v) => { setConnue(v); if (!v) onChange(''); else if (!value) onChange('12:00'); }} trackColor={{ true: COULEURS.secondaire }} />
         </View>
       </View>
       {connue ? (NATIF ? (
-        <DateTimePicker value={d} mode="time" display="compact" locale={langue} onChange={(_e, x) => { if (x) onChange(isoHeure(x)); }} style={F.picker} />
+        <DateTimePicker value={d} accessibilityLabel={label} mode="time" display="compact" locale={langue} onChange={(_e, x) => { if (x) onChange(isoHeure(x)); }} style={F.picker} />
       ) : (
-        <TextInput style={F.entree} value={value} onChangeText={onChange} placeholder="HH:MM" placeholderTextColor={COULEURS.texteMuet} />
+        <TextInput style={F.entree} value={value} accessibilityLabel={label} onChangeText={onChange} placeholder="HH:MM" placeholderTextColor={COULEURS.texteMuet} />
       )) : null}
     </>
   );
@@ -75,10 +75,10 @@ export function Bouton({ titre, onPress, secondaire, disabled, label }: { titre:
   );
 }
 
-export function Puce({ titre, actif, onPress }: { titre: string; actif: boolean; onPress: () => void }) {
+export function Puce({ titre, actif, onPress, label }: { titre: string; actif: boolean; onPress: () => void; label?: string }) {
   return (
     // puce = choix parmi plusieurs : état « sélectionné » annoncé par VoiceOver, léger retour haptique, zone de toucher de 44 pt
-    <Pressable accessibilityRole="button" accessibilityState={{ selected: actif }} hitSlop={{ top: 6, bottom: 6 }}
+    <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ selected: actif }} hitSlop={{ top: 6, bottom: 6 }}
       onPress={() => { if (!actif) choix(); onPress(); }} style={({ pressed }) => [F.puce, actif && F.puceActive, pressed && F.presse]}>
       <Text style={[F.puceTxt, actif && F.puceTxtActive]}>{titre}</Text>
     </Pressable>
@@ -107,7 +107,7 @@ export const F = StyleSheet.create({
   contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   label: { fontSize: 15, fontWeight: '600', color: COULEURS.texte, marginTop: 14, marginBottom: 6 },
   entree: { backgroundColor: COULEURS.fondDoux, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, fontSize: 17, color: COULEURS.texte },
-  picker: { alignSelf: 'flex-start', marginLeft: -8 },
+  picker: { alignSelf: 'flex-start', marginLeft: -8, minWidth: 120, minHeight: 44 },
   ligneOption: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   optionDroite: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 },
   optionTxt: { color: COULEURS.texteMuet },
@@ -134,7 +134,7 @@ export const F = StyleSheet.create({
   lien: { color: COULEURS.primaire, textDecorationLine: 'underline', fontSize: 15, marginBottom: 6 },
   ligne: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COULEURS.bordure },
   suggestions: { backgroundColor: COULEURS.fondEleve, borderWidth: StyleSheet.hairlineWidth, borderColor: COULEURS.bordure, borderRadius: 10, marginTop: 4, overflow: 'hidden' },
-  suggestion: { paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COULEURS.bordure },
+  suggestion: { minHeight: 44, justifyContent: 'center', paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COULEURS.bordure },
   suggestionTxt: { fontSize: 15, color: COULEURS.texte },
   encadre: { backgroundColor: COULEURS.fondDoux, borderRadius: 12, padding: 12, marginTop: 12 },
 });

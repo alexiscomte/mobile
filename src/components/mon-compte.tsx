@@ -52,16 +52,18 @@ export function MonCompte() {
   const [msg, setMsg] = useState<{ t: string; ok: boolean } | null>(null);
   const [echecs, setEchecs] = useState(echecsSynchro());
   const refSuppr = useRef<View>(null), refNon = useRef<View>(null), refMsg = useRef<Text>(null);
-  const garderMsg = useRef(false);
+  const [garderMsg, setGarderMsg] = useState(false);
   const session = compte ? compte.session : '';
+  const [sessionAffichee, setSessionAffichee] = useState(session);
 
   useEffect(() => surCompte((e) => { if (e === 'sync') setEchecs(echecsSynchro()); }), []);
   // la session change (connexion, déconnexion depuis l'onglet Moi, session expirée) : panneau refermé, ancien message effacé
   // (sauf « Compte supprimé. », qui doit rester affiché)
-  useEffect(() => {
+  if (session !== sessionAffichee) {
+    setSessionAffichee(session);
     setOuvert(false);
-    if (garderMsg.current) garderMsg.current = false; else setMsg(null);
-  }, [session]);
+    if (garderMsg) setGarderMsg(false); else setMsg(null);
+  }
 
   const fermer = (rendre: boolean) => { setOuvert(false); if (rendre) setTimeout(() => focaliser(refSuppr.current), 0); };
   const basculer = () => {
@@ -77,11 +79,11 @@ export function MonCompte() {
     const f = (e: { key: string; preventDefault: () => void }) => { if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); fermer(true); } };
     doc.addEventListener('keydown', f);
     return () => doc.removeEventListener('keydown', f);
-  }, [ouvert]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ouvert]);
 
   const confirmer = async () => {
     setOccupe(true); setMsg({ t: '…', ok: true });
-    garderMsg.current = true;                            // la session va disparaître : le message doit rester
+    setGarderMsg(true);                                  // la session va disparaître : le message doit rester
     const r = await supprimer();
     setOccupe(false);
     // session déjà fermée (401 : expirée, mot de passe changé ailleurs) : rien n'a été supprimé ; le compte est oublié sur l'appareil
@@ -92,7 +94,7 @@ export function MonCompte() {
       setTimeout(() => focaliser(refMsg.current), 50);
       return;
     }
-    garderMsg.current = false;
+    setGarderMsg(false);
     setMsg({ t: r.erreur === 'trop' ? t.trop : t.reseau, ok: false });
   };
 

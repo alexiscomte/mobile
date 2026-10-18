@@ -209,7 +209,7 @@ function Questionnaire({ Q, N, t, autre, suite }: { Q: Q[]; N: number; t: Record
     </>
   );
   const choisir = (c: number) => {
-    const m = surMoi ? [...moi] : moi, d = surMoi ? devine : [...devine];
+    const m = [...moi], d = [...devine];
     if (surMoi) m[i] = c; else d[i] = c;
     setMoi(m); setDevine(d);
     const k2 = k + 1;

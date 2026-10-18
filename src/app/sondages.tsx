@@ -108,13 +108,10 @@ export default function Sondages() {
   const [indispo, setIndispo] = useState(false);
   const [rafraichit, setRafraichit] = useState(false);   // tirer vers le bas : résultats du baromètre relus
 
-  const charger = useCallback(async () => {
-    try {
-      const r = await fetch(SITE + 'api/sondage/barometre', { cache: 'no-store' });
-      const x = await r.json();
+  const charger = useCallback(() => {
+    return fetch(SITE + 'api/sondage/barometre', { cache: 'no-store' }).then((r) => r.json()).then((x) => {
       if (x && x.ok) { setRes(x.s || {}); setIndispo(false); } else setIndispo(true);
-    } catch { setIndispo(true); }
-    setChargement(false);
+    }).catch(() => { setIndispo(true); }).finally(() => { setChargement(false); });
   }, []);
   useEffect(() => {
     charger();

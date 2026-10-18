@@ -7,7 +7,7 @@
 // court, trop (5 essais faux par heure et par compte, 10 par adresse IP), session expirée (compte oublié, invitation). Textes : ui.json
 // compte (compte.js) et espacePages.mdp (chapeau de la page du site).
 import { Stack, useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
 import { PAGES_ESPACE } from '@/components/espace';
@@ -39,9 +39,13 @@ export default function MotDePasse() {
   const refMsg = useRef<Text>(null);
   const avec = !!(compte && compte.mdp);
   const session = compte ? compte.session : '';
+  const [sessionAffichee, setSessionAffichee] = useState(session);
 
   // autre session (connexion, déconnexion, session expirée) : formulaire vidé
-  useEffect(() => { setActuel(''); setNouveau(''); setConfirme(''); setFautif(null); }, [session]);
+  if (session !== sessionAffichee) {
+    setSessionAffichee(session);
+    setActuel(''); setNouveau(''); setConfirme(''); setFautif(null);
+  }
 
   const dire = (texte: string, ok: boolean, champ?: Champ) => {
     setMsg({ t: texte, ok });
@@ -108,7 +112,10 @@ export default function MotDePasse() {
             {champ('confirme', t.mdpConfirmer, confirme, setConfirme, 'new-password')}
             <View style={styles.voir}>
               <Switch value={voir} onValueChange={setVoir} trackColor={{ true: COULEURS.secondaire }} accessibilityLabel={t.mdpVoir} />
-              <Text style={styles.voirTxt} onPress={() => setVoir(!voir)}>{t.mdpVoir}</Text>
+              <Pressable style={styles.voirCible} onPress={() => setVoir((v) => !v)} accessibilityRole="togglebutton"
+                accessibilityLabel={t.mdpVoir} accessibilityState={{ checked: voir }}>
+                <Text style={styles.voirTxt}>{t.mdpVoir}</Text>
+              </Pressable>
             </View>
             <Pressable disabled={occupe} style={({ pressed }) => [F.bouton, (pressed || occupe) && F.presse]} onPress={() => { enregistrer(); }}
               accessibilityRole="button" accessibilityState={{ disabled: occupe }}>
@@ -132,7 +139,8 @@ const styles = StyleSheet.create({
   fautif: { borderWidth: 1, borderColor: COULEURS.coeur },
   aide: { marginTop: 4 },
   voir: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 14 },
-  voirTxt: { color: COULEURS.texte, fontSize: 15, flex: 1 },
+  voirCible: { flex: 1, minHeight: 44, minWidth: 44, justifyContent: 'center' },
+  voirTxt: { color: COULEURS.texte, fontSize: 15 },
   attente: { marginTop: 12 },
   msg: { marginTop: 14, fontSize: 15, lineHeight: 21 },
 });

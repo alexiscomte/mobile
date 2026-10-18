@@ -73,7 +73,7 @@ export default function Newsletter() {
               <Champ label={T.courriel_lbl} value={courriel} onChangeText={setCourriel} placeholder={T.placeholder} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} autoComplete="email" maxLength={254} />
             )}
             <View style={styles.consent}>
-              <Switch value={consent} onValueChange={setConsent} trackColor={{ true: COULEURS.secondaire }} />
+              <Switch value={consent} accessibilityLabel={compte ? E.newsCaseNote : T.consent} onValueChange={setConsent} trackColor={{ true: COULEURS.secondaire }} />
               <Text style={styles.consentTxt}>{compte ? E.newsCaseNote : T.consent}</Text>
             </View>
             <Bouton titre={compte ? E.newsBandeauBtn : T.go} onPress={envoyer} disabled={envoi} />

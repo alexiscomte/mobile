@@ -1,0 +1,206 @@
+diff --git a/node_modules/react-native/ReactCommon/react/renderer/components/view/YogaLayoutableShadowNode.cpp b/node_modules/react-native/ReactCommon/react/renderer/components/view/YogaLayoutableShadowNode.cpp
+--- a/node_modules/react-native/ReactCommon/react/renderer/components/view/YogaLayoutableShadowNode.cpp
++++ b/node_modules/react-native/ReactCommon/react/renderer/components/view/YogaLayoutableShadowNode.cpp
+@@ -466,6 +466,9 @@
+ 
+ void YogaLayoutableShadowNode::configureYogaTree(
+     float pointScaleFactor,
++#if defined(__APPLE__) // RN #57246: Apple-only backport
++    Float fontSizeMultiplier,
++#endif // RN #57246
+     YGErrata defaultErrata,
+     bool swapLeftAndRight) {
+   ensureUnsealed();
+@@ -474,6 +477,20 @@
+   YGErrata errata = resolveErrata(defaultErrata);
+   YGConfigSetErrata(&yogaConfig_, errata);
+   YGConfigSetPointScaleFactor(&yogaConfig_, pointScaleFactor);
++#if defined(__APPLE__) // RN #57246: Apple-only backport
++
++  // A measurable node's measurement depends on `fontSizeMultiplier`, but unlike
++  // `pointScaleFactor` it is not part of the Yoga config, so a change does not
++  // invalidate Yoga's layout cache. Dirty the node when it changes to force
++  // re-measurement. We propagate up to the root so an unchanged, still-cached
++  // ancestor isn't skipped by `calculateLayoutInternal` before reaching us.
++  if (ReactNativeFeatureFlags::enableFontScaleChangesUpdatingLayout() &&
++      getTraits().check(ShadowNodeTraits::Trait::MeasurableYogaNode) &&
++      !floatEquality(
++          getLayoutMetrics().fontSizeMultiplier, fontSizeMultiplier)) {
++    yogaNode_.markDirtyAndPropagate();
++  }
++#endif // RN #57246
+ 
+   // TODO: `swapLeftAndRight` modified backing props and cannot be undone
+   if (swapLeftAndRight) {
+@@ -493,6 +510,10 @@
+ 
+     if (child.yogaTreeHasBeenConfigured_ &&
+         childLayoutMetrics.pointScaleFactor == pointScaleFactor &&
++#if defined(__APPLE__) // RN #57246: Apple-only backport
++        floatEquality(
++            childLayoutMetrics.fontSizeMultiplier, fontSizeMultiplier) &&
++#endif // RN #57246
+         childLayoutMetrics.wasLeftAndRightSwapped == swapLeftAndRight &&
+         childErrata == child.resolveErrata(errata)) {
+       continue;
+@@ -501,10 +522,21 @@
+     if (doesOwn(child)) {
+       auto& mutableChild = const_cast<YogaLayoutableShadowNode&>(child);
+       mutableChild.configureYogaTree(
++#if defined(__APPLE__) // RN #57246: Apple-only backport
++          pointScaleFactor,
++          fontSizeMultiplier,
++          child.resolveErrata(errata),
++          swapLeftAndRight);
++#else // RN #57246: retain Android ABI and behavior
+           pointScaleFactor, child.resolveErrata(errata), swapLeftAndRight);
++#endif // RN #57246
+     } else {
+       cloneChildInPlace(i).configureYogaTree(
++#if defined(__APPLE__) // RN #57246: Apple-only backport
++          pointScaleFactor, fontSizeMultiplier, errata, swapLeftAndRight);
++#else // RN #57246: retain Android ABI and behavior
+           pointScaleFactor, errata, swapLeftAndRight);
++#endif // RN #57246
+     }
+   }
+ }
+@@ -601,6 +633,9 @@
+     TraceSection s2("YogaLayoutableShadowNode::configureYogaTree");
+     configureYogaTree(
+         layoutContext.pointScaleFactor,
++#if defined(__APPLE__) // RN #57246: Apple-only backport
++        layoutContext.fontSizeMultiplier,
++#endif // RN #57246
+         YGErrataAll /*defaultErrata*/,
+         swapLeftAndRight);
+   }
+@@ -666,6 +701,9 @@
+   if (yogaNode_.getHasNewLayout()) {
+     auto layoutMetrics = layoutMetricsFromYogaNode(yogaNode_);
+     layoutMetrics.pointScaleFactor = layoutContext.pointScaleFactor;
++#if defined(__APPLE__) // RN #57246: Apple-only backport
++    layoutMetrics.fontSizeMultiplier = layoutContext.fontSizeMultiplier;
++#endif // RN #57246
+     layoutMetrics.wasLeftAndRightSwapped = swapLeftAndRight;
+     setLayoutMetrics(layoutMetrics);
+     yogaNode_.setHasNewLayout(false);
+@@ -713,6 +751,9 @@
+ 
+       auto newLayoutMetrics = layoutMetricsFromYogaNode(*childYogaNode);
+       newLayoutMetrics.pointScaleFactor = layoutContext.pointScaleFactor;
++#if defined(__APPLE__) // RN #57246: Apple-only backport
++      newLayoutMetrics.fontSizeMultiplier = layoutContext.fontSizeMultiplier;
++#endif // RN #57246
+       newLayoutMetrics.wasLeftAndRightSwapped =
+           layoutContext.swapLeftAndRightInRTL &&
+           newLayoutMetrics.layoutDirection == LayoutDirection::RightToLeft;
+diff --git a/node_modules/react-native/ReactCommon/react/renderer/components/view/YogaLayoutableShadowNode.h b/node_modules/react-native/ReactCommon/react/renderer/components/view/YogaLayoutableShadowNode.h
+--- a/node_modules/react-native/ReactCommon/react/renderer/components/view/YogaLayoutableShadowNode.h
++++ b/node_modules/react-native/ReactCommon/react/renderer/components/view/YogaLayoutableShadowNode.h
+@@ -137,7 +137,12 @@
+    * ShadowTree has been constructed, but before it has been is laid out or
+    * committed.
+    */
++#if defined(__APPLE__) // RN #57246: Apple-only backport
++  void
++  configureYogaTree(float pointScaleFactor, Float fontSizeMultiplier, YGErrata defaultErrata, bool swapLeftAndRight);
++#else // RN #57246: retain Android ABI and behavior
+   void configureYogaTree(float pointScaleFactor, YGErrata defaultErrata, bool swapLeftAndRight);
++#endif // RN #57246
+ 
+   /**
+    * Return an errata based on a `layoutConformance` prop if given, otherwise
+diff --git a/node_modules/react-native/ReactCommon/react/renderer/core/LayoutMetrics.h b/node_modules/react-native/ReactCommon/react/renderer/core/LayoutMetrics.h
+--- a/node_modules/react-native/ReactCommon/react/renderer/core/LayoutMetrics.h
++++ b/node_modules/react-native/ReactCommon/react/renderer/core/LayoutMetrics.h
+@@ -40,6 +40,10 @@
+   bool wasLeftAndRightSwapped{false};
+   // Pixel density. Number of device pixels per density-independent pixel.
+   Float pointScaleFactor{1.0};
++#if defined(__APPLE__) // RN #57246: Apple-only backport
++  // Surface font scale this node was last laid out with.
++  Float fontSizeMultiplier{1.0};
++#endif // RN #57246
+   // How much the children of the node actually overflow in each direction.
+   // Positive values indicate that children are overflowing outside of the node.
+   // Negative values indicate that children are clipped inside the node
+@@ -120,6 +124,9 @@
+         layoutMetrics.displayType,
+         layoutMetrics.layoutDirection,
+         layoutMetrics.pointScaleFactor,
++#if defined(__APPLE__) // RN #57246: Apple-only backport
++        layoutMetrics.fontSizeMultiplier,
++#endif // RN #57246
+         layoutMetrics.overflowInset);
+   }
+ };
+diff --git a/node_modules/react-native/ReactCommon/react/renderer/scheduler/SurfaceHandler.cpp b/node_modules/react-native/ReactCommon/react/renderer/scheduler/SurfaceHandler.cpp
+--- a/node_modules/react-native/ReactCommon/react/renderer/scheduler/SurfaceHandler.cpp
++++ b/node_modules/react-native/ReactCommon/react/renderer/scheduler/SurfaceHandler.cpp
+@@ -9,7 +9,9 @@
+ 
+ #include <cxxreact/TraceSection.h>
+ #include <react/debug/react_native_assert.h>
++#if !defined(__APPLE__) // RN #57246: retain Android ABI and behavior
+ #include <react/featureflags/ReactNativeFeatureFlags.h>
++#endif // RN #57246
+ #include <react/renderer/uimanager/UIManager.h>
+ 
+ namespace facebook::react {
+@@ -213,6 +215,7 @@
+   return rootShadowNode->getLayoutMetrics().frame.size;
+ }
+ 
++#if !defined(__APPLE__) // RN #57246: retain Android ABI and behavior
+ std::shared_ptr<const ShadowNode> SurfaceHandler::dirtyMeasurableNodesRecursive(
+     std::shared_ptr<const ShadowNode> node) const {
+   const auto nodeHasChildren = !node->getChildren().empty();
+@@ -285,6 +288,7 @@
+   }
+ }
+ 
++#endif // RN #57246
+ void SurfaceHandler::constraintLayout(
+     const LayoutConstraints& layoutConstraints,
+     const LayoutContext& layoutContext) const {
+@@ -315,8 +319,13 @@
+         link_.shadowTree && "`link_.shadowTree` must not be null.");
+     link_.shadowTree->commit(
+         [&](const RootShadowNode& oldRootShadowNode) {
++#if defined(__APPLE__) // RN #57246: Apple-only backport
++          return oldRootShadowNode.clone(
++#else // RN #57246: retain Android ABI and behavior
+           auto newRoot = oldRootShadowNode.clone(
++#endif // RN #57246
+               propsParserContext, layoutConstraints, layoutContext);
++#if !defined(__APPLE__) // RN #57246: retain Android ABI and behavior
+ 
+           // Dirty all measurable nodes when the fontSizeMultiplier changes to
+           // trigger re-measurement.
+@@ -328,6 +337,7 @@
+           }
+ 
+           return newRoot;
++#endif // RN #57246
+         },
+         {/* default commit options */});
+   }
+diff --git a/node_modules/react-native/ReactCommon/react/renderer/scheduler/SurfaceHandler.h b/node_modules/react-native/ReactCommon/react/renderer/scheduler/SurfaceHandler.h
+--- a/node_modules/react-native/ReactCommon/react/renderer/scheduler/SurfaceHandler.h
++++ b/node_modules/react-native/ReactCommon/react/renderer/scheduler/SurfaceHandler.h
+@@ -151,12 +151,14 @@
+ 
+   void applyDisplayMode(DisplayMode displayMode) const;
+ 
++#if !defined(__APPLE__) // RN #57246: retain Android ABI and behavior
+   /*
+    * An utility for dirtying all measurable shadow nodes present in the tree.
+    */
+   void dirtyMeasurableNodes(ShadowNode &root) const;
+   std::shared_ptr<const ShadowNode> dirtyMeasurableNodesRecursive(std::shared_ptr<const ShadowNode> node) const;
+ 
++#endif // RN #57246
+ #pragma mark - Link & Parameters
+ 
+   /*

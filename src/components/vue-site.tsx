@@ -1,6 +1,6 @@
 // Vue web d'une page du site en mode application : profil, favoris et compte injectés, retour du profil, des favoris et du compte tenus par le site,
 // liens externes ouverts dans le navigateur du téléphone, hors-ligne, barre de progression. Sur le web (aperçu), un iframe.
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { WebView, type WebViewMessageEvent, type WebViewNavigation } from 'react-native-webview';
 import { adopterCompte, proprioLocal } from '../compte';

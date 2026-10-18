@@ -18,6 +18,7 @@ import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
+import { annoncerIOS } from '@/accessibilite';
 import { Bouton, F } from '@/components/form';
 import { Banniere } from '@/components/illustration';
 import { MonCompte, texteInfos } from '@/components/mon-compte';
@@ -93,6 +94,7 @@ export default function CompteEcran() {
   const [consent, setConsent] = useState(false);
   const [occupe, setOccupe] = useState(false);
   const [msg, setMsg] = useState<{ t: string; ok: boolean } | null>(null);
+  useEffect(() => { if (msg) annoncerIOS(msg.t); }, [msg]);
   const t6 = TEXTES6[langue] || TEXTES6.fr;
   const [apple, setApple] = useState(false);
   useEffect(() => { let actif = true; appleDisponible().then((a) => { if (actif) setApple(a); }); return () => { actif = false; }; }, []);
@@ -149,7 +151,7 @@ export default function CompteEcran() {
               <>
                 {AVEC_OIDC ? <Text style={styles.ou}>{t.ou}</Text> : null}
                 <View style={styles.consent}>
-                  <Switch value={consent} onValueChange={setConsent} trackColor={{ true: COULEURS.secondaire }} accessibilityLabel={t.conf} />
+                  <Switch value={consent} onValueChange={setConsent} trackColor={{ true: COULEURS.secondaire }} accessibilityLabel={(t.consent || '%s').replace('%s', t.conf)} />
                   <Text style={styles.consentTxt}>
                     {avantLien}
                     <Text style={styles.lien} accessibilityRole="link" onPress={() => { Linking.openURL(lienConf).catch(() => undefined); }}>{t.conf}</Text>

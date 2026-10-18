@@ -8,22 +8,23 @@ import { chercherPays, chercherVille, listePays, villes, type PaysInfo, type Vil
 
 export type LieuChoisi = { code: string; nomPays: string; lat: number; lon: number; ville: string | null };
 
-type Props = { langue: Langue; valeur: LieuChoisi | null; onChange: (l: LieuChoisi | null) => void; labelPays: string; labelVille: string };
+type Props = { langue: Langue; valeur: LieuChoisi | null; onChange: (l: LieuChoisi | null) => void; labelPays: string; labelVille: string; contexte?: string };
 
-export function ChoixLieu({ langue, valeur, onChange, labelPays, labelVille }: Props) {
+export function ChoixLieu({ langue, valeur, onChange, labelPays, labelVille, contexte }: Props) {
   const PAYS = useMemo(() => listePays(langue), [langue]);
   const [pays, setPays] = useState<PaysInfo | null>(() => (valeur ? PAYS.find((p) => p.code === valeur.code) || null : null));
   const [qPays, setQPays] = useState(pays ? pays.nom : '');
   const [qVille, setQVille] = useState(valeur && valeur.ville ? valeur.ville : '');
   const [villeOk, setVilleOk] = useState(!!(valeur && valeur.ville));
-  const [liste, setListe] = useState<Ville[]>([]);
+  const [villesChargees, setVillesChargees] = useState<{ code: string; liste: Ville[] } | null>(null);
+  const code = pays?.code;
+  const liste = useMemo(() => (code && villesChargees?.code === code ? villesChargees.liste : []), [code, villesChargees]);
 
   useEffect(() => {
     let actif = true;
-    setListe([]);
-    if (pays) villes(pays.code).then((l) => { if (actif) setListe(l); }, () => {});
+    if (code) villes(code).then((l) => { if (actif) setVillesChargees({ code, liste: l }); }, () => {});
     return () => { actif = false; };
-  }, [pays]);
+  }, [code]);
   const sugPays = useMemo(() => (pays && qPays === pays.nom ? [] : chercherPays(PAYS, qPays)), [PAYS, qPays, pays]);
   const sugVille = useMemo(() => (villeOk ? [] : chercherVille(liste, qVille)), [liste, qVille, villeOk]);
 
@@ -32,13 +33,13 @@ export function ChoixLieu({ langue, valeur, onChange, labelPays, labelVille }: P
 
   return (
     <View>
-      <Champ label={labelPays} value={qPays} onChangeText={(v) => { setQPays(v); setPays(null); setQVille(''); setVilleOk(false); onChange(null); }} autoCorrect={false} />
+      <Champ label={labelPays} accessibilityLabel={contexte ? `${contexte} : ${labelPays}` : labelPays} value={qPays} onChangeText={(v) => { setQPays(v); setPays(null); setQVille(''); setVilleOk(false); onChange(null); }} autoCorrect={false} />
       {sugPays.length ? (
         <View style={F.suggestions}>
           {sugPays.map((p) => <Pressable accessibilityRole="button" key={p.code} style={F.suggestion} onPress={() => choisirPays(p)}><Text style={F.suggestionTxt}>{p.nom}</Text></Pressable>)}
         </View>
       ) : null}
-      <Champ label={labelVille} value={qVille} onChangeText={(v) => { setQVille(v); if (villeOk && pays) { setVilleOk(false); onChange({ code: pays.code, nomPays: pays.nom, lat: pays.lat, lon: pays.lon, ville: null }); } }} editable={!!pays} autoCorrect={false} />
+      <Champ label={labelVille} accessibilityLabel={contexte ? `${contexte} : ${labelVille}` : labelVille} value={qVille} onChangeText={(v) => { setQVille(v); if (villeOk && pays) { setVilleOk(false); onChange({ code: pays.code, nomPays: pays.nom, lat: pays.lat, lon: pays.lon, ville: null }); } }} editable={!!pays} accessibilityState={{ disabled: !pays }} autoCorrect={false} />
       {sugVille.length ? (
         <View style={F.suggestions}>
           {sugVille.map((v) => (

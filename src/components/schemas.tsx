@@ -2,7 +2,7 @@
 // frise du cycle d'ovulation, rythme de garde alternée sur deux semaines, assiette des proportions, horloges du décalage horaire.
 // Aucun texte traduit n'est dessiné dans les SVG (les légendes sont des <Text> React Native, dans la langue de l'appli).
 import React from 'react';
-import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Svg, { Circle, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
 
 import { COULEURS } from '@/theme';
@@ -43,9 +43,11 @@ export function FriseCycle({ c, legendes }: { c: number; legendes: { regles: str
 
 /** Deux semaines d'un rythme de garde : 14 cases colorées par parent (mêmes couleurs que la grille du calendrier). motif : nombres de
  *  jours alternés ([7, 7], [2, 2, 3, 2, 2, 3], [2, 2, 5, 5]) ; null = un week-end sur deux (vendredi et samedi chez le parent 2). */
-export function FriseGarde({ motif, jours, couleurs, noms }: { motif: number[] | null; jours: string[]; couleurs: string[]; noms: [string, string] }) {
-  const { width } = useWindowDimensions();
-  const W = largeurUtile(width), pas = W / 14, h = 26, y0 = 16;
+export function FriseGarde({ motif, jours, couleurs, noms, langue }: { motif: number[] | null; jours: string[]; couleurs: string[]; noms: [string, string]; langue: string }) {
+  const { width, fontScale } = useWindowDimensions();
+  const largeur = largeurUtile(width);
+  const largeurGrille = Math.max(largeur, 7 * 44 * fontScale);
+  const joursComplets = jours.map((_, i) => new Date(Date.UTC(2026, 0, 5 + i)).toLocaleDateString(langue, { weekday: 'long', timeZone: 'UTC' }));
   const qui: number[] = [];
   if (motif) {
     const cyc = motif.reduce((a, b) => a + b, 0);
@@ -55,18 +57,30 @@ export function FriseGarde({ motif, jours, couleurs, noms }: { motif: number[] |
   }
   return (
     <View style={styles.bloc}>
-      <Svg width={W} height={y0 + h + 4}>
-        {qui.map((q, i) => (
-          <React.Fragment key={i}>
-            <SvgText x={i * pas + pas / 2} y={11} textAnchor="middle" fontSize="9" fill={COULEURS.texteMuet}>{(jours[i % 7] || '').slice(0, 2)}</SvgText>
-            <Rect x={i * pas + 1} y={y0} width={pas - 2} height={h} rx={4} fill={couleurs[q]} stroke={i === 7 ? COULEURS.primaire : COULEURS.bordure} strokeWidth={0.5} />
-          </React.Fragment>
+      <ScrollView horizontal style={{ width: largeur }} contentContainerStyle={styles.friseContenu}>
+        <View style={[styles.friseSemaines, { width: largeurGrille }]}>
+          {[0, 1].map((semaine) => (
+            <View key={semaine} style={styles.friseSemaine}>
+              {qui.slice(semaine * 7, semaine * 7 + 7).map((q, i) => (
+                <View key={i} style={[styles.friseJour, { backgroundColor: couleurs[q] }]}
+                  accessible accessibilityRole="text" accessibilityLanguage={langue} accessibilityLabel={`${joursComplets[i]}, ${noms[q]}`}>
+                  <Text style={styles.friseTexte}>{jours[i]}</Text>
+                  <Text style={[styles.friseTexte, styles.friseNumero]}>{q + 1}</Text>
+                </View>
+              ))}
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+      <View style={[styles.friseLegende, { width: largeur }]}>
+        {noms.map((nom, i) => (
+          <View key={i} style={styles.friseParent} accessible accessibilityLanguage={langue} accessibilityLabel={`${i + 1}, ${nom}`}>
+            <View style={[styles.friseRepere, { backgroundColor: couleurs[i] }]}>
+              <Text style={[styles.friseTexte, styles.friseNumero]}>{i + 1}</Text>
+            </View>
+            <Text style={styles.friseNom}>{nom}</Text>
+          </View>
         ))}
-        <Line x1={7 * pas} y1={y0 - 2} x2={7 * pas} y2={y0 + h + 2} stroke={COULEURS.primaire} strokeWidth={1} />
-      </Svg>
-      <View style={styles.legende}>
-        <Pastille couleur={couleurs[0]} texte={noms[0]} />
-        <Pastille couleur={couleurs[1]} texte={noms[1]} />
       </View>
     </View>
   );
@@ -76,14 +90,15 @@ export function FriseGarde({ motif, jours, couleurs, noms }: { motif: number[] |
 export function Assiette({ secteurs, taille = 120 }: { secteurs: { angle: number; couleur: string }[]; taille?: number }) {
   const r = taille / 2 - 4, cx = taille / 2, cy = taille / 2;
   let a0 = -90;
-  const parts = secteurs.map((s, i) => {
+  const parts: React.ReactNode[] = [];
+  for (const [i, s] of secteurs.entries()) {
     const a1 = a0 + s.angle;
     const p = (a: number) => [cx + r * Math.cos((a * Math.PI) / 180), cy + r * Math.sin((a * Math.PI) / 180)];
     const [x0, y0] = p(a0), [x1, y1] = p(a1);
     const d = s.angle >= 360 ? `M${cx - r} ${cy} a${r} ${r} 0 1 0 ${2 * r} 0 a${r} ${r} 0 1 0 ${-2 * r} 0` : `M${cx} ${cy} L${x0} ${y0} A${r} ${r} 0 ${s.angle > 180 ? 1 : 0} 1 ${x1} ${y1} Z`;
     a0 = a1;
-    return <Path key={i} d={d} fill={s.couleur} stroke="#fff" strokeWidth={2} />;
-  });
+    parts.push(<Path key={i} d={d} fill={s.couleur} stroke="#fff" strokeWidth={2} />);
+  }
   return (
     <Svg width={taille} height={taille}>
       <Circle cx={cx} cy={cy} r={r + 3} fill="#fff" stroke={COULEURS.bordure} strokeWidth={1.5} />
@@ -142,4 +157,14 @@ const styles = StyleSheet.create({
   pastilleTxt: { fontSize: 12, color: COULEURS.texteMuet },
   deuxNoms: { flexDirection: 'row', width: '100%', justifyContent: 'space-around', marginTop: 2 },
   nom: { fontSize: 13, fontWeight: '600', color: COULEURS.primaireFonce, maxWidth: '45%' },
+  friseContenu: { paddingBottom: 6 },
+  friseSemaines: { gap: 4 },
+  friseSemaine: { flexDirection: 'row', gap: 4 },
+  friseJour: { flex: 1, minWidth: 0, alignItems: 'center', padding: 4, gap: 4, borderRadius: 4 },
+  friseTexte: { fontSize: 13, color: '#221B2B', textAlign: 'center' },
+  friseNumero: { fontWeight: '700' },
+  friseLegende: { gap: 8, marginTop: 6 },
+  friseParent: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  friseRepere: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },
+  friseNom: { flex: 1, fontSize: 15, color: COULEURS.texte },
 });

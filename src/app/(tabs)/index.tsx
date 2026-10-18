@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Carte, Titre } from '@/components/carte';
 import { ResumeSignes } from '@/components/resume-signes';
+import { useTabTopClearance } from '@/hooks/use-tab-top-clearance';
 import { fmt, TEXTES } from '@/i18n';
 import { TUILES } from '@/images';
 import { questionDuJour, sondageDuJour } from '@/moteur/qdj';
@@ -15,6 +16,7 @@ import { page } from '@/site';
 import { COULEURS, DEGRADES } from '@/theme';
 
 export default function Accueil() {
+  const paddingTop = useTabTopClearance();
   const { langue, profil } = useProfil();
   const T = TEXTES[langue];
   const router = useRouter();
@@ -22,7 +24,7 @@ export default function Accueil() {
   const sondage = sondageDuJour(langue);
   const go = (cle: Parameters<typeof page>[0], ancre?: string) => () => ouvrirCle(router, cle, langue, ancre);
   return (
-    <SafeAreaView style={styles.fond} edges={['top']}>
+    <SafeAreaView style={[styles.fond, { paddingTop }]} edges={['top']}>
       <ScrollView contentContainerStyle={styles.contenu}>
         <Text style={styles.bonjour} accessibilityRole="header">{profil.prenom ? fmt(T.bonjourPrenom, profil.prenom) : T.bonjour}</Text>
         <Text style={styles.date}>{date}</Text>

@@ -7,10 +7,12 @@
 // (et son compteur) puis l'icône de partage natif (Share de react-native, prop « partager ») collés à DROITE (Alexis : « totalement sur la
 // droite ») ; le message bref (« Page ajoutée aux favoris ») prend un instant la place du fil, sans décaler l'article ni les boutons.
 // IconePartage sert aussi à la barre de titre de page.tsx (en haut à droite).
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { SymbolView } from 'expo-symbols';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
+import { annoncerIOS } from '@/accessibilite';
 import { basculerAime, cheminAime, lireAime } from '@/aime';
 import { UI_E } from '@/components/espace';
 import { fmt } from '@/i18n';
@@ -20,8 +22,9 @@ import { COULEURS } from '@/theme';
 
 const POUCE = 'M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z';
 
-/** Icône « partager » du site (trois nœuds reliés, dessin de type « share-2 » de Feather Icons, licence MIT), en trait. */
+/** Partage système sur iOS ; ailleurs, icône du site (« share-2 » de Feather Icons, licence MIT). */
 export function IconePartage({ couleur = COULEURS.primaire, taille = 17 }: { couleur?: string; taille?: number }) {
+  if (Platform.OS === 'ios') return <SymbolView name="square.and.arrow.up" tintColor={couleur} size={taille} />;
   return (
     <Svg width={taille} height={taille} viewBox="0 0 24 24">
       <Circle cx={18} cy={5} r={3} fill="none" stroke={couleur} strokeWidth={1.7} />
@@ -48,7 +51,7 @@ export function Pouce({ u, titre, fil, partager, libellePartage }: Props) {
   const E = UI_E[langue] || UI_E.fr;
   const p = cheminAime(u);
   const favRef = useRef(favoris);
-  favRef.current = favoris;
+  useLayoutEffect(() => { favRef.current = favoris; }, [favoris]);
   const [moi, setMoi] = useState(() => favoris.some((f) => f.url === p));
   const [n, setN] = useState(0);
   const [msg, setMsg] = useState('');
@@ -74,6 +77,7 @@ export function Pouce({ u, titre, fil, partager, libellePartage }: Props) {
 
   useEffect(() => {        // message bref (« Page ajoutée aux favoris »), effacé après 2,2 s
     if (!msg) return;
+    annoncerIOS(msg);
     const m = setTimeout(() => setMsg(''), 2200);
     return () => clearTimeout(m);
   }, [msg]);

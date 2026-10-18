@@ -13,6 +13,7 @@ import RenderHtml, { type MixedStyleDeclaration } from 'react-native-render-html
 
 import { localiserImages } from '@/embarque';
 import { CarteJourArticle } from '@/components/horoscope-carte';
+import { ImageArticle } from '@/components/image-article';
 import { Pouce } from '@/components/pouce';
 import { TEXTES } from '@/i18n';
 import { TEXTES2 } from '@/i18n2';
@@ -42,9 +43,14 @@ export default function EcranArticle() {
   const T = TEXTES[langue], T3 = TEXTES3[langue];
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const [a, setA] = useState<Article | null | undefined>(undefined);
   const chemin = (u || '').split('#')[0];                       // la page, sans l'ancre
-  useEffect(() => { let actif = true; setA(undefined); if (chemin) article(langue, chemin).then((x) => { if (actif) setA(x); }, () => { if (actif) setA(null); }); return () => { actif = false; }; }, [chemin, langue]);
+  const [contenu, setContenu] = useState<{ langue: string; chemin: string; article: Article | null } | null>(null);
+  const a = !chemin ? null : contenu?.langue === langue && contenu.chemin === chemin ? contenu.article : undefined;
+  useEffect(() => {
+    let actif = true;
+    if (chemin) article(langue, chemin).then((x) => { if (actif) setContenu({ langue, chemin, article: x }); }, () => { if (actif) setContenu({ langue, chemin, article: null }); });
+    return () => { actif = false; };
+  }, [chemin, langue]);
 
   // ---- défilement jusqu'à l'ancre
   const defil = useRef<ScrollView>(null);
@@ -89,6 +95,7 @@ export default function EcranArticle() {
       );
     };
     const r: Record<string, any> = Object.fromEntries(BLOCS_ANCRE.map((t) => [t, avecAncre]));
+    r.img = ImageArticle;
     r.div = ({ tnode, TDefaultRenderer, ...props }: any) => {
       const outil = tnode.attributes['data-app-outil'], quiz = tnode.attributes['data-app-quiz'];
       // pages « horoscope du jour par signe / par animal » (12/10/2026) : la carte native du jour, en ligne, à la place du lien

@@ -5,6 +5,7 @@ import { ScrollView, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Ligne } from '@/components/carte';
+import { useTabTopClearance } from '@/hooks/use-tab-top-clearance';
 import { TEXTES } from '@/i18n';
 import { CHINOIS, TUILES, VIGNETTES, ZODIAQUE, type Img } from '@/images';
 import { ouvrirCle } from '@/nav';
@@ -29,11 +30,12 @@ const OUTILS: Outil[] = [
 ];
 
 export default function Astro() {
+  const paddingTop = useTabTopClearance();
   const { langue } = useProfil();
   const T = TEXTES[langue];
   const router = useRouter();
   return (
-    <SafeAreaView style={styles.fond} edges={['top']}>
+    <SafeAreaView style={[styles.fond, { paddingTop }]} edges={['top']}>
       <ScrollView contentContainerStyle={styles.contenu}>
         <Text style={styles.titre} accessibilityRole="header">{T.astroTitre}</Text>
         <Text style={styles.intro}>{T.astroIntro}</Text>

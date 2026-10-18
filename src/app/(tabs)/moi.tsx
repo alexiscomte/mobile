@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ligne, Titre } from '@/components/carte';
 import { deconnecter } from '@/compte';
 import { connexionOidc, ecranNatif, marquerInvite } from '@/connexion';
+import { useTabTopClearance } from '@/hooks/use-tab-top-clearance';
 import { LANGUES, NOMS_LANGUES, TEXTES, fmt, type Langue } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
 import { TEXTES4 } from '@/i18n4';
@@ -45,6 +46,7 @@ const ECRANS: Record<string, { sf: string; cible: Cible }> = {
 };
 
 export default function Moi() {
+  const paddingTop = useTabTopClearance();
   const { langue, profil, favoris, compte, setLangue, effacer } = useProfil();
   const T = TEXTES[langue], T3 = TEXTES3[langue], T4 = TEXTES4[langue];
   const TC = UI_COMPTE[langue] || UI_COMPTE.fr, E = UI_E[langue] || UI_E.fr;
@@ -86,7 +88,7 @@ export default function Moi() {
   };
 
   return (
-    <SafeAreaView style={styles.fond} edges={['top']}>
+    <SafeAreaView style={[styles.fond, { paddingTop }]} edges={['top']}>
       <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
         <Text style={styles.titre} accessibilityRole="header">{E.espTitre}</Text>
 
