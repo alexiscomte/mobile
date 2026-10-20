@@ -1925,6 +1925,7 @@ export const REGISTRE: Record<string, number> = {
   "i/vignettes/picto-d4c98c2ef096.svg": require("../assets/embarque/i/vignettes/picto-d4c98c2ef096.svg"),
   "i/vignettes/picto-d8732ed42f7b.svg": require("../assets/embarque/i/vignettes/picto-d8732ed42f7b.svg"),
   "i/vignettes/picto-d87947791bd6.svg": require("../assets/embarque/i/vignettes/picto-d87947791bd6.svg"),
+  "i/vignettes/picto-db458c22c88b.svg": require("../assets/embarque/i/vignettes/picto-db458c22c88b.svg"),
   "i/vignettes/picto-dc81b6b35814.svg": require("../assets/embarque/i/vignettes/picto-dc81b6b35814.svg"),
   "i/vignettes/picto-dcf1dd47affa.svg": require("../assets/embarque/i/vignettes/picto-dcf1dd47affa.svg"),
   "i/vignettes/picto-dd56bfd82c39.svg": require("../assets/embarque/i/vignettes/picto-dd56bfd82c39.svg"),
