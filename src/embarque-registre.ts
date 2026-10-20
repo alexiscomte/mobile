@@ -1936,7 +1936,6 @@ export const REGISTRE: Record<string, number> = {
   "i/vignettes/picto-e12e3e1b7e8e.svg": require("../assets/embarque/i/vignettes/picto-e12e3e1b7e8e.svg"),
   "i/vignettes/picto-e23f77c64816.svg": require("../assets/embarque/i/vignettes/picto-e23f77c64816.svg"),
   "i/vignettes/picto-e2883cd380a8.svg": require("../assets/embarque/i/vignettes/picto-e2883cd380a8.svg"),
-  "i/vignettes/picto-e4e278b73120.svg": require("../assets/embarque/i/vignettes/picto-e4e278b73120.svg"),
   "i/vignettes/picto-e4ecfb77423c.svg": require("../assets/embarque/i/vignettes/picto-e4ecfb77423c.svg"),
   "i/vignettes/picto-e50b2b4ebdb7.svg": require("../assets/embarque/i/vignettes/picto-e50b2b4ebdb7.svg"),
   "i/vignettes/picto-e5addbefce66.svg": require("../assets/embarque/i/vignettes/picto-e5addbefce66.svg"),
