@@ -1565,6 +1565,7 @@ export const REGISTRE: Record<string, number> = {
   "i/quiz/qztour-def/q4.webp": require("../assets/embarque/i/quiz/qztour-def/q4.webp"),
   "i/vignettes/actu-essai.svg": require("../assets/embarque/i/vignettes/actu-essai.svg"),
   "i/vignettes/actu-etude.svg": require("../assets/embarque/i/vignettes/actu-etude.svg"),
+  "i/vignettes/actu-loi.svg": require("../assets/embarque/i/vignettes/actu-loi.svg"),
   "i/vignettes/actu-recherche.svg": require("../assets/embarque/i/vignettes/actu-recherche.svg"),
   "i/vignettes/drapeau-ao.svg": require("../assets/embarque/i/vignettes/drapeau-ao.svg"),
   "i/vignettes/drapeau-ar.svg": require("../assets/embarque/i/vignettes/drapeau-ar.svg"),
