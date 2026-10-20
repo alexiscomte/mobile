@@ -2,6 +2,8 @@
 
 # dependencies
 node_modules/
+# lien symbolique posé dans les copies du skill redaction (claude/outils/redaction_isolee.py ouvrir)
+node_modules
 
 # Expo
 .expo/
