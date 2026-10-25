@@ -1,8 +1,11 @@
+// Données des écrans mises à jour sans nouvelle version (#162) : appliquées AVANT tout autre module de l'appli (premier import).
+import '@/maj/donnees';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import React, { useEffect, useMemo } from 'react';
+import { AppState } from 'react-native';
 
 import { TEXTES } from '@/i18n';
 import { majArrierePlan } from '@/moteur/contenu';
@@ -18,6 +21,11 @@ function Pile() {
   useEffect(() => { if (pret) SplashScreen.hideAsync(); }, [pret]);
   // tout le contenu est embarqué dans l'appli : le réseau ne sert qu'à la mise à jour, discrète, une fois par jour
   useEffect(() => { if (pret) majArrierePlan(langue); }, [pret, langue]);
+  // retour au premier plan : même vérification (au plus une fois par jour), pour que le contenu du site arrive le lendemain sans relancer
+  useEffect(() => {
+    const s = AppState.addEventListener('change', (e) => { if (e === 'active' && pret) majArrierePlan(langue); });
+    return () => s.remove();
+  }, [pret, langue]);
   if (!pret) return null;
   return (
     // en-têtes natifs (UINavigationBar) : titre au centre, retour avec le titre de l'écran précédent ou « Retour », balayage depuis le
@@ -54,6 +62,8 @@ function Pile() {
       <Stack.Screen name="outils" options={{ title: '' }} />
       <Stack.Screen name="connexions" options={{ title: '' }} />
       <Stack.Screen name="mot-de-passe" options={{ title: '' }} />
+      <Stack.Screen name="nouveautes" options={{ title: '' }} />
+      <Stack.Screen name="fiche" options={{ title: '' }} />
     </Stack>
   );
 }

@@ -1,32 +1,25 @@
 // Contenu du site EMBARQUÉ dans l'appli (décision d'Alexis, 11/10/2026 : tout est présent hors ligne dès l'installation ; le réseau ne sert
 // qu'aux mises à jour). Les fichiers (assets/embarque/, générés par outils/gen/app_embarquer.py du dépôt Claude) sont des ressources Metro,
-// listées dans embarque-registre.ts : c/ paquets de contenu, s/ recherche, q/ quiz, v/ villes, i/ images.
-import { Asset } from 'expo-asset';
-import { Platform } from 'react-native';
+// listées dans embarque-registre.ts : c/ paquets de contenu, s/ recherche, q/ quiz, v/ villes, i/ images, p/ pages JSON, k/ catalogue des
+// dossiers, m/ manifeste et l/ lots des mises à jour.
+import { texteUri, uriOrigine } from './embarque-origine';
+import { fichierDepot, texteDepot } from './maj/depot';
 
-import { REGISTRE } from './embarque-registre';
+// Mises à jour sans nouvelle version (#162) : un fichier téléchargé et vérifié (maj/depot.ts) remplace la copie embarquée du même nom.
 
-/** L'adresse (locale) d'un fichier embarqué, ou null s'il n'existe pas. */
+/** L'adresse (locale) d'un fichier : la mise à jour téléchargée s'il y en a une, sinon la copie embarquée ; null s'il n'existe pas. */
 export function uriEmbarque(nom: string): string | null {
-  const m = REGISTRE[nom];
-  if (m === undefined) return null;
-  try { return Asset.fromModule(m).uri || null; } catch { return null; }
+  return fichierDepot(nom) || uriOrigine(nom);
 }
 
-/** Le texte d'un fichier embarqué (JSON, JS), ou null. */
+/** Le texte d'un fichier (JSON, villes), mis à jour ou embarqué, ou null. */
 export async function texteEmbarque(nom: string): Promise<string | null> {
-  const u = uriEmbarque(nom);
-  if (!u) return null;
-  try {
-    const r = await fetch(u);
-    // les adresses « file:// » répondent sans code HTTP fiable sur certaines plateformes : on juge sur le texte
-    if (Platform.OS === 'web' && !r.ok) return null;
-    const t = await r.text();
-    return t || null;
-  } catch { return null; }
+  const t = await texteDepot(nom);
+  if (t) return t;
+  return texteUri(uriOrigine(nom));
 }
 
-/** Un JSON embarqué. */
+/** Un JSON, mis à jour ou embarqué. */
 export async function jsonEmbarque<T>(nom: string): Promise<T | null> {
   const t = await texteEmbarque(nom);
   if (!t) return null;

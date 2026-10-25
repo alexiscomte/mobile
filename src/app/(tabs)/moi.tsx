@@ -23,6 +23,8 @@ import { LANGUES, NOMS_LANGUES, TEXTES, fmt, type Langue } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
 import { TEXTES4 } from '@/i18n4';
 import { TEXTES5 } from '@/i18n5';
+import { TEXTES7 } from '@/i18n7';
+import { pageJson } from '@/maj/pages';
 import { infoContenu, surMaj, toutTelecharger, type EtatMaj } from '@/moteur/contenu';
 import ui from '@/moteur/ui.json';
 import { ouvrir, ouvrirCle } from '@/nav';
@@ -80,6 +82,10 @@ export default function Moi() {
     setProgression(T3.telechargement);
     try { await toutTelecharger(langue, (f, t) => setProgression(T3.telechargement + ' ' + f + '/' + t)); setProgression(T3.horsLigneOk); }
     catch { setProgression(T.horsLigne); }
+  };
+  const ouvrirFiche = async (cle: 'apropos' | 'confidentialite') => {
+    if (await pageJson(langue, cle).catch(() => null)) router.push({ pathname: '/fiche', params: { cle } });
+    else ouvrirCle(router, cle, langue);
   };
   const confirmerEffacer = () => {
     if (Platform.OS === 'web') { effacer(); return; }
@@ -145,12 +151,15 @@ export default function Moi() {
         ) : info.date ? (
           <Text style={styles.majTxt}>{fmt(T5.contenuDu, jour(info.date)) + (info.verifie ? ' · ' + fmt(T5.majFaite, jour(info.verifie)) : '')}</Text>
         ) : null}
+        {/* journal des changements de la dernière mise à jour du contenu (#162) */}
+        <Ligne titre={TEXTES7[langue].nouveautes} sf="sparkles" onPress={() => router.push('/nouveautes')} />
 
         <Titre>{T.aPropos}</Titre>
         <Text style={styles.aide}>{T.aProposTxt}</Text>
         <Ligne titre={T.siteWeb} sf="safari" onPress={() => Linking.openURL(SITE + page('accueil', langue).u)} />
-        <Ligne titre={T.confidentialite} sf="lock.fill" onPress={() => ouvrirCle(router, 'confidentialite', langue)} />
-        <Ligne titre={page('apropos', langue).t} sf="info.circle.fill" onPress={() => ouvrirCle(router, 'apropos', langue)} />
+        {/* pages décrites en JSON (#162) : lues hors ligne et mises à jour avec le contenu ; la version en ligne sans page JSON */}
+        <Ligne titre={T.confidentialite} sf="lock.fill" onPress={() => ouvrirFiche('confidentialite')} />
+        <Ligne titre={page('apropos', langue).t} sf="info.circle.fill" onPress={() => ouvrirFiche('apropos')} />
 
         {langue === 'fr' ? (
           // « Suivez-nous sur les réseaux sociaux » : en français seulement (demande d'Alexis), mêmes comptes que le site (footer.SOCIAL)

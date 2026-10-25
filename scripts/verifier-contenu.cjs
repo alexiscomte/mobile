@@ -20,6 +20,11 @@ function verifier(racine = path.resolve(__dirname, '..'), site = process.env.AP_
     if (nom.startsWith('s/')) return 'search-' + rel;
     if (nom.startsWith('q/')) return 'data/quiz-' + rel;
     if (nom.startsWith('v/')) return 'data/villes/' + rel;
+    // manifeste des mises à jour et ses lots, pages JSON, catalogue des dossiers (app_manifeste.py, #162)
+    if (nom.startsWith('m/')) return 'data/appli/' + rel;
+    if (nom.startsWith('l/')) return 'data/appli/lots/' + rel;
+    if (nom.startsWith('p/')) return 'data/appli/pages/' + rel;
+    if (nom.startsWith('k/')) return 'data/appli/dossiers/' + rel;
     return rel;
   };
   for (const [nom, fichier] of registre) {

@@ -23,11 +23,13 @@ const source = ts.transpileModule(fs.readFileSync(path.join(racine, 'src/moteur/
 for (const lg of ['fr', 'en', 'de', 'es', 'it', 'pt', 'nl', 'pl', 'tr']) {
   test(`${lg} : tous les articles réels sont lisibles au premier lancement hors ligne`, async () => {
     // Aucun cache téléchargé ; toutes les tentatives réseau échouent.
-    class Directory { get exists() { return true; } }
-    class File { get exists() { return false; } }
+    class Directory { get exists() { return false; } }
     const modules = {
-      'expo-file-system': { Directory, File, Paths: { document: 'cache-vide' } },
+      'expo-file-system': { Directory, Paths: { document: 'cache-vide' } },
       '../embarque': { jsonEmbarque: async (nom) => lire(nom) },
+      // aucune mise à jour téléchargée (premier lancement)
+      '../maj/depot': { derniereVerification: () => 0, majQuotidienne: () => undefined, mettreAJourContenu: async () => { throw new Error('Aucun réseau'); },
+        surMaj: () => () => undefined, surNouveauContenu: () => () => undefined },
       '../site': { SITE: 'https://hors-ligne.invalid/' },
     };
     const exports = {};

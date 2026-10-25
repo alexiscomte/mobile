@@ -1,9 +1,10 @@
 // Moteur de questionnaires : même règle que le site (assets/js/quiz.js). Deux modes : « qcm » (corrigé tout de suite, score)
 // et « test » (points par clé, questions conditionnelles, résultat selon des règles). Données : assets/data/quiz-<langue>.json
-// du site (outils/gen/app_quiz.py), chargées ici et gardées 24 h. Scores gardés sur l'appareil (clé apq:<id>, comme le site).
+// du site (outils/gen/app_quiz.py), embarquées et mises à jour par le manifeste (#162). Scores gardés sur l'appareil (clé apq:<id>, comme le site).
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { pousser } from '../compte';
 import { jsonEmbarque } from '../embarque';
+import { surNouveauContenu } from '../maj/depot';
 import type { Langue } from '../i18n';
 import { SITE } from '../site';
 
@@ -20,26 +21,18 @@ export type Donnees = {
 export type Quiz = { id: string; u: string; t: string; m: 'qcm' | 'test'; d: Donnees; img?: string };
 export type Score = { s: number; n: number; d: string; t: string; u: string };
 
-const memoire: Partial<Record<Langue, Quiz[]>> = {};
-const DUREE = 24 * 3600 * 1000;
+let memoire: Partial<Record<Langue, Quiz[]>> = {};
+surNouveauContenu(() => { memoire = {}; });
+// anciennes copies (avant le 26/10/2026, mises à jour à part) : effacées, le manifeste (maj/depot.ts, #162) les remplace
+AsyncStorage.multiRemove(['fr', 'en', 'de', 'es', 'it', 'pt', 'nl', 'pl', 'tr'].map((lg) => 'ap.quiz.' + lg)).catch(() => undefined);
 
 export async function chargerQuiz(lg: Langue): Promise<Quiz[]> {
   if (memoire[lg]) return memoire[lg] as Quiz[];
-  const cle = 'ap.quiz.' + lg;
-  try {
-    const brut = await AsyncStorage.getItem(cle);
-    if (brut) { const { t, quiz } = JSON.parse(brut); if (Date.now() - t < DUREE && Array.isArray(quiz)) { memoire[lg] = quiz; return quiz; } }
-  } catch { /* cache illisible */ }
-  // les quiz embarqués dans l'appli servent tout de suite (hors ligne dès l'installation) ; le site ne sert qu'à la mise à jour, en arrière-plan
+  // les quiz de l'appli (ou leur mise à jour téléchargée) servent tout de suite, hors ligne
   const emb = await jsonEmbarque<{ quiz: Quiz[] }>('q/' + lg + '.json');
-  if (emb && Array.isArray(emb.quiz)) {
-    memoire[lg] = emb.quiz;
-    telechargerQuiz(lg).then((quiz) => { memoire[lg] = quiz; return AsyncStorage.setItem(cle, JSON.stringify({ t: Date.now(), quiz })); }).catch(() => undefined);
-    return emb.quiz;
-  }
-  const quiz = await telechargerQuiz(lg);
+  if (emb && Array.isArray(emb.quiz)) { memoire[lg] = emb.quiz; return emb.quiz; }
+  const quiz = await telechargerQuiz(lg);     // appli sans contenu embarqué (aperçu web)
   memoire[lg] = quiz;
-  AsyncStorage.setItem(cle, JSON.stringify({ t: Date.now(), quiz })).catch(() => undefined);
   return quiz;
 }
 

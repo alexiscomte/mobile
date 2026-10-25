@@ -12,7 +12,9 @@ const code = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
 }).outputText;
 const exportsMoteur = {};
-vm.runInNewContext(code, { exports: exportsMoteur, require: () => ({}) });
+// dépendances natives remplacées par des fonctions vides (stockage, dépôt des mises à jour)
+const vide = { __esModule: true, default: { multiRemove: async () => undefined }, surNouveauContenu: () => () => undefined };
+vm.runInNewContext(code, { exports: exportsMoteur, require: () => vide });
 const { chercher } = exportsMoteur;
 const ligne = (titre, description = '', sousTitres = '', motsCles = '') =>
   ['fr/' + encodeURIComponent(titre) + '.html', titre, description, '', sousTitres, motsCles];

@@ -1,16 +1,19 @@
 // Recherche dans les pages du site : index assets/search-<langue>.json (écrit par outils/gen/searchindex.py),
-// une ligne par page : [adresse, titre, description, fil d'Ariane, sous-titres, mots-clés]. Chargé une fois par langue,
-// gardé en mémoire et sur l'appareil (24 h).
+// une ligne par page : [adresse, titre, description, fil d'Ariane, sous-titres, mots-clés]. Chargé une fois par langue, gardé en mémoire ;
+// mis à jour par le manifeste (maj/depot.ts, #162 : plus de copie à part dans AsyncStorage).
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jsonEmbarque } from './embarque';
+import { surNouveauContenu } from './maj/depot';
 import type { Langue } from './i18n';
 import { SITE } from './site';
 
 export type Ligne = [string, string, string, string, string, string];
 export type Resultat = { u: string; t: string; d: string; fil: string; score: number };
 
-const memoire: Partial<Record<Langue, Ligne[]>> = {};
-const DUREE = 24 * 3600 * 1000;
+let memoire: Partial<Record<Langue, Ligne[]>> = {};
+surNouveauContenu(() => { memoire = {}; });
+// anciennes copies (avant le 26/10/2026) : effacées
+AsyncStorage.multiRemove(['fr', 'en', 'de', 'es', 'it', 'pt', 'nl', 'pl', 'tr'].map((lg) => 'ap.index.' + lg)).catch(() => undefined);
 
 function normaliser(s: string): string {
   // Même normalisation que la recherche du site : accents, lettres non décomposées
@@ -22,24 +25,11 @@ function normaliser(s: string): string {
 
 export async function chargerIndex(lg: Langue): Promise<Ligne[]> {
   if (memoire[lg]) return memoire[lg] as Ligne[];
-  const cle = 'ap.index.' + lg;
-  try {
-    const brut = await AsyncStorage.getItem(cle);
-    if (brut) {
-      const { t, lignes } = JSON.parse(brut);
-      if (Date.now() - t < DUREE && Array.isArray(lignes)) { memoire[lg] = lignes; return lignes; }
-    }
-  } catch { /* cache illisible : on retombe sur l'index embarqué */ }
-  // l'index embarqué dans l'appli sert tout de suite (hors ligne dès l'installation) ; le site ne sert qu'à la mise à jour, en arrière-plan
+  // l'index de l'appli sert tout de suite (hors ligne dès l'installation) ; ses mises à jour passent par le manifeste (maj/depot.ts, #162)
   const emb = await jsonEmbarque<Ligne[]>('s/' + lg + '.json');
-  if (emb) {
-    memoire[lg] = emb;
-    miseAJour(lg, cle).catch(() => undefined);
-    return emb;
-  }
-  const lignes = await telecharger(lg);
+  if (emb) { memoire[lg] = emb; return emb; }
+  const lignes = await telecharger(lg);       // appli sans contenu embarqué (aperçu web)
   memoire[lg] = lignes;
-  AsyncStorage.setItem(cle, JSON.stringify({ t: Date.now(), lignes })).catch(() => undefined);
   return lignes;
 }
 
@@ -47,12 +37,6 @@ async function telecharger(lg: Langue): Promise<Ligne[]> {
   const r = await fetch(SITE + 'assets/search-' + lg + '.json');
   if (!r.ok) throw new Error('index ' + r.status);
   return (await r.json()) as Ligne[];
-}
-
-async function miseAJour(lg: Langue, cle: string): Promise<void> {
-  const lignes = await telecharger(lg);
-  memoire[lg] = lignes;
-  await AsyncStorage.setItem(cle, JSON.stringify({ t: Date.now(), lignes }));
 }
 
 /** Les pages dont le titre, la description, les sous-titres ou les mots-clés contiennent tous les mots cherchés. */
