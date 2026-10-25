@@ -1,4 +1,5 @@
-// Infos : recherche dans toutes les pages du site, puis les rubriques.
+// Infos : recherche dans toutes les pages du site, puis les rubriques. La recherche part au bouton « Rechercher » ou à la touche
+// Entrée (plus à chaque frappe, V15-02, ticket #157) et elle est notée dans le journal interne (recherche.ts).
 import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -9,7 +10,7 @@ import { useTabTopClearance } from '@/hooks/use-tab-top-clearance';
 import { TEXTES } from '@/i18n';
 import { TUILES, VIGNETTES, type Img } from '@/images';
 import { useProfil } from '@/profil';
-import { chargerIndex, chercher, type Ligne as LigneIndex, type Resultat } from '@/recherche';
+import { chargerIndex, chercher, noterClic, noterRecherche, type Ligne as LigneIndex, type Resultat } from '@/recherche';
 import { page, type Cle } from '@/site';
 import { COULEURS } from '@/theme';
 
@@ -38,7 +39,8 @@ export default function Infos() {
   const { langue } = useProfil();
   const T = TEXTES[langue];
   const router = useRouter();
-  const [question, setQuestion] = useState('');
+  const [saisie, setSaisie] = useState('');        // texte en cours de frappe
+  const [question, setQuestion] = useState('');    // dernière recherche validée
   const [resultatIndex, setResultatIndex] = useState<{ langue: string; index: LigneIndex[] | null; erreur: boolean } | null>(null);
   const chargement = resultatIndex?.langue !== langue;
   const index = chargement ? null : resultatIndex.index;
@@ -53,6 +55,15 @@ export default function Infos() {
   const resultats = useMemo<Resultat[]>(() => (index && question.trim().length >= 2 ? chercher(index, question) : []), [index, question]);
   const enRecherche = question.trim().length >= 2;
 
+  // une recherche validée est notée une fois que l'index a donné son nombre de résultats
+  useEffect(() => {
+    if (index && enRecherche) noterRecherche(langue, question, resultats.length);
+  }, [index, enRecherche, langue, question, resultats.length]);
+
+  const valider = () => { Keyboard.dismiss(); setQuestion(saisie); };
+  const changer = (t: string) => { setSaisie(t); if (!t.trim()) setQuestion(''); };   // champ vidé : retour aux rubriques
+  const ouvrir = (u: string) => { noterClic(u); router.push({ pathname: '/article', params: { u } }); };
+
   const entete = (
     <View>
       <Text style={styles.titre} accessibilityRole="header">{T.infosTitre}</Text>
@@ -60,21 +71,25 @@ export default function Infos() {
       <View style={styles.champ}>
         <TextInput
           style={styles.entree}
-          value={question}
-          onChangeText={setQuestion}
+          value={saisie}
+          onChangeText={changer}
           placeholder={T.recherchePlaceholder}
           placeholderTextColor={COULEURS.texteMuet}
           returnKeyType="search"
           clearButtonMode="while-editing"
           autoCorrect={false}
-          onSubmitEditing={Keyboard.dismiss}
+          onSubmitEditing={valider}
           accessibilityLabel={T.recherchePlaceholder}
           accessibilityRole="search"
         />
         {/* iOS a son propre bouton d'effacement (clearButtonMode) : le nôtre seulement ailleurs */}
-        {question && Platform.OS !== 'ios' ? (
-          <Pressable accessibilityRole="button" onPress={() => setQuestion('')} hitSlop={10} accessibilityLabel="×"><Text style={styles.effacer}>×</Text></Pressable>
+        {saisie && Platform.OS !== 'ios' ? (
+          <Pressable accessibilityRole="button" onPress={() => changer('')} hitSlop={10} accessibilityLabel="×"><Text style={styles.effacer}>×</Text></Pressable>
         ) : null}
+        <Pressable accessibilityRole="button" accessibilityLabel={T.rechercher} onPress={valider} hitSlop={6}
+          style={({ pressed }) => [styles.bouton, pressed && styles.boutonPresse]}>
+          <Text style={styles.boutonTxt} maxFontSizeMultiplier={1.6}>{T.rechercher}</Text>
+        </Pressable>
       </View>
       {chargement ? <View style={styles.etat}><ActivityIndicator color={COULEURS.primaire} /><Text style={styles.etatTxt}>{T.chargementIndex}</Text></View> : null}
       {erreur ? <Text style={styles.erreur}>{T.indexIndispo}</Text> : null}
@@ -107,7 +122,7 @@ export default function Infos() {
         ListHeaderComponent={entete}
         contentContainerStyle={styles.contenu}
         renderItem={({ item }) => (
-          <Ligne titre={item.t} texte={item.fil ? item.fil + ' — ' + item.d : item.d} onPress={() => router.push({ pathname: '/article', params: { u: item.u } })} />
+          <Ligne titre={item.t} texte={item.fil ? item.fil + ' — ' + item.d : item.d} onPress={() => ouvrir(item.u)} />
         )}
       />
     </SafeAreaView>
@@ -122,6 +137,9 @@ const styles = StyleSheet.create({
   champ: { flexDirection: 'row', alignItems: 'center', backgroundColor: COULEURS.fondDoux, borderRadius: 12, paddingHorizontal: 12 },
   entree: { flex: 1, fontSize: 17, paddingVertical: 12, color: COULEURS.texte },
   effacer: { fontSize: 22, color: COULEURS.texteMuet, paddingHorizontal: 6 },
+  bouton: { backgroundColor: COULEURS.primairePlein, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 9, marginLeft: 6, minHeight: 44, justifyContent: 'center' },
+  boutonPresse: { opacity: 0.75 },
+  boutonTxt: { color: COULEURS.surPlein, fontSize: 16, fontWeight: '700' },
   etat: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 10 },
   etatTxt: { color: COULEURS.texteMuet, marginTop: 8 },
   erreur: { color: COULEURS.coeur, marginTop: 8 },

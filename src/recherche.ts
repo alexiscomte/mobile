@@ -80,3 +80,35 @@ export function chercher(lignes: Ligne[], question: string, max = 60): Resultat[
   out.sort((a, b) => b.score - a.score || a.t.localeCompare(b.t));
   return out.slice(0, max);
 }
+
+// Journal interne des recherches (action V15-02, ticket #157, 26/10/2026), même mécanisme que le site (assets/js/search.js) : une
+// recherche validée (bouton « Rechercher » ou touche Entrée du clavier) envoie une fois { r, q, l, n, s: 'appli' } ; un résultat ouvert
+// envoie { r, p }. Petit envoi sans attente de réponse (fetch, aucune bibliothèque native), ni compte ni adresse IP gardés par le serveur
+// (recherche_api.js ; politique de confidentialité, « journal-recherche »). Une panne réseau est ignorée : la recherche reste locale.
+let derniere: { cle: string; r: string } | null = null;
+
+function identifiant(): string {
+  let t = '';
+  for (let i = 0; i < 24; i++) t += Math.floor(Math.random() * 16).toString(16);
+  return t;
+}
+
+function envoyer(objet: Record<string, unknown>): void {
+  try {
+    fetch(SITE + 'api/recherche', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(objet) })
+      .catch(() => undefined);
+  } catch { /* le journal ne doit jamais gêner la recherche */ }
+}
+
+/** Recherche validée : envoie le mot, la langue et le nombre de résultats (deux validations du même texte ne comptent qu'une fois). */
+export function noterRecherche(lg: Langue, question: string, n: number): void {
+  const cle = lg + '|' + normaliser(question).replace(/\s+/g, ' ').trim();
+  if (!question.trim() || (derniere && derniere.cle === cle)) return;
+  derniere = { cle, r: identifiant() };
+  envoyer({ r: derniere.r, q: question.trim(), l: lg, n, s: 'appli' });
+}
+
+/** Résultat ouvert : la page choisie, rattachée à la dernière recherche validée. */
+export function noterClic(page: string): void {
+  if (derniere) envoyer({ r: derniere.r, p: page });
+}
