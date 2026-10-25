@@ -83,7 +83,7 @@ export default function Newsletter() {
         ) : null}
         {msg ? <Text style={[styles.msg, { color: msg.ok ? COULEURS.vert : COULEURS.coeur }]}>{msg.t}</Text> : null}
         {T.donnees ? (
-          // « Vos données » (01/10/2026) : même texte que le site, dont le prestataire d'envoi (Brevo) ; lien vers la page Confidentialité du site
+          // « Vos données » (01/10/2026) : même texte que le site, dont le prestataire d'envoi (Amazon SES) ; lien vers la page Confidentialité du site
           <View style={styles.donnees}>
             <Text style={styles.h2} accessibilityRole="header">{T.h_donnees}</Text>
             <Text style={styles.donneesTxt}>{T.donnees}</Text>
