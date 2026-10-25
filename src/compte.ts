@@ -33,7 +33,7 @@ export type Compte = { courriel: string; session: string;
   sync: string | null;               // dernier échange réussi avec le compte (connexion ou envoi)
   depuis?: string;
   mdp?: boolean;                     // le compte a un mot de passe (sinon l'écran « Changer mon mot de passe » n'en demande pas l'actuel)
-  newsletter?: string | null;        // état de la lettre pour l'adresse du compte ('confirme' | 'attente' | 'desinscrit' | null), donné par le serveur
+  newsletter?: string | null;        // état de la lettre pour l'adresse du compte ('confirme' | 'desinscrit' | null), lu chez Amazon SES par le serveur
   admin?: boolean };                 // compte ADMIN (historique des connexions détaillé, entrées « a » du menu du site)
 export type Reponse = { ok?: boolean; erreur?: string; statut: number; [k: string]: unknown };
 type Score = { s?: number; n?: number; d?: string; t?: string; u?: string };
