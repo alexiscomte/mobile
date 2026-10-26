@@ -23,6 +23,7 @@ import { ancreDe, ancreRedirigee, article, cheminDe, type Article } from '@/mote
 import { ouvrir } from '@/nav';
 import { useProfil } from '@/profil';
 import sondages from '@/moteur/sondages.json';
+import outilsTxt from '@/moteur/outils_txt.json';
 import { page, SITE, url, type Cle } from '@/site';
 import { COULEURS, useCouleurs, type NomCouleur } from '@/theme';
 
@@ -33,6 +34,9 @@ const OUTILS_PAGE: Cle[] = ['ovulation', 'maternite', 'compteur', 'epoux', 'gard
 const routeDePage = (u: string, lg: Parameters<typeof page>[1]) => { const k = OUTILS_PAGE.find((c) => page(c, lg).u === u); return k ? '/' + k : undefined; };
 // pages « autres astrologies » (conteneur utres) : védique et maya ont leur écran (mode), la page de l'amour par signe chinois ouvre l'écran du signe chinois
 const routeAutres = (u: string, lg: Parameters<typeof page>[1]) => (page('maya', lg).u === u ? '/autres?mode=maya' : page('vedique', lg).u === u ? '/autres?mode=vedique' : '/chinois');
+// formulaire d'inscription à la lettre du site (form#nl-form : lettre courante, Contact, page de la lettre ; 26/10/2026, ticket #183) :
+// app_contenu.py le remplace par <div data-app-outil="newsletter">, rendu ici en bouton « S'inscrire » vers l'écran Newsletter de l'appli
+const NL_TXT = (outilsTxt as unknown as { newsletter: Record<string, Record<string, string>> }).newsletter;
 const SONDAGES = (sondages as { sondages: { id: string; u: Record<string, string> }[] }).sondages;
 // éléments de bloc qui peuvent porter l'id visé par une ancre (sections des grosses pages droits, titres, FAQ, sources, sommaire)
 const BLOCS_ANCRE = ['section', 'h2', 'h3', 'h4', 'nav', 'details', 'p', 'ol', 'ul', 'table', 'figure', 'article'];
@@ -104,6 +108,14 @@ export default function EcranArticle() {
       if (outil === 'horoscope' && (tnode.attributes['data-app-sign'] !== undefined || tnode.attributes['data-app-animal'] !== undefined)) {
         const s = tnode.attributes['data-app-sign'], an = tnode.attributes['data-app-animal'];
         return <CarteJourArticle signe={s !== undefined ? Number(s) : undefined} animal={an !== undefined ? Number(an) : undefined} dates={tnode.attributes['data-app-dates']} langue={langue} jour={jour} />;
+      }
+      if (outil === 'newsletter') {
+        const N = NL_TXT[langue] || NL_TXT.en || NL_TXT.fr;
+        return (
+          <Pressable accessibilityRole="button" onPress={() => router.push('/newsletter')} style={styles.marqueur}>
+            <Text style={styles.marqueurTxt}>{N.go} →</Text>
+          </Pressable>
+        );
       }
       if (outil) {
         const route = ROUTES[outil] || (outil === 'outil' && chemin ? routeDePage(chemin, langue) : undefined) || (outil === 'autres' && chemin ? routeAutres(chemin, langue) : undefined);
