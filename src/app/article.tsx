@@ -138,7 +138,8 @@ export default function EcranArticle() {
     return r;
   }, [router, T3, chemin, langue, aller]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const htmlLocal = useMemo(() => (a ? localiserImages(a.h) : ''), [a]);
+  // la date « Page vérifiée en … » (p.maj) est déjà affichée à part (a.maj) : retirée du HTML pour ne pas l'avoir deux fois (26/10/2026)
+  const htmlLocal = useMemo(() => (a ? localiserImages(a.h).replace(/<p class="maj">[\s\S]*?<\/p>\s*/g, '') : ''), [a]);
   // rendu HTML : react-native-render-html veut des couleurs en chaînes (palette claire ou sombre selon le réglage de l'iPhone)
   const pal = useCouleurs();
   const rendu = useMemo(() => stylesHtml(pal), [pal.sombre]);   // eslint-disable-line react-hooks/exhaustive-deps
