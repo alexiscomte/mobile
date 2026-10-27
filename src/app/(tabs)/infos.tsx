@@ -9,6 +9,7 @@ import { Ligne, Titre } from '@/components/carte';
 import { useTabTopClearance } from '@/hooks/use-tab-top-clearance';
 import { TEXTES } from '@/i18n';
 import { TUILES, VIGNETTES, type Img } from '@/images';
+import { donneesComparateur } from '@/moteur/comparateur';
 import { useProfil } from '@/profil';
 import { chargerIndex, chercher, noterClic, noterRecherche, type Ligne as LigneIndex, type Resultat } from '@/recherche';
 import { page, type Cle } from '@/site';
@@ -109,6 +110,7 @@ export default function Infos() {
             return <Ligne key={cle} titre={p.t} texte={p.d} sf={sf} image={image} onPress={aller} />;
           })
         : null}
+      {!enRecherche ? <Ligne titre={donneesComparateur(langue).ui.title} sf="globe" onPress={() => router.push('/comparateur')} /> : null}
     </View>
   );
 

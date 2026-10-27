@@ -6,7 +6,7 @@
 // (résultat de recherche d'une section, lien d'une autre page, ancienne fiche redirigée par la table « r » de l'index) ; l'écran ouvre
 // la page puis défile jusqu'à l'élément de cet id, et le sommaire de la page (« #regimes-matrimoniaux ») fait défiler sans changer
 // d'écran. Le défilement suit les changements de hauteur (images) jusqu'à ce que le lecteur fasse défiler lui-même.
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import RenderHtml, { type MixedStyleDeclaration } from 'react-native-render-html';
@@ -21,6 +21,7 @@ import { TEXTES3 } from '@/i18n3';
 import { TEXTES5 } from '@/i18n5';
 import { ancreDe, ancreRedirigee, article, cheminDe, type Article } from '@/moteur/contenu';
 import { ouvrir } from '@/nav';
+import { choixDepuisUrl } from '@/moteur/comparateur';
 import { useProfil } from '@/profil';
 import sondages from '@/moteur/sondages.json';
 import outilsTxt from '@/moteur/outils_txt.json';
@@ -42,6 +43,12 @@ const SONDAGES = (sondages as { sondages: { id: string; u: Record<string, string
 const BLOCS_ANCRE = ['section', 'h2', 'h3', 'h4', 'nav', 'details', 'p', 'ol', 'ul', 'table', 'figure', 'article'];
 
 export default function EcranArticle() {
+  const { u } = useLocalSearchParams<{ u: string }>();
+  const choix = choixDepuisUrl(u || '');
+  return choix ? <Redirect href={{ pathname: '/comparateur', params: choix }} /> : <AffichageArticle />;
+}
+
+function AffichageArticle() {
   const { u } = useLocalSearchParams<{ u: string }>();
   const { langue } = useProfil();
   const T = TEXTES[langue], T3 = TEXTES3[langue];
@@ -174,6 +181,8 @@ export default function EcranArticle() {
               ignoredStyles={pal.sombre ? ['color', 'backgroundColor'] : undefined}
               renderers={renderers}
               renderersProps={{ a: { onPress: (_e: unknown, href: string) => {
+                const comparaison = choixDepuisUrl(href);
+                if (comparaison) { router.push({ pathname: '/comparateur', params: comparaison }); return; }
                 const rel = cheminDe(href), ancre = ancreDe(href);
                 const ici = href.split('#')[0];
                 // ancre de la page ouverte (sommaire « #regimes-matrimoniaux », lien rendu absolu vers la même page) : défiler sur place

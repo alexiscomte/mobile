@@ -1,12 +1,15 @@
 // Ouvrir une page du site (vue web) par-dessus les onglets ; résolution des liens relatifs des textes du site.
 import type { useRouter } from 'expo-router';
 
+import { choixDepuisUrl } from './moteur/comparateur';
 import type { Langue } from './i18n';
 import { page, urlPage, type Cle } from './site';
 
 type Router = ReturnType<typeof useRouter>;
 
 export function ouvrir(router: Router, url: string, titre: string, apres?: string) {
+  const comparaison = choixDepuisUrl(url);
+  if (comparaison) { router.push({ pathname: '/comparateur', params: comparaison }); return; }
   router.push({ pathname: '/page', params: { url, titre, ...(apres ? { apres } : {}) } });
 }
 
@@ -26,5 +29,7 @@ export function resoudre(base: string, rel: string): string {
 
 /** Ouvre un article du site en natif (hors ligne possible) à partir d'un chemin « fr/… ». */
 export function ouvrirArticle(router: Router, u: string) {
+  const comparaison = choixDepuisUrl(u);
+  if (comparaison) { router.push({ pathname: '/comparateur', params: comparaison }); return; }
   router.push({ pathname: '/article', params: { u } });
 }

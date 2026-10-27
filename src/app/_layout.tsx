@@ -52,6 +52,7 @@ function Pile() {
       <Stack.Screen name="garde" options={{ title: '' }} />
       <Stack.Screen name="maternite" options={{ title: '' }} />
       <Stack.Screen name="callisthenie" options={{ title: '' }} />
+      <Stack.Screen name="comparateur" options={{ title: '' }} />
       <Stack.Screen name="distance" options={{ title: '' }} />
       <Stack.Screen name="pension" options={{ title: '' }} />
       <Stack.Screen name="newsletter" options={{ title: T.newsletter }} />

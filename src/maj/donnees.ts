@@ -4,6 +4,7 @@
 // avant que les écrans ne le lisent. Fusion profonde : une clé absente du fichier téléchargé garde sa valeur de l'appli ; un tableau est
 // remplacé dans le même objet (les références gardées par les modules restent justes). Aucune donnée n'est exécutée.
 import catalogue from '../catalogue.json';
+import comparateur from '../moteur/comparateur.json';
 import compatTxt from '../moteur/compat_txt.json';
 import culture from '../moteur/culture.json';
 import distance from '../moteur/distance.json';
@@ -18,7 +19,7 @@ import { texteDepotSync } from './depot';
 
 type Objet = Record<string, unknown>;
 export const DONNEES: Record<string, unknown> = {
-  'd/catalogue.json': catalogue, 'd/compat_txt.json': compatTxt, 'd/culture.json': culture, 'd/distance.json': distance,
+  'd/comparateur.json': comparateur, 'd/catalogue.json': catalogue, 'd/compat_txt.json': compatTxt, 'd/culture.json': culture, 'd/distance.json': distance,
   'd/jeu2.json': jeu2, 'd/maternites_fr.json': maternites, 'd/outils_txt.json': outilsTxt, 'd/pays.json': pays, 'd/qdj.json': qdj,
   'd/sondages.json': sondages, 'd/ui.json': ui,
 };
@@ -49,6 +50,18 @@ export function appliquerDonnees(lire: (nom: string) => string | null = texteDep
       if (!t) continue;
       const neuf = JSON.parse(t) as unknown;
       if (Array.isArray(cible) !== Array.isArray(neuf) || typeof neuf !== 'object') continue;   // forme inattendue : on garde l'appli
+      if (nom === 'd/comparateur.json') {
+        if (!estObjet(neuf) || neuf.version !== 1 || typeof neuf.filtreTr !== 'string' || !estObjet(neuf.langues)) continue;
+        // Refuse un export incomplet avant la fusion : aucune langue ne récupère les données d'une autre.
+        const langues = ['fr', 'en', 'de', 'es', 'it', 'pt', 'nl', 'pl', 'tr'];
+        const complet = langues.every((lg) => {
+          const d = (neuf.langues as Objet)[lg];
+          return estObjet(d) && typeof d.route === 'string' && estObjet(d.ui)
+            && Array.isArray(d.themes) && Array.isArray(d.pays) && Array.isArray(d.references);
+        });
+        if (!complet) continue;
+        new RegExp(neuf.filtreTr, 'iu'); // invalide : le catch garde intégralement la copie embarquée
+      }
       fusionner(cible, neuf);
       faits.push(nom);
     } catch { /* fichier illisible : les données de l'appli restent */ }
