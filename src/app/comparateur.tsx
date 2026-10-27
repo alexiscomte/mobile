@@ -64,8 +64,8 @@ function Comparaison({ d, initial }: { d: Comparateur; initial: { theme?: string
     <Text style={F.h3}>{nom(id)}</Text>
     {r ? <>
       <Pressable accessibilityRole="button" onPress={() => ouvrirArticle(router, r.u)}><Text style={F.lien}>{T.open}</Text></Pressable>
-      {r.maj ? <Text style={F.muet}>{T.date} : {r.maj}</Text> : null}
-      {refs.length ? <Text style={F.h3}>{T.references}</Text> : null}
+      <Text style={F.muet}>{r.maj ? T.date + ' : ' + r.maj : T.dateMissing}</Text>
+      {refs.length ? <Text style={F.h3}>{T.references}</Text> : <Note>{T.referencesMissing}</Note>}
       {refs.map(([titre, url, note], i) => <View key={i} style={{ marginBottom: 8 }}>
         {url ? <Pressable accessibilityRole="link" onPress={() => liens(null, url)}>{texte(titre)}</Pressable> : texte(titre)}
         {note ? texte(note) : null}
