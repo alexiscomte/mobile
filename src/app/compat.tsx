@@ -198,6 +198,9 @@ export default function Compat() {
             {res.sections.map((s, i) => <Bloc key={i} s={s} ui={U} lire={T3.lirePage} ouvrir={ouvrir} />)}
             <Text style={F.h2} accessibilityRole="header">{T.fin.titre}</Text>
             <Text style={F.texte}>{T.fin.texte}</Text>
+            <Pressable accessibilityRole="button" onPress={() => router.push('/distance')}>
+              <Text style={F.lien}>→ {page('distance', langue).t}</Text>
+            </Pressable>
             {T.fin.liens.map(([t, u]) => <Pressable accessibilityRole="button" key={u} onPress={() => ouvrir(u)}><Text style={F.lien}>→ {t}</Text></Pressable>)}
             <Bouton titre={garde === 'ok' ? '✓ ' + S.garde : S.garder} onPress={garder} disabled={garde === 'ok'} />
             {garde === 'ko' ? <Erreur>{S.plein}</Erreur> : null}

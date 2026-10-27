@@ -11,7 +11,7 @@ export type TextesDistance = {
   monnaie: string; indicatif: string; conduite: string; droite: string; gauche: string; langue_commune: string; langue_aucune: string;
   religion_meme: string; religion_diff: string; fiche: string; comparer: string; hors_site: string; note: string;
 };
-type Donnees = { TXT: Record<string, TextesDistance>; LANGUES: Record<string, Record<string, string>>; RELIGIONS: Record<string, Record<string, string>>; PAYS_SITE: Record<string, Record<string, string>> };
+type Donnees = { TXT: Record<string, TextesDistance>; LANGUES: Record<string, Record<string, string>>; RELIGIONS: Record<string, Record<string, string>>; PAYS_SITE: Record<string, Record<string, string>>; PAYS_ACTUELS?: Record<string, [string, string][]>; COMPARATEUR: Record<string, string> };
 const D = distance as unknown as Donnees;
 // [langues (codes), religions (codes), monnaie, indicatif, conduite r/l]
 const CULTURE = culture as unknown as Record<string, [string[], string[], string, string, string]>;
@@ -20,7 +20,7 @@ const LOCALES: Record<string, string> = { fr: 'fr-FR', en: 'en-GB', de: 'de-DE',
 const UNITE_H: Record<string, string> = { fr: ' h', en: ' h', de: ' Std.', es: ' h', it: ' h', pt: ' h', nl: ' u', pl: ' godz.', tr: ' sa' };
 
 export function textesDistance(lg: Langue): TextesDistance { return D.TXT[lg] || D.TXT.en || D.TXT.fr; }
-export function slugsPays(lg: Langue): Record<string, string> { return D.PAYS_SITE[lg] || {}; }
+export function slugsPays(lg: Langue): Record<string, string> { return D.PAYS_ACTUELS?.[lg] ? Object.fromEntries(D.PAYS_ACTUELS[lg]) : D.PAYS_SITE[lg] || {}; }
 
 const fmt = (s: string, ...v: (string | number)[]) => String(s).replace(/%(\d)/g, (_m, i) => String(v[+i - 1] ?? ''));
 const pad2 = (n: number) => (n < 10 ? '0' : '') + n;
@@ -45,7 +45,7 @@ export function horloge(h: number, lg: string): string {
 export type LieuD = { code: string; lat: number; lon: number; ville?: string | null; nom: string };
 export type Rendu = {
   distance: string; trajet?: string; decalage: string; bande: string; diff: number;    // diff : décalage horaire en heures (b − a), pour les horloges
-  pays?: { memes: boolean; table?: [string, string, string][]; langue?: string; religion?: string; fiches: { titre: string; slug: string }[]; comparer?: { titre: string; a: string; b: string }; horsSite: string[] };
+  pays?: { memes: boolean; table?: [string, string, string][]; langue?: string; religion?: string; fiches: { titre: string; slug: string }[]; comparer?: { titre: string; a: string; b: string; chemin: string }; horsSite: string[] };
   note: string;
 };
 
@@ -92,6 +92,9 @@ function culturePays(lg: Langue, ca: string, cb: string, na: string, nb: string)
     if (slugs[code]) p.fiches.push({ titre: fmt(T.fiche, nom), slug: slugs[code] });
     else p.horsSite.push(fmt(T.hors_site, nom));
   }
-  if (slugs[ca] && slugs[cb] && (lg === 'fr' || lg === 'en' || lg === 'de')) p.comparer = { titre: fmt(T.comparer, na, nb), a: slugs[ca], b: slugs[cb] };
+  if (slugs[ca] && slugs[cb] && D.COMPARATEUR[lg]) p.comparer = {
+    titre: fmt(T.comparer, na, nb), a: slugs[ca], b: slugs[cb],
+    chemin: D.COMPARATEUR[lg] + '?theme=mariage&a=' + encodeURIComponent(slugs[ca]) + '&b=' + encodeURIComponent(slugs[cb]),
+  };
   return p;
 }

@@ -66,7 +66,7 @@ export default function Distance() {
                 {res.pays.horsSite.map((h, i) => <Note key={i}>{h}</Note>)}
                 {res.pays.fiches.map((f) => <Pressable accessibilityRole="button" key={f.slug} onPress={() => ouvrirArticle(router, hubPays + f.slug + '.html')}><Text style={F.lien}>→ {f.titre}</Text></Pressable>)}
                 {res.pays.comparer ? (
-                  <Pressable accessibilityRole="button" onPress={() => ouvrir(router, url(hubPays + (langue === 'fr' ? 'comparateur' : langue === 'de' ? 'vergleich' : 'comparator') + '.html?theme=mariage&a=' + res.pays!.comparer!.a + '&b=' + res.pays!.comparer!.b), res.pays!.comparer!.titre)}>
+                  <Pressable accessibilityRole="button" onPress={() => ouvrir(router, url(res.pays!.comparer!.chemin), res.pays!.comparer!.titre)}>
                     <Text style={F.lien}>→ {res.pays.comparer.titre}</Text>
                   </Pressable>
                 ) : null}
