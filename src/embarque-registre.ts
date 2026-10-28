@@ -1675,7 +1675,6 @@ export const REGISTRE: Record<string, number> = {
   "i/vignettes/drapeau-ve.svg": require("../assets/embarque/i/vignettes/drapeau-ve.svg"),
   "i/vignettes/drapeau-za.svg": require("../assets/embarque/i/vignettes/drapeau-za.svg"),
   "i/vignettes/drapeau-zm.svg": require("../assets/embarque/i/vignettes/drapeau-zm.svg"),
-  "i/vignettes/fr-index.webp": require("../assets/embarque/i/vignettes/fr-index.webp"),
   "i/vignettes/picto-004e06eba4e8.svg": require("../assets/embarque/i/vignettes/picto-004e06eba4e8.svg"),
   "i/vignettes/picto-0109600e8738.svg": require("../assets/embarque/i/vignettes/picto-0109600e8738.svg"),
   "i/vignettes/picto-021b155a0b15.svg": require("../assets/embarque/i/vignettes/picto-021b155a0b15.svg"),
