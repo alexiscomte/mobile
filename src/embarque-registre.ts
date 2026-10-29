@@ -2156,17 +2156,6 @@ export const REGISTRE: Record<string, number> = {
   "i/vignettes/picto-fe5d98ef34a0.svg": require("../assets/embarque/i/vignettes/picto-fe5d98ef34a0.svg"),
   "i/vignettes/picto-fe75ea213015.svg": require("../assets/embarque/i/vignettes/picto-fe75ea213015.svg"),
   "i/vignettes/picto-fe91b670a893.svg": require("../assets/embarque/i/vignettes/picto-fe91b670a893.svg"),
-  "i/vignettes/reseau-bluesky.svg": require("../assets/embarque/i/vignettes/reseau-bluesky.svg"),
-  "i/vignettes/reseau-dailymotion.svg": require("../assets/embarque/i/vignettes/reseau-dailymotion.svg"),
-  "i/vignettes/reseau-facebook.svg": require("../assets/embarque/i/vignettes/reseau-facebook.svg"),
-  "i/vignettes/reseau-instagram.svg": require("../assets/embarque/i/vignettes/reseau-instagram.svg"),
-  "i/vignettes/reseau-linkedin.svg": require("../assets/embarque/i/vignettes/reseau-linkedin.svg"),
-  "i/vignettes/reseau-pinterest.svg": require("../assets/embarque/i/vignettes/reseau-pinterest.svg"),
-  "i/vignettes/reseau-threads.svg": require("../assets/embarque/i/vignettes/reseau-threads.svg"),
-  "i/vignettes/reseau-tiktok.svg": require("../assets/embarque/i/vignettes/reseau-tiktok.svg"),
-  "i/vignettes/reseau-vk.svg": require("../assets/embarque/i/vignettes/reseau-vk.svg"),
-  "i/vignettes/reseau-x.svg": require("../assets/embarque/i/vignettes/reseau-x.svg"),
-  "i/vignettes/reseau-youtube.svg": require("../assets/embarque/i/vignettes/reseau-youtube.svg"),
   "k/catalogue.json": require("../assets/embarque/k/catalogue.dat"),
   "l/images.json": require("../assets/embarque/l/images.dat"),
   "l/outils.json": require("../assets/embarque/l/outils.dat"),
@@ -2456,4 +2445,4 @@ export const REGISTRE: Record<string, number> = {
   "v/zm.js": require("../assets/embarque/v/zm.dat"),
   "v/zw.js": require("../assets/embarque/v/zw.dat"),
 };
-export const VERSION_EMBARQUEE = "2026-10-29T10:14:42Z";
+export const VERSION_EMBARQUEE = "2026-10-29T10:47:28Z";
