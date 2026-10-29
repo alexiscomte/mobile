@@ -717,6 +717,53 @@
     "d": "AffectionPlus “Ya siz?” anketlerinin tamamı ve canlı sonuçları: kıskançlık, para, aldatma, internetten tanışma, arzu, birlikte yaşam — tüm okurlar için ve sitenin diline göre."
    }
   },
+  "seTenirAJour": {
+   "fr": {
+    "u": "fr/conseils/se-tenir-a-jour.html",
+    "t": "Se tenir à jour",
+    "d": "Actualités, réseaux sociaux et lettre d’information : tout ce qu’il faut pour suivre les nouveautés d’AffectionPlus et de nos sujets."
+   },
+   "en": {
+    "u": "en/advice/stay-up-to-date.html",
+    "t": "Stay up to date",
+    "d": "News, social media and newsletter: everything you need to follow what is new on AffectionPlus and our topics."
+   },
+   "de": {
+    "u": "de/ratgeber/auf-dem-laufenden-bleiben.html",
+    "t": "Auf dem Laufenden bleiben",
+    "d": "Nachrichten, soziale Medien und Newsletter: alles, um Neues von AffectionPlus und zu unseren Themen zu verfolgen."
+   },
+   "es": {
+    "u": "es/consejos/mantenerse-al-dia.html",
+    "t": "Mantenerse al día",
+    "d": "Noticias, redes sociales y boletín: todo lo necesario para seguir las novedades de AffectionPlus y de nuestros temas."
+   },
+   "it": {
+    "u": "it/consigli/restare-aggiornati.html",
+    "t": "Restare aggiornati",
+    "d": "Notizie, social e newsletter: tutto ciò che serve per seguire le novità di AffectionPlus e dei nostri temi."
+   },
+   "pt": {
+    "u": "pt/conselhos/manter-se-atualizado.html",
+    "t": "Manter-se atualizado",
+    "d": "Notícias, redes sociais e newsletter: tudo o que precisa para acompanhar as novidades da AffectionPlus e dos nossos temas."
+   },
+   "nl": {
+    "u": "nl/advies/op-de-hoogte-blijven.html",
+    "t": "Op de hoogte blijven",
+    "d": "Nieuws, sociale media en nieuwsbrief: alles om het nieuws van AffectionPlus en onze onderwerpen te volgen."
+   },
+   "pl": {
+    "u": "pl/porady/badz-na-biezaco.html",
+    "t": "Bądź na bieżąco",
+    "d": "Aktualności, media społecznościowe i newsletter: wszystko, by śledzić nowości AffectionPlus i naszych tematów."
+   },
+   "tr": {
+    "u": "tr/tavsiyeler/guncel-kalin.html",
+    "t": "Güncel kalın",
+    "d": "Haberler, sosyal medya ve bülten: AffectionPlus’taki ve konularımızdaki yenilikleri takip etmek için ihtiyacınız olan her şey."
+   }
+  },
   "quiz": {
    "fr": {
     "u": "fr/conseils/quiz-et-outils.html",

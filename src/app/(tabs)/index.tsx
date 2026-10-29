@@ -34,6 +34,7 @@ export default function Accueil() {
           <Carte large titre={T.horoscopeDuJour} texte={T.horoscopeDuJourTxt} couleur={DEGRADES.astro[0]} sf="sparkles" image={TUILES.horoscope} onPress={() => router.push('/horoscope')} />
           <Carte large titre={T.questionDuJour} texte={questionDuJour(langue)} couleur={DEGRADES.jeux[0]} sf="bubble.left.and.bubble.right.fill" image={TUILES.qdj} onPress={() => router.push('/qdj')} />
           {sondage ? <Carte large titre={page('sondages', langue).t} texte={sondage.q[langue] || sondage.q.fr} couleur={DEGRADES.sexualite[0]} sf="chart.bar.fill" image={TUILES.sondages} onPress={() => router.push('/sondages')} /> : null}
+          <Carte large titre={page('seTenirAJour', langue).t} texte={page('seTenirAJour', langue).d} couleur={DEGRADES.conseils[1]} sf="bell.fill" onPress={go('seTenirAJour')} />
         </View>
 
         <Titre>{T.vosOutils}</Titre>
