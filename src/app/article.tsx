@@ -12,6 +12,7 @@ import { ActivityIndicator, Linking, Pressable, ScrollView, Share, StyleSheet, T
 import RenderHtml, { type MixedStyleDeclaration } from 'react-native-render-html';
 
 import { localiserImages } from '@/embarque';
+import { ActualitesDetails, AncreActualitesContext } from '@/components/actualites-details';
 import { CarteJourArticle } from '@/components/horoscope-carte';
 import { ImageArticle } from '@/components/image-article';
 import { Pouce } from '@/components/pouce';
@@ -70,6 +71,7 @@ function AffichageArticle() {
   const ancres = useRef<Record<string, View | null>>({});         // id -> vue de l'élément
   const cible = useRef('');
   const suivre = useRef(false);                                   // vrai jusqu'au premier geste du lecteur
+  const [demandeAncre, setDemandeAncre] = useState(() => ({ ancre: ancreDe(u || '') }));
   const aller = useCallback((anime: boolean) => {
     const v = cible.current ? ancres.current[cible.current] : null;
     if (!v || !bloc.current || !defil.current) return;
@@ -78,14 +80,18 @@ function AffichageArticle() {
     }, () => undefined);
   }, []);
   const viser = useCallback((ancre: string, anime: boolean) => {
+    setDemandeAncre({ ancre });                                   // ouvre aussi un bloc fermé qui contient cette cible
     cible.current = ancre; suivre.current = true; aller(anime);
   }, [aller]);
   useEffect(() => {
     let actif = true;
     cible.current = ''; suivre.current = false;
     const ancre = ancreDe(u || '');
+    setDemandeAncre({ ancre });
     if (ancre) { cible.current = ancre; suivre.current = true; }
-    else if (chemin) ancreRedirigee(langue, chemin).then((x) => { if (actif && x) { cible.current = x; suivre.current = true; aller(false); } }, () => undefined);
+    else if (chemin) ancreRedirigee(langue, chemin).then((x) => {
+      if (actif && x && !cible.current) { setDemandeAncre({ ancre: x }); cible.current = x; suivre.current = true; aller(false); }
+    }, () => undefined);
     return () => { actif = false; };
   }, [u, chemin, langue, aller]);
 
@@ -106,6 +112,28 @@ function AffichageArticle() {
       );
     };
     const r: Record<string, any> = Object.fromEntries(BLOCS_ANCRE.map((t) => [t, avecAncre]));
+    r.details = (props: any) => {
+      // Les FAQ et les autres <details> gardent leur rendu existant. Le libellé
+      // traduit et le nombre de cartes supplémentaires viennent du <summary>.
+      if (!(props.tnode.attributes.class || '').split(/\s+/).includes('actu-plus')) return avecAncre(props);
+      return avecAncre({ ...props, children: (
+        <ActualitesDetails {...props} key={`${langue}:${chemin}`} langue={langue}
+          avantBasculer={() => { suivre.current = false; }} />
+      ) });
+    };
+    r.a = ({ tnode, InternalRenderer, ...props }: any) => {
+      // Les cartes des pages pays portent leur id sur <a>, contrairement aux
+      // cartes de la rubrique globale (<div>). Garder le renderer de lien natif.
+      const lien = <InternalRenderer tnode={tnode} {...props} />;
+      const id = tnode.attributes.id;
+      if (tnode.type !== 'block' || !id || !tnode.classes.includes('card')) return lien;
+      return (
+        <View collapsable={false} ref={(v) => { ancres.current[id] = v; }}
+          onLayout={() => { if (suivre.current && cible.current === id) aller(false); }}>
+          {lien}
+        </View>
+      );
+    };
     r.img = ImageArticle;
     r.div = ({ tnode, TDefaultRenderer, ...props }: any) => {
       const outil = tnode.attributes['data-app-outil'], quiz = tnode.attributes['data-app-quiz'];
@@ -143,7 +171,7 @@ function AffichageArticle() {
       return avecAncre({ tnode, TDefaultRenderer, ...props });
     };
     return r;
-  }, [router, T3, chemin, langue, aller]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [router, T3, chemin, langue, aller, u]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // la date « Page vérifiée en … » (p.maj) est déjà affichée à part (a.maj) : retirée du HTML pour ne pas l'avoir deux fois (26/10/2026)
   const htmlLocal = useMemo(() => (a ? localiserImages(a.h).replace(/<p class="maj">[\s\S]*?<\/p>\s*/g, '') : ''), [a]);
@@ -172,6 +200,7 @@ function AffichageArticle() {
             <Pouce u={chemin} titre={a.h1 || a.t} fil={a.fil} partager={partager} libellePartage={T.partagerPage} />
             <Text style={styles.h1} accessibilityRole="header">{a.h1 || a.t}</Text>
             {a.lead ? <Text style={styles.lead}>{a.lead}</Text> : null}
+            <AncreActualitesContext.Provider value={demandeAncre}>
             <RenderHtml
               contentWidth={Math.min(width, 760) - 32}
               source={{ html: htmlLocal }}
@@ -194,6 +223,7 @@ function AffichageArticle() {
               ignoredDomTags={['svg', 'form', 'input', 'button', 'select', 'textarea', 'iframe']}
               defaultTextProps={{ selectable: true }}
             />
+            </AncreActualitesContext.Provider>
             {sondage ? (
               <Pressable accessibilityRole="button" onPress={() => router.push('/sondages')} style={styles.marqueur}><Text style={styles.marqueurTxt}>{T3.etVous} →</Text></Pressable>
             ) : null}
