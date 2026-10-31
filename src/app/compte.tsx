@@ -37,7 +37,7 @@ WebBrowser.maybeCompleteAuthSession();   // aperçu web : ferme la fenêtre de r
 
 type TC = Record<string, string>;
 const UI = (ui as { compte: Record<string, TC> }).compte;
-const GOOGLE = conf as { googleIos?: string; googleWeb?: string };
+const GOOGLE = conf as { googleIos?: string; googleWeb?: string; facebook?: boolean; linkedin?: boolean };
 // client Google de la plateforme (iOS : client iOS ; aperçu web : client web) ; aucun sur Android : pas de bouton
 const ID_GOOGLE = Platform.OS === 'ios' ? GOOGLE.googleIos || '' : Platform.OS === 'web' ? GOOGLE.googleWeb || '' : '';
 // iOS : retour de Google par le schéma d'URL inverse du client (déclaré dans app.json, ios.scheme)
@@ -98,7 +98,10 @@ export default function CompteEcran() {
   const t6 = TEXTES6[langue] || TEXTES6.fr;
   const [apple, setApple] = useState(false);
   useEffect(() => { let actif = true; appleDisponible().then((a) => { if (actif) setApple(a); }); return () => { actif = false; }; }, []);
-  const avecGoogle = !!ID_GOOGLE && googleAutorise(Platform.OS, apple);
+  const tiersAutorises = googleAutorise(Platform.OS, apple);
+  const avecGoogle = !!ID_GOOGLE && tiersAutorises;
+  const avecFacebook = AVEC_OIDC && !!GOOGLE.facebook && tiersAutorises;
+  const avecLinkedin = AVEC_OIDC && !!GOOGLE.linkedin && tiersAutorises;
   // Apple ne donne le prénom qu'à la toute première autorisation : gardé si cette première tentative demande encore le consentement
   const prenomApple = useRef('');
 
@@ -147,19 +150,23 @@ export default function CompteEcran() {
                 <Bouton titre={t.creerCompte} secondaire onPress={() => { viaOidc('inscription'); }} disabled={occupe} />
               </>
             ) : null}
-            {apple || avecGoogle ? (
+            {apple || avecGoogle || avecFacebook || avecLinkedin ? (
               <>
                 {AVEC_OIDC ? <Text style={styles.ou}>{t.ou}</Text> : null}
-                <View style={styles.consent}>
-                  <Switch value={consent} onValueChange={setConsent} trackColor={{ true: COULEURS.secondaire }} accessibilityLabel={(t.consent || '%s').replace('%s', t.conf)} />
-                  <Text style={styles.consentTxt}>
-                    {avantLien}
-                    <Text style={styles.lien} accessibilityRole="link" onPress={() => { Linking.openURL(lienConf).catch(() => undefined); }}>{t.conf}</Text>
-                    {apresLien || ''}
-                  </Text>
-                </View>
+                {apple || avecGoogle ? (
+                  <View style={styles.consent}>
+                    <Switch value={consent} onValueChange={setConsent} trackColor={{ true: COULEURS.secondaire }} accessibilityLabel={(t.consent || '%s').replace('%s', t.conf)} />
+                    <Text style={styles.consentTxt}>
+                      {avantLien}
+                      <Text style={styles.lien} accessibilityRole="link" onPress={() => { Linking.openURL(lienConf).catch(() => undefined); }}>{t.conf}</Text>
+                      {apresLien || ''}
+                    </Text>
+                  </View>
+                ) : null}
                 {apple ? <BoutonApple occupe={occupe} onCredential={viaApple} onEchec={() => setMsg({ t: t6.appleKo, ok: false })} /> : null}
                 {avecGoogle ? <BoutonGoogle titre={t.google} langue={langue} occupe={occupe} onJeton={viaGoogle} onEchec={() => setMsg({ t: t.googleKo, ok: false })} /> : null}
+                {avecFacebook ? <Bouton titre={t.facebook} secondaire disabled={occupe} onPress={() => { viaOidc('facebook'); }} /> : null}
+                {avecLinkedin ? <Bouton titre={t.linkedin} secondaire disabled={occupe} onPress={() => { viaOidc('linkedin'); }} /> : null}
               </>
             ) : null}
           </>
