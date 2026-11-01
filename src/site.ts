@@ -6,6 +6,7 @@ import type { Langue } from './i18n';
 import type { Favori, Profil } from './profil';
 
 export const SITE = 'https://affectionplus.com/';
+export const IMAGES_SITE = 'https://images.affectionplus.com/';
 
 export type Page = { u: string; t: string; d: string };
 type Catalogue = { langues: string[]; site: string; pages: Record<string, Partial<Record<Langue, Page>>> };

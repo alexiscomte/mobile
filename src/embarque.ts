@@ -26,9 +26,9 @@ export async function jsonEmbarque<T>(nom: string): Promise<T | null> {
   try { return JSON.parse(t) as T; } catch { return null; }
 }
 
-const SITE_ASSETS = /^https:\/\/affectionplus\.com\/(assets\/[^"'\s?#)]+)/;
+const SITE_ASSETS = /^https:\/\/(?:images\.)?affectionplus\.com\/(assets\/[^"'\s?#)]+)/;
 
-/** L'adresse locale d'une image du site (« https://affectionplus.com/assets/… » ou « assets/… »), ou null si elle n'est pas embarquée. */
+/** L'adresse locale d'une image du site (« https://images.affectionplus.com/assets/… », « https://affectionplus.com/assets/… » ou « assets/… »), ou null si elle n'est pas embarquée. */
 export function uriImage(adresse: string): string | null {
   const m = SITE_ASSETS.exec(adresse);
   const rel = m ? m[1] : adresse.startsWith('assets/') ? adresse.split(/[?#]/)[0] : '';
@@ -41,9 +41,9 @@ export function imageLocale(adresse: string): string {
   return uriImage(adresse) || adresse;
 }
 
-/** Remplace dans un HTML les images du site par leurs copies embarquées (src="https://affectionplus.com/assets/…"). */
+/** Remplace dans un HTML les images du site par leurs copies embarquées (src="https://images.affectionplus.com/assets/…"). */
 export function localiserImages(html: string): string {
-  return html.replace(/src="(https:\/\/affectionplus\.com\/assets\/[^"]+)"/g, (tout, adr: string) => {
+  return html.replace(/src="(https:\/\/(?:images\.)?affectionplus\.com\/assets\/[^"]+)"/g, (tout, adr: string) => {
     const u = uriImage(adr);
     return u ? 'src="' + u + '"' : tout;
   });
