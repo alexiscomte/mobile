@@ -37,7 +37,7 @@ WebBrowser.maybeCompleteAuthSession();   // aperçu web : ferme la fenêtre de r
 
 type TC = Record<string, string>;
 const UI = (ui as { compte: Record<string, TC> }).compte;
-const GOOGLE = conf as { googleIos?: string; googleWeb?: string; facebook?: boolean; linkedin?: boolean };
+const GOOGLE = conf as { googleIos?: string; googleWeb?: string; facebook?: boolean; linkedin?: boolean; snapchat?: boolean };
 // client Google de la plateforme (iOS : client iOS ; aperçu web : client web) ; aucun sur Android : pas de bouton
 const ID_GOOGLE = Platform.OS === 'ios' ? GOOGLE.googleIos || '' : Platform.OS === 'web' ? GOOGLE.googleWeb || '' : '';
 // iOS : retour de Google par le schéma d'URL inverse du client (déclaré dans app.json, ios.scheme)
@@ -102,6 +102,7 @@ export default function CompteEcran() {
   const avecGoogle = !!ID_GOOGLE && tiersAutorises;
   const avecFacebook = AVEC_OIDC && !!GOOGLE.facebook && tiersAutorises;
   const avecLinkedin = AVEC_OIDC && !!GOOGLE.linkedin && tiersAutorises;
+  const avecSnapchat = AVEC_OIDC && !!GOOGLE.snapchat && tiersAutorises;
   // Apple ne donne le prénom qu'à la toute première autorisation : gardé si cette première tentative demande encore le consentement
   const prenomApple = useRef('');
 
@@ -150,7 +151,7 @@ export default function CompteEcran() {
                 <Bouton titre={t.creerCompte} secondaire onPress={() => { viaOidc('inscription'); }} disabled={occupe} />
               </>
             ) : null}
-            {apple || avecGoogle || avecFacebook || avecLinkedin ? (
+            {apple || avecGoogle || avecFacebook || avecLinkedin || avecSnapchat ? (
               <>
                 {AVEC_OIDC ? <Text style={styles.ou}>{t.ou}</Text> : null}
                 {apple || avecGoogle ? (
@@ -167,6 +168,7 @@ export default function CompteEcran() {
                 {avecGoogle ? <BoutonGoogle titre={t.google} langue={langue} occupe={occupe} onJeton={viaGoogle} onEchec={() => setMsg({ t: t.googleKo, ok: false })} /> : null}
                 {avecFacebook ? <Bouton titre={t.facebook} secondaire disabled={occupe} onPress={() => { viaOidc('facebook'); }} /> : null}
                 {avecLinkedin ? <Bouton titre={t.linkedin} secondaire disabled={occupe} onPress={() => { viaOidc('linkedin'); }} /> : null}
+                {avecSnapchat ? <Bouton titre={t.snapchat} secondaire disabled={occupe} onPress={() => { viaOidc('snapchat'); }} /> : null}
               </>
             ) : null}
           </>
