@@ -55,6 +55,8 @@ PODS:
     - ExpoModulesCore
   - ExpoHaptics (57.0.3):
     - ExpoModulesCore
+  - ExpoIap (6.4.2):
+    - ExpoModulesCore
   - ExpoImage (57.0.5):
     - ExpoModulesCore
     - libavif/libdav1d
@@ -3234,6 +3236,7 @@ DEPENDENCIES:
   - ExpoFont (from `../node_modules/expo-font/ios`)
   - ExpoGlassEffect (from `../node_modules/expo-glass-effect/ios`)
   - ExpoHaptics (from `../node_modules/expo-haptics/ios`)
+  - ExpoIap (from `../node_modules/expo-iap/ios`)
   - ExpoImage (from `../node_modules/expo-image/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoLinking (from `../node_modules/expo-linking/ios`)
@@ -3381,6 +3384,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-glass-effect/ios"
   ExpoHaptics:
     :path: "../node_modules/expo-haptics/ios"
+  ExpoIap:
+    :path: "../node_modules/expo-iap/ios"
   ExpoImage:
     :path: "../node_modules/expo-image/ios"
   ExpoKeepAwake:
@@ -3606,6 +3611,7 @@ SPEC CHECKSUMS:
   ExpoFont: f8198a952ba2ff53c9b393b5269ea435f232cfc3
   ExpoGlassEffect: 310dc75c8d862de1c4b3ff15a90439ba51a39798
   ExpoHaptics: 32efd02d88953d30a5c2ff796c0fce692e7bcd2e
+  ExpoIap: 0b569980b33ffeaf21fab3823ff666d6d7bf54ba
   ExpoImage: abe60c6c68d08d837b2c51fb9e8b6c6e320b9125
   ExpoKeepAwake: 72af0b3be3615e59bc819d26061ff4e06b155ee0
   ExpoLinking: d6e69c2972e62a9c439e021d0ece176d301d0574

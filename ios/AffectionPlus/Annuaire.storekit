@@ -1,0 +1,148 @@
+{
+  "appPolicies": {
+    "eula": "",
+    "policies": [
+      {
+        "locale": "en_US",
+        "policyText": "",
+        "policyURL": ""
+      }
+    ]
+  },
+  "identifier": "A1F00001",
+  "nonRenewingSubscriptions": [],
+  "products": [],
+  "settings": {
+    "_applicationInternalID": "6822588681",
+    "_developerTeamID": "",
+    "_failTransactionsEnabled": false,
+    "_lastSynchronizedDate": 0,
+    "_locale": "fr_FR",
+    "_storefront": "FRA",
+    "_storeKitErrors": []
+  },
+  "subscriptionGroups": [
+    {
+      "id": "21000001",
+      "localizations": [
+        {
+          "description": "",
+          "displayName": "Annuaire AffectionPlus",
+          "locale": "fr_FR"
+        }
+      ],
+      "name": "Annuaire AffectionPlus",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "3.00",
+          "familyShareable": false,
+          "groupNumber": 5,
+          "internalID": "6800000001",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Annuaire AffectionPlus",
+              "displayName": "Annuaire : 1 page",
+              "locale": "fr_FR"
+            }
+          ],
+          "productID": "com.affectionplus.app.annuaire.pages1",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Annuaire 1",
+          "subscriptionGroupID": "21000001",
+          "type": "RecurringSubscription"
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "5.00",
+          "familyShareable": false,
+          "groupNumber": 4,
+          "internalID": "6800000005",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Annuaire AffectionPlus",
+              "displayName": "Annuaire : 5 pages",
+              "locale": "fr_FR"
+            }
+          ],
+          "productID": "com.affectionplus.app.annuaire.pages5",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Annuaire 5",
+          "subscriptionGroupID": "21000001",
+          "type": "RecurringSubscription"
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "8.00",
+          "familyShareable": false,
+          "groupNumber": 3,
+          "internalID": "6800000010",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Annuaire AffectionPlus",
+              "displayName": "Annuaire : 10 pages",
+              "locale": "fr_FR"
+            }
+          ],
+          "productID": "com.affectionplus.app.annuaire.pages10",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Annuaire 10",
+          "subscriptionGroupID": "21000001",
+          "type": "RecurringSubscription"
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "10.00",
+          "familyShareable": false,
+          "groupNumber": 2,
+          "internalID": "6800000015",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Annuaire AffectionPlus",
+              "displayName": "Annuaire : 15 pages",
+              "locale": "fr_FR"
+            }
+          ],
+          "productID": "com.affectionplus.app.annuaire.pages15",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Annuaire 15",
+          "subscriptionGroupID": "21000001",
+          "type": "RecurringSubscription"
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "12.00",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "6800000020",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Annuaire AffectionPlus",
+              "displayName": "Annuaire : 20 pages",
+              "locale": "fr_FR"
+            }
+          ],
+          "productID": "com.affectionplus.app.annuaire.pages20",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Annuaire 20",
+          "subscriptionGroupID": "21000001",
+          "type": "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version": {
+    "major": 4,
+    "minor": 0
+  }
+}
