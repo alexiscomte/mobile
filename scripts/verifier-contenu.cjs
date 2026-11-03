@@ -39,7 +39,8 @@ function verifier(racine = path.resolve(__dirname, '..'), site = process.env.AP_
     return JSON.parse(fs.readFileSync(registre.get(nom), 'utf8'));
   };
   const image = (url) => {
-    const m = /^https:\/\/affectionplus\.com\/assets\/([^?#]+)/.exec(url);
+    if (url.startsWith('https://i.ytimg.com/')) return;   // miniatures de vidéos de tiers (section Réseaux sociaux) : servies par YouTube, jamais embarquées
+    const m = /^https:\/\/(?:images\.)?affectionplus\.com\/assets\/([^?#]+)/.exec(url);   // images servies par le CDN depuis le 01/11/2026 (mêmes règles que src/embarque.ts)
     assert.ok(m, 'Image éditoriale non embarquable : ' + url);
     assert.ok(registre.has('i/' + m[1]), 'Image non enregistrée : ' + url);
   };
