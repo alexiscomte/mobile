@@ -2469,4 +2469,4 @@ export const REGISTRE: Record<string, number> = {
   "v/zm.js": require("../assets/embarque/v/zm.dat"),
   "v/zw.js": require("../assets/embarque/v/zw.dat"),
 };
-export const VERSION_EMBARQUEE = "2026-11-02T18:57:03Z";
+export const VERSION_EMBARQUEE = "2026-11-03T15:29:27Z";
