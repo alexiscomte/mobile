@@ -58,6 +58,19 @@ export default function EcranQuiz() {
   );
 }
 
+// QCM : réponses mélangées à l'affichage, comme sur le site (la bonne est souvent la première dans les données) ; même ordre pour une même question.
+function ordreMelange(graine: string, n: number): number[] {
+  let h = 2166136261;
+  for (let i = 0; i < graine.length; i++) h = Math.imul(h ^ graine.charCodeAt(i), 16777619);
+  const o = Array.from({ length: n }, (_, i) => i);
+  for (let i = n - 1; i > 0; i--) {
+    h = Math.imul(h ^ (h >>> 15), 2246822519) >>> 0;
+    const j = h % (i + 1);
+    [o[i], o[j]] = [o[j], o[i]];
+  }
+  return o;
+}
+
 function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () => void }) {
   const d = quiz.d, qcm = quiz.m === 'qcm';
   const utile = (k: number, sc: Record<string, number>) => { while (k < d.questions.length && !teste(d.questions[k], sc)) k++; return k; };
@@ -68,6 +81,7 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
   const [score, setScore] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<string[]>([]);
   const [pile, setPile] = useState<{ i: number; rep: Reponse }[]>([]);
+  const ordre = useMemo(() => ordreMelange(quiz.id + ':' + i, d.questions[i]?.r.length ?? 0), [quiz.id, d, i]);
   const [fini, setFini] = useState(false);
   useEffect(() => { if (fini && qcm) memoriserScore(quiz.id, bons, d.questions.length, quiz.t, SITE + quiz.u).then(onFin); }, [fini]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -119,8 +133,8 @@ function Jeu({ quiz, langue, onFin }: { quiz: Quiz; langue: string; onFin: () =>
             <Text style={styles.texte}>{correction.exp}</Text>
             <Bouton titre={texteHtml(i + 1 >= d.questions.length ? d.resultat || '→' : d.suivant || '→')} onPress={() => { setCorrection(null); if (i + 1 >= d.questions.length) setFini(true); else setI(i + 1); }} />
           </>
-        ) : q.r.map((r, k) => (
-          <Pressable accessibilityRole="button" key={k} style={({ pressed }) => [styles.choix, pressed && styles.presse]} onPress={() => {
+        ) : ordre.map((k) => q.r[k]).filter(Boolean).map((r, n) => (
+          <Pressable accessibilityRole="button" key={n} style={({ pressed }) => [styles.choix, pressed && styles.presse]} onPress={() => {
             if (r.ok) { succes(); setBons(bons + 1); } else { vibrerErreur(); setRates([...rates, q.lien || q.q]); }
             setCorrection({ juste: !!r.ok, exp: texteHtml(q.exp || '') });
           }}><Text style={styles.choixTxt}>{texteHtml(r.t)}</Text></Pressable>
