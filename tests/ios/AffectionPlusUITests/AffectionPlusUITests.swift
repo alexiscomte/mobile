@@ -92,6 +92,16 @@ final class AffectionPlusUITests: XCTestCase {
         }
     }
 
+    /// Signed-out directory screen: title, benefits heading and accessibility audit.
+    func testDirectoryScreen() throws {
+        app.open(URL(string: "affectionplus:///annuaire")!)
+        XCTAssertTrue(app.scrollViews.firstMatch.waitForExistence(timeout: 15))
+        XCTAssertTrue(app.staticTexts["Ajouter mes liens"].firstMatch.waitForExistence(timeout: 10), "Directory title")
+        XCTAssertTrue(app.staticTexts["Ce que vous obtenez"].firstMatch.waitForExistence(timeout: 10), "Benefits heading")
+        evidence("annuaire")
+        try audit("annuaire")
+    }
+
     func testLandscapeLayout() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             throw XCTSkip("The iPhone app intentionally supports portrait only")

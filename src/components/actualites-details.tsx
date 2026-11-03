@@ -1,6 +1,6 @@
 // Enfants d'un <details class="actu-plus"> : même libellé et mêmes cartes que le site,
 // avec un état natif. Le renderer de l'article conserve le conteneur et ses ancres.
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import {
   TChildrenRenderer, useTNodeChildrenProps,
@@ -36,9 +36,11 @@ export function ActualitesDetails(props: Props) {
   const libelle = summary ? texteDuNoeud(summary).replace(/\s+/g, ' ').trim() : '';
   const ancreDedans = !!ancre && contientAncre(tnode, ancre);
   const [ouvert, setOuvert] = useState(() => 'open' in tnode.attributes || ancreDedans);
-  useEffect(() => {
+  const [vue, setVue] = useState({ demande, ancreDedans });
+  if (vue.demande !== demande || vue.ancreDedans !== ancreDedans) {   // ajustement pendant le rendu
+    setVue({ demande, ancreDedans });
     if (ancreDedans) setOuvert(true);
-  }, [demande, ancreDedans]);
+  }
 
   // Un bloc incomplet ne doit pas rendre ses articles inaccessibles.
   if (!summary || !libelle) return <TChildrenRenderer {...enfants} />;

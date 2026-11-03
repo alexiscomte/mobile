@@ -34,10 +34,9 @@ export async function ouvrirAchats(surAchat: (enregistre: boolean) => void, surE
   return () => { a.remove(); e.remove(); m.endConnection().catch(() => undefined); };
 }
 
-/** Formules qui contiennent `pages`, de la plus petite à la plus grande, nom et prix localisés lus chez Apple ; celles qu'Apple ne connaît pas sont écartées. */
-export async function lireOffres(pages: number): Promise<Offre[]> {
-  const utiles = PRODUITS_ANNUAIRE.filter((p) => p.pages >= pages).sort((x, y) => x.pages - y.pages);
-  if (!utiles.length) return [];
+/** Toutes les formules, de la plus petite à la plus grande, nom et prix localisés lus chez Apple ; celles qu'Apple ne connaît pas sont écartées. */
+export async function lireOffres(): Promise<Offre[]> {
+  const utiles = [...PRODUITS_ANNUAIRE].sort((x, y) => x.pages - y.pages);
   const { fetchProducts } = await iap();
   const liste = ((await fetchProducts({ skus: utiles.map((p) => p.id), type: 'subs' })) || []) as { id: string; displayName?: string | null; title?: string; displayPrice: string }[];
   const offres: Offre[] = [];

@@ -139,7 +139,7 @@ export default function MesInfos() {
           <TextInput style={styles.entree} value={naissance} accessibilityLabel={T.naissance} onChangeText={setNaissance} placeholder="AAAA-MM-JJ" placeholderTextColor={COULEURS.texteMuet} />
         )}
         <View style={styles.ligneOption}>
-          <Text style={styles.label}>{T.heure}</Text>
+          <Text style={[styles.label, styles.flex]}>{T.heure}</Text>
           <View style={styles.optionDroite}>
             <Text style={styles.optionTxt}>{heureConnue ? '' : T.heureInconnue}</Text>
             <Switch value={heureConnue} accessibilityLabel={T.heure} onValueChange={setHeureConnue} trackColor={{ true: COULEURS.secondaire }} />
@@ -189,8 +189,8 @@ const styles = StyleSheet.create({
   entree: { backgroundColor: COULEURS.fondDoux, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, fontSize: 17, color: COULEURS.texte },
   picker: { alignSelf: 'flex-start', marginLeft: -8, minWidth: 120, minHeight: 44 },
   ligneOption: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  optionDroite: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 },
-  optionTxt: { color: COULEURS.texteMuet },
+  optionDroite: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, flexShrink: 1, maxWidth: '55%' },
+  optionTxt: { color: COULEURS.texteMuet, flexShrink: 1 },
   flex: { flex: 1 },
   puces: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   aide: { color: COULEURS.texteMuet, fontSize: 14, lineHeight: 19 },

@@ -73,6 +73,12 @@ function AffichageArticle() {
   const cible = useRef('');
   const suivre = useRef(false);                                   // vrai jusqu'au premier geste du lecteur
   const [demandeAncre, setDemandeAncre] = useState(() => ({ ancre: ancreDe(u || '') }));
+  const cleAncre = `${u}|${chemin}|${langue}`;
+  const [cleVue, setCleVue] = useState(cleAncre);
+  if (cleVue !== cleAncre) {                                      // nouvelle page, ancre ou langue : nouvelle demande (ajustement pendant le rendu)
+    setCleVue(cleAncre);
+    setDemandeAncre({ ancre: ancreDe(u || '') });
+  }
   const aller = useCallback((anime: boolean) => {
     const v = cible.current ? ancres.current[cible.current] : null;
     if (!v || !bloc.current || !defil.current) return;
@@ -88,7 +94,6 @@ function AffichageArticle() {
     let actif = true;
     cible.current = ''; suivre.current = false;
     const ancre = ancreDe(u || '');
-    setDemandeAncre({ ancre });
     if (ancre) { cible.current = ancre; suivre.current = true; }
     else if (chemin) ancreRedirigee(langue, chemin).then((x) => {
       if (actif && x && !cible.current) { setDemandeAncre({ ancre: x }); cible.current = x; suivre.current = true; aller(false); }
