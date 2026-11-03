@@ -17,6 +17,7 @@ import { CarteJourArticle } from '@/components/horoscope-carte';
 import { ImageArticle } from '@/components/image-article';
 import { Pouce } from '@/components/pouce';
 import { TEXTES } from '@/i18n';
+import { TEXTES8 } from '@/i18n8';
 import { TEXTES2 } from '@/i18n2';
 import { TEXTES3 } from '@/i18n3';
 import { TEXTES5 } from '@/i18n5';
@@ -143,6 +144,14 @@ function AffichageArticle() {
       if (outil === 'horoscope' && (tnode.attributes['data-app-sign'] !== undefined || tnode.attributes['data-app-animal'] !== undefined)) {
         const s = tnode.attributes['data-app-sign'], an = tnode.attributes['data-app-animal'];
         return <CarteJourArticle signe={s !== undefined ? Number(s) : undefined} animal={an !== undefined ? Number(an) : undefined} dates={tnode.attributes['data-app-dates']} langue={langue} jour={jour} />;
+      }
+      // boutons de l'annuaire du site (comptes-ajouter, posts-abonnes ; app_contenu.py, 03/11/2026) : écran natif de candidature, aucun lien d'achat (App Store 3.1.1)
+      if (tnode.attributes['data-app-annuaire'] !== undefined) {
+        return (
+          <Pressable accessibilityRole="button" onPress={() => router.push('/annuaire' as never)} style={styles.marqueur}>
+            <Text style={styles.marqueurTxt}>{TEXTES8[langue].proposer} →</Text>
+          </Pressable>
+        );
       }
       if (outil === 'newsletter') {
         const N = NL_TXT[langue] || NL_TXT.en || NL_TXT.fr;

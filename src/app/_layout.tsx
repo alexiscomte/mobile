@@ -62,6 +62,7 @@ function Pile() {
       <Stack.Screen name="favoris" options={{ title: '' }} />
       <Stack.Screen name="outils" options={{ title: '' }} />
       <Stack.Screen name="connexions" options={{ title: '' }} />
+      <Stack.Screen name="annuaire" options={{ title: '' }} />
       <Stack.Screen name="mot-de-passe" options={{ title: '' }} />
       <Stack.Screen name="nouveautes" options={{ title: '' }} />
       <Stack.Screen name="fiche" options={{ title: '' }} />
