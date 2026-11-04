@@ -1,5 +1,9 @@
-// Écran « Annuaire des comptes à suivre » (03/11/2026, specs/annuaire-comptes-payant.md), 9 langues. L'achat, sur iOS seulement, passe par l'App Store ; jamais de lien vers Stripe ni vers la boutique du site.
+// Écran « Annuaire des comptes à suivre » (03/11/2026, specs/annuaire-comptes-payant.md ; Android : 04/11/2026), 9 langues. L'achat passe par l'App Store (iOS) ou Google Play (Android) ; jamais de lien vers Stripe ni vers la boutique du site.
+import { Platform } from 'react-native';
+
 import type { Langue } from './i18n';
+
+const EST_ANDROID = Platform.OS === 'android';
 
 type T8 = Record<'e_attente' | 'refuseDate' | 'st_a_justifier' | 'formuleActuelle' | 'sansAbo' | 'placesPleines' | 'places' | 'avantageLiens' | 'avantagePub' | 'site' | 'aideSite' | 'retirerDabord' | 'formules' | 'jusque' | 'unePage' | 'gereSite' | 'e_banni' | 'e_doublon' | 'offrePages' | 'offrePrix' | 'offreDuree' | 'sabonner' | 'restaurer' | 'gerer' | 'conditions' | 'confidentialite' | 'merci' | 'restaure' | 'rienRestaurer' | 'e_achat' | 'e_enregistrement' | 'offreIndispo' | 'menu' | 'proposer' | 'intro' | 'avantagesTitre' | 'connecter' | 'actif' | 'mesComptes' | 'aucunCompte' | 'ajouter' | 'reseau' | 'url' | 'nom' | 'langues' | 'enregistrer' | 'supprimer' | 'confirmer' | 'annuler' | 'proposerPage' | 'langueDePage' | 'chercher' | 'aucunePage' | 'envoyer' | 'recu' | 'st_attente_examen' | 'st_attente_justification' | 'st_actif' | 'st_refuse' | 'st_inactif' | 'avis' | 'justif' | 'justifEnvoyer' | 'retirer' | 'e_url' | 'e_nom' | 'e_langue' | 'e_limite' | 'e_deja' | 'e_justif' | 'e_trop' | 'e_reseau', string>;
 
@@ -25,7 +29,9 @@ export const TEXTES8: Record<Langue, T8> = {
     e_doublon: "Ce compte figure déjà sur cette page.",
     offrePages: "Pages occupées : %s",
     offrePrix: "%s par mois",
-    offreDuree: "Abonnement d’un mois, renouvelé automatiquement chaque mois au prix indiqué, sauf résiliation au moins 24 heures avant la fin de la période. Le paiement est débité sur votre compte Apple. Vous pouvez gérer ou résilier l’abonnement dans les réglages de votre compte Apple.",
+    offreDuree: EST_ANDROID
+      ? "Abonnement d’un mois, renouvelé automatiquement chaque mois au prix indiqué, sauf résiliation avant la fin de la période. Le paiement est débité via votre compte Google Play. Vous pouvez gérer ou résilier l’abonnement à tout moment dans Google Play > Paiements et abonnements > Abonnements."
+      : "Abonnement d’un mois, renouvelé automatiquement chaque mois au prix indiqué, sauf résiliation au moins 24 heures avant la fin de la période. Le paiement est débité sur votre compte Apple. Vous pouvez gérer ou résilier l’abonnement dans les réglages de votre compte Apple.",
     sabonner: "S’abonner",
     restaurer: "Restaurer les achats",
     gerer: "Gérer mon abonnement",
@@ -35,7 +41,9 @@ export const TEXTES8: Record<Langue, T8> = {
     restaure: "Achats restaurés.",
     rienRestaurer: "Aucun achat à restaurer.",
     e_achat: "L’achat n’a pas abouti. Réessayez.",
-    e_enregistrement: "Votre achat est bien pris en compte par Apple, mais pas encore enregistré chez nous. Nous réessaierons à votre prochaine visite sur cet écran.",
+    e_enregistrement: EST_ANDROID
+      ? "Votre achat est bien pris en compte par Google Play, mais pas encore enregistré chez nous. Nous réessaierons à votre prochaine visite sur cet écran."
+      : "Votre achat est bien pris en compte par Apple, mais pas encore enregistré chez nous. Nous réessaierons à votre prochaine visite sur cet écran.",
     offreIndispo: "Cette offre n’est pas disponible pour le moment.",
     menu: "Annuaire des comptes à suivre",
     proposer: "Ajouter mes liens",
@@ -99,7 +107,9 @@ export const TEXTES8: Record<Langue, T8> = {
     e_doublon: "This account is already on this page.",
     offrePages: "Pages in use: %s",
     offrePrix: "%s per month",
-    offreDuree: "One-month subscription, automatically renewed each month at the price shown unless cancelled at least 24 hours before the end of the period. Payment is charged to your Apple account. You can manage or cancel the subscription in your Apple account settings.",
+    offreDuree: EST_ANDROID
+      ? "One-month subscription, automatically renewed each month at the price shown unless cancelled before the end of the period. Payment is charged to your Google Play account. You can manage or cancel the subscription anytime in Google Play > Payments & subscriptions > Subscriptions."
+      : "One-month subscription, automatically renewed each month at the price shown unless cancelled at least 24 hours before the end of the period. Payment is charged to your Apple account. You can manage or cancel the subscription in your Apple account settings.",
     sabonner: "Subscribe",
     restaurer: "Restore purchases",
     gerer: "Manage my subscription",
@@ -109,7 +119,9 @@ export const TEXTES8: Record<Langue, T8> = {
     restaure: "Purchases restored.",
     rienRestaurer: "No purchase to restore.",
     e_achat: "The purchase did not go through. Try again.",
-    e_enregistrement: "Apple has your purchase, but we have not recorded it yet. We will try again next time you open this screen.",
+    e_enregistrement: EST_ANDROID
+      ? "Google Play has your purchase, but we have not recorded it yet. We will try again next time you open this screen."
+      : "Apple has your purchase, but we have not recorded it yet. We will try again next time you open this screen.",
     offreIndispo: "This offer is not available at the moment.",
     menu: "Directory of accounts to follow",
     proposer: "Add my links",
@@ -173,7 +185,9 @@ export const TEXTES8: Record<Langue, T8> = {
     e_doublon: "Dieses Konto steht bereits auf dieser Seite.",
     offrePages: "Belegte Seiten: %s",
     offrePrix: "%s pro Monat",
-    offreDuree: "Abonnement für einen Monat, das sich jeden Monat zum angegebenen Preis automatisch verlängert, sofern es nicht mindestens 24 Stunden vor Ablauf des Zeitraums gekündigt wird. Die Zahlung wird Ihrem Apple-Konto belastet. Sie können das Abonnement in den Einstellungen Ihres Apple-Kontos verwalten oder kündigen.",
+    offreDuree: EST_ANDROID
+      ? "Abonnement für einen Monat, das sich jeden Monat zum angegebenen Preis automatisch verlängert, sofern es nicht vor Ablauf des Zeitraums gekündigt wird. Die Zahlung wird Ihrem Google-Play-Konto belastet. Sie können das Abonnement jederzeit unter Google Play > Zahlungen und Abos > Abos verwalten oder kündigen."
+      : "Abonnement für einen Monat, das sich jeden Monat zum angegebenen Preis automatisch verlängert, sofern es nicht mindestens 24 Stunden vor Ablauf des Zeitraums gekündigt wird. Die Zahlung wird Ihrem Apple-Konto belastet. Sie können das Abonnement in den Einstellungen Ihres Apple-Kontos verwalten oder kündigen.",
     sabonner: "Abonnieren",
     restaurer: "Käufe wiederherstellen",
     gerer: "Mein Abonnement verwalten",
@@ -183,7 +197,9 @@ export const TEXTES8: Record<Langue, T8> = {
     restaure: "Käufe wiederhergestellt.",
     rienRestaurer: "Keine Käufe zum Wiederherstellen.",
     e_achat: "Der Kauf wurde nicht abgeschlossen. Versuchen Sie es erneut.",
-    e_enregistrement: "Apple hat Ihren Kauf erfasst, bei uns ist er aber noch nicht eingetragen. Wir versuchen es erneut, wenn Sie diese Ansicht das nächste Mal öffnen.",
+    e_enregistrement: EST_ANDROID
+      ? "Google Play hat Ihren Kauf erfasst, bei uns ist er aber noch nicht eingetragen. Wir versuchen es erneut, wenn Sie diese Ansicht das nächste Mal öffnen."
+      : "Apple hat Ihren Kauf erfasst, bei uns ist er aber noch nicht eingetragen. Wir versuchen es erneut, wenn Sie diese Ansicht das nächste Mal öffnen.",
     offreIndispo: "Dieses Angebot ist derzeit nicht verfügbar.",
     menu: "Verzeichnis der Konten zum Folgen",
     proposer: "Meine Links hinzufügen",
@@ -247,7 +263,9 @@ export const TEXTES8: Record<Langue, T8> = {
     e_doublon: "Esta cuenta ya figura en esta página.",
     offrePages: "Páginas ocupadas: %s",
     offrePrix: "%s al mes",
-    offreDuree: "Suscripción de un mes, renovada automáticamente cada mes al precio indicado, salvo cancelación al menos 24 horas antes del final del periodo. El pago se carga en su cuenta de Apple. Puede gestionar o cancelar la suscripción en los ajustes de su cuenta de Apple.",
+    offreDuree: EST_ANDROID
+      ? "Suscripción de un mes, renovada automáticamente cada mes al precio indicado, salvo cancelación antes del final del periodo. El pago se carga en su cuenta de Google Play. Puede gestionar o cancelar la suscripción en cualquier momento en Google Play > Pagos y suscripciones > Suscripciones."
+      : "Suscripción de un mes, renovada automáticamente cada mes al precio indicado, salvo cancelación al menos 24 horas antes del final del periodo. El pago se carga en su cuenta de Apple. Puede gestionar o cancelar la suscripción en los ajustes de su cuenta de Apple.",
     sabonner: "Suscribirse",
     restaurer: "Restaurar compras",
     gerer: "Gestionar mi suscripción",
@@ -257,7 +275,9 @@ export const TEXTES8: Record<Langue, T8> = {
     restaure: "Compras restauradas.",
     rienRestaurer: "No hay compras que restaurar.",
     e_achat: "La compra no se ha completado. Inténtelo de nuevo.",
-    e_enregistrement: "Apple ha registrado su compra, pero aún no consta en nuestro sistema. Lo intentaremos de nuevo la próxima vez que abra esta pantalla.",
+    e_enregistrement: EST_ANDROID
+      ? "Google Play ha registrado su compra, pero aún no consta en nuestro sistema. Lo intentaremos de nuevo la próxima vez que abra esta pantalla."
+      : "Apple ha registrado su compra, pero aún no consta en nuestro sistema. Lo intentaremos de nuevo la próxima vez que abra esta pantalla.",
     offreIndispo: "Esta oferta no está disponible por el momento.",
     menu: "Directorio de cuentas que seguir",
     proposer: "Añadir mis enlaces",
@@ -321,7 +341,9 @@ export const TEXTES8: Record<Langue, T8> = {
     e_doublon: "Questo account è già presente in questa pagina.",
     offrePages: "Pagine occupate: %s",
     offrePrix: "%s al mese",
-    offreDuree: "Abbonamento di un mese, rinnovato automaticamente ogni mese al prezzo indicato, salvo disdetta almeno 24 ore prima della fine del periodo. Il pagamento viene addebitato sul vostro account Apple. Potete gestire o disdire l’abbonamento nelle impostazioni del vostro account Apple.",
+    offreDuree: EST_ANDROID
+      ? "Abbonamento di un mese, rinnovato automaticamente ogni mese al prezzo indicato, salvo disdetta prima della fine del periodo. Il pagamento viene addebitato sul vostro account Google Play. Potete gestire o disdire l’abbonamento in qualsiasi momento in Google Play > Pagamenti e abbonamenti > Abbonamenti."
+      : "Abbonamento di un mese, rinnovato automaticamente ogni mese al prezzo indicato, salvo disdetta almeno 24 ore prima della fine del periodo. Il pagamento viene addebitato sul vostro account Apple. Potete gestire o disdire l’abbonamento nelle impostazioni del vostro account Apple.",
     sabonner: "Abbonati",
     restaurer: "Ripristina acquisti",
     gerer: "Gestisci il mio abbonamento",
@@ -331,7 +353,9 @@ export const TEXTES8: Record<Langue, T8> = {
     restaure: "Acquisti ripristinati.",
     rienRestaurer: "Nessun acquisto da ripristinare.",
     e_achat: "L’acquisto non è andato a buon fine. Riprovate.",
-    e_enregistrement: "Apple ha registrato il vostro acquisto, ma non risulta ancora da noi. Riproveremo la prossima volta che aprirete questa schermata.",
+    e_enregistrement: EST_ANDROID
+      ? "Google Play ha registrato il vostro acquisto, ma non risulta ancora da noi. Riproveremo la prossima volta che aprirete questa schermata."
+      : "Apple ha registrato il vostro acquisto, ma non risulta ancora da noi. Riproveremo la prossima volta che aprirete questa schermata.",
     offreIndispo: "Questa offerta non è disponibile al momento.",
     menu: "Elenco degli account da seguire",
     proposer: "Aggiungi i miei link",
@@ -395,7 +419,9 @@ export const TEXTES8: Record<Langue, T8> = {
     e_doublon: "Esta conta já consta desta página.",
     offrePages: "Páginas ocupadas: %s",
     offrePrix: "%s por mês",
-    offreDuree: "Subscrição de um mês, renovada automaticamente todos os meses ao preço indicado, salvo cancelamento pelo menos 24 horas antes do fim do período. O pagamento é debitado na sua conta Apple. Pode gerir ou cancelar a subscrição nas definições da sua conta Apple.",
+    offreDuree: EST_ANDROID
+      ? "Subscrição de um mês, renovada automaticamente todos os meses ao preço indicado, salvo cancelamento antes do fim do período. O pagamento é debitado na sua conta Google Play. Pode gerir ou cancelar a subscrição a qualquer momento em Google Play > Pagamentos e subscrições > Subscrições."
+      : "Subscrição de um mês, renovada automaticamente todos os meses ao preço indicado, salvo cancelamento pelo menos 24 horas antes do fim do período. O pagamento é debitado na sua conta Apple. Pode gerir ou cancelar a subscrição nas definições da sua conta Apple.",
     sabonner: "Subscrever",
     restaurer: "Restaurar compras",
     gerer: "Gerir a minha subscrição",
@@ -405,7 +431,9 @@ export const TEXTES8: Record<Langue, T8> = {
     restaure: "Compras restauradas.",
     rienRestaurer: "Nenhuma compra para restaurar.",
     e_achat: "A compra não foi concluída. Tente novamente.",
-    e_enregistrement: "A Apple registou a sua compra, mas ainda não consta do nosso sistema. Tentaremos de novo quando voltar a abrir este ecrã.",
+    e_enregistrement: EST_ANDROID
+      ? "O Google Play registou a sua compra, mas ainda não consta do nosso sistema. Tentaremos de novo quando voltar a abrir este ecrã."
+      : "A Apple registou a sua compra, mas ainda não consta do nosso sistema. Tentaremos de novo quando voltar a abrir este ecrã.",
     offreIndispo: "Esta oferta não está disponível de momento.",
     menu: "Diretório de contas a seguir",
     proposer: "Adicionar as minhas ligações",
@@ -469,7 +497,9 @@ export const TEXTES8: Record<Langue, T8> = {
     e_doublon: "Dit account staat al op deze pagina.",
     offrePages: "Bezette pagina’s: %s",
     offrePrix: "%s per maand",
-    offreDuree: "Abonnement van een maand, dat elke maand automatisch wordt verlengd tegen de vermelde prijs, tenzij het minstens 24 uur voor het einde van de periode wordt opgezegd. De betaling wordt afgeschreven van uw Apple-account. U kunt het abonnement beheren of opzeggen in de instellingen van uw Apple-account.",
+    offreDuree: EST_ANDROID
+      ? "Abonnement van een maand, dat elke maand automatisch wordt verlengd tegen de vermelde prijs, tenzij het voor het einde van de periode wordt opgezegd. De betaling wordt afgeschreven van uw Google Play-account. U kunt het abonnement op elk moment beheren of opzeggen via Google Play > Betalingen en abonnementen > Abonnementen."
+      : "Abonnement van een maand, dat elke maand automatisch wordt verlengd tegen de vermelde prijs, tenzij het minstens 24 uur voor het einde van de periode wordt opgezegd. De betaling wordt afgeschreven van uw Apple-account. U kunt het abonnement beheren of opzeggen in de instellingen van uw Apple-account.",
     sabonner: "Abonneren",
     restaurer: "Aankopen herstellen",
     gerer: "Mijn abonnement beheren",
@@ -479,7 +509,9 @@ export const TEXTES8: Record<Langue, T8> = {
     restaure: "Aankopen hersteld.",
     rienRestaurer: "Geen aankopen om te herstellen.",
     e_achat: "De aankoop is niet gelukt. Probeer het opnieuw.",
-    e_enregistrement: "Apple heeft uw aankoop ontvangen, maar bij ons is die nog niet geregistreerd. We proberen het opnieuw wanneer u dit scherm weer opent.",
+    e_enregistrement: EST_ANDROID
+      ? "Google Play heeft uw aankoop ontvangen, maar bij ons is die nog niet geregistreerd. We proberen het opnieuw wanneer u dit scherm weer opent."
+      : "Apple heeft uw aankoop ontvangen, maar bij ons is die nog niet geregistreerd. We proberen het opnieuw wanneer u dit scherm weer opent.",
     offreIndispo: "Dit aanbod is momenteel niet beschikbaar.",
     menu: "Overzicht van accounts om te volgen",
     proposer: "Mijn links toevoegen",
@@ -543,7 +575,9 @@ export const TEXTES8: Record<Langue, T8> = {
     e_doublon: "To konto jest już na tej stronie.",
     offrePages: "Zajęte strony: %s",
     offrePrix: "%s miesięcznie",
-    offreDuree: "Subskrypcja na miesiąc, odnawiana automatycznie co miesiąc w podanej cenie, chyba że zostanie anulowana co najmniej 24 godziny przed końcem okresu. Płatność jest pobierana z konta Apple. Subskrypcją można zarządzać lub ją anulować w ustawieniach konta Apple.",
+    offreDuree: EST_ANDROID
+      ? "Subskrypcja na miesiąc, odnawiana automatycznie co miesiąc w podanej cenie, chyba że zostanie anulowana przed końcem okresu. Płatność jest pobierana z konta Google Play. Subskrypcją można w każdej chwili zarządzać lub ją anulować w Google Play > Płatności i subskrypcje > Subskrypcje."
+      : "Subskrypcja na miesiąc, odnawiana automatycznie co miesiąc w podanej cenie, chyba że zostanie anulowana co najmniej 24 godziny przed końcem okresu. Płatność jest pobierana z konta Apple. Subskrypcją można zarządzać lub ją anulować w ustawieniach konta Apple.",
     sabonner: "Subskrybuj",
     restaurer: "Przywróć zakupy",
     gerer: "Zarządzaj subskrypcją",
@@ -553,7 +587,9 @@ export const TEXTES8: Record<Langue, T8> = {
     restaure: "Zakupy przywrócone.",
     rienRestaurer: "Brak zakupów do przywrócenia.",
     e_achat: "Zakup się nie powiódł. Spróbuj ponownie.",
-    e_enregistrement: "Apple przyjął zakup, ale nie jest on jeszcze zapisany u nas. Spróbujemy ponownie, gdy następnym razem otworzysz ten ekran.",
+    e_enregistrement: EST_ANDROID
+      ? "Google Play przyjął zakup, ale nie jest on jeszcze zapisany u nas. Spróbujemy ponownie, gdy następnym razem otworzysz ten ekran."
+      : "Apple przyjął zakup, ale nie jest on jeszcze zapisany u nas. Spróbujemy ponownie, gdy następnym razem otworzysz ten ekran.",
     offreIndispo: "Ta oferta jest obecnie niedostępna.",
     menu: "Katalog kont do obserwowania",
     proposer: "Dodaj moje linki",
@@ -617,7 +653,9 @@ export const TEXTES8: Record<Langue, T8> = {
     e_doublon: "Bu hesap zaten bu sayfada.",
     offrePages: "Kullanılan sayfalar: %s",
     offrePrix: "Aylık %s",
-    offreDuree: "Bir aylık abonelik, dönem bitiminden en az 24 saat önce iptal edilmedikçe her ay belirtilen fiyattan otomatik olarak yenilenir. Ödeme Apple hesabınızdan alınır. Aboneliği Apple hesabınızın ayarlarından yönetebilir veya iptal edebilirsiniz.",
+    offreDuree: EST_ANDROID
+      ? "Bir aylık abonelik, dönem bitiminden önce iptal edilmedikçe her ay belirtilen fiyattan otomatik olarak yenilenir. Ödeme Google Play hesabınızdan alınır. Aboneliği istediğiniz zaman Google Play > Ödemeler ve abonelikler > Abonelikler bölümünden yönetebilir veya iptal edebilirsiniz."
+      : "Bir aylık abonelik, dönem bitiminden en az 24 saat önce iptal edilmedikçe her ay belirtilen fiyattan otomatik olarak yenilenir. Ödeme Apple hesabınızdan alınır. Aboneliği Apple hesabınızın ayarlarından yönetebilir veya iptal edebilirsiniz.",
     sabonner: "Abone ol",
     restaurer: "Satın alımları geri yükle",
     gerer: "Aboneliğimi yönet",
@@ -627,7 +665,9 @@ export const TEXTES8: Record<Langue, T8> = {
     restaure: "Satın alımlar geri yüklendi.",
     rienRestaurer: "Geri yüklenecek satın alım yok.",
     e_achat: "Satın alma tamamlanamadı. Yeniden deneyin.",
-    e_enregistrement: "Apple satın alımınızı aldı, ancak henüz bizde kaydedilmedi. Bu ekranı bir sonraki açışınızda yeniden deneyeceğiz.",
+    e_enregistrement: EST_ANDROID
+      ? "Google Play satın alımınızı aldı, ancak henüz bizde kaydedilmedi. Bu ekranı bir sonraki açışınızda yeniden deneyeceğiz."
+      : "Apple satın alımınızı aldı, ancak henüz bizde kaydedilmedi. Bu ekranı bir sonraki açışınızda yeniden deneyeceğiz.",
     offreIndispo: "Bu teklif şu anda kullanılamıyor.",
     menu: "Takip edilecek hesaplar dizini",
     proposer: "Bağlantılarımı ekle",

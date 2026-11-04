@@ -1,13 +1,14 @@
-// Annuaire « Comptes à suivre » (03/11/2026, specs/annuaire-comptes-payant.md) : comptes réseaux du membre, candidature pour une page (dans une langue du compte),
+// Annuaire « Comptes à suivre » (03/11/2026, specs/annuaire-comptes-payant.md ; Android : 04/11/2026) : comptes réseaux du membre, candidature pour une page (dans une langue du compte),
 // statuts et justification. Parcours final (Alexis, 04/11/2026, annuaire-offre-decision.md) : on s'abonne d'abord, à tout moment, sans contrôle ; l'abonné ajoute autant de liens
-// que sa formule a de places, chacun jugé dès la soumission. Sur iOS, achat intégré de l'App Store (annuaire-achat.ts), jamais de lien vers Stripe ni vers la boutique du site ;
+// que sa formule a de places, chacun jugé dès la soumission. Sur iOS et Android, achat intégré de l'App Store / Google Play (annuaire-achat.ts), jamais de lien vers Stripe ni vers la boutique du site ;
 // ailleurs, pas de vente. Sans compte : invitation à se connecter.
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ACHAT_POSSIBLE, acheter, gererAbonnement, lireOffres, ouvrirAchats, restaurer, type Offre } from '@/annuaire-achat';
 import { candidater, enregistrerCompte, lireEtat, lirePages, retirerPage, RESEAUX, supprimerCompte, type CompteAnnuaire, type PageAnnuaire, type PageChoix, type Retour } from '@/annuaire-api';
+import { PRODUITS_ANNUAIRE } from '@/annuaire-produits';
 import { Invitation } from '@/components/espace';
 import { Bouton, Champ, F, fmt, Label, Puce } from '@/components/form';
 import { oublierSession } from '@/compte';
@@ -95,7 +96,9 @@ export default function Annuaire() {
   }, [session, t, charger]);
 
   const toutes = (comptes || []).flatMap((c) => c.pages);
-  const gereSite = actif && source !== 'apple';
+  const sourceLocale = Platform.OS === 'android' ? 'google' : 'apple';
+  const gereSite = actif && source !== sourceLocale;
+  const skuActuel = actif && source === sourceLocale ? PRODUITS_ANNUAIRE.find((p) => p.pages === pagesPayees)?.id : undefined;
   const places = Math.max(0, pagesPayees - pagesUtilisees);
   const enExamen = toutes.some((p) => p.statut === 'attente_examen');
   // examen en cours : le job du Mac répond en quelques minutes, l'écran se relit toutes les 30 s
@@ -120,7 +123,7 @@ export default function Annuaire() {
             {msg ? <Text style={[styles.msg, { color: msg.ok ? COULEURS.vert : COULEURS.coeur }]} accessibilityLiveRegion="polite">{msg.t}</Text> : null}
             {ACHAT_POSSIBLE && gereSite ? <Text style={styles.muet}>{t.gereSite}</Text> : null}
             {ACHAT_POSSIBLE && !gereSite ? <OffreApple key={source + pagesPayees + '/' + pagesUtilisees} t={t} occupees={pagesUtilisees} actuelle={actif ? pagesPayees : 0} jeton={jetonApple} setMsg={setMsg} /> : null}
-            {ACHAT_POSSIBLE && !gereSite ? <GestionApple t={t} langue={langue} afficher setMsg={setMsg} recharger={charger} /> : null}
+            {ACHAT_POSSIBLE && !gereSite ? <GestionApple t={t} langue={langue} afficher skuActuel={skuActuel} setMsg={setMsg} recharger={charger} /> : null}
             <Text style={styles.h2} accessibilityRole="header">{t.mesComptes}</Text>
             {actif ? <Text style={styles.statut}>{places ? fmt(t.places, places) : t.placesPleines}</Text> : <Text style={styles.muet}>{t.sansAbo}</Text>}
             {comptes === null ? <ActivityIndicator color={COULEURS.primaire} style={styles.attente} /> : null}
@@ -150,12 +153,12 @@ function OffreApple({ t, occupees, actuelle, jeton, setMsg }: { t: T; occupees: 
     lireOffres().then((o) => { if (vivant) { const d = o.find((x) => permise(x) && x.pages > actuelle) || o.find(permise); setOffres(o); setChoix(d ? d.id : ''); } }).catch(() => { if (vivant) setOffres([]); });
     return () => { vivant = false; };
   }, [jeton, actuelle, permise]);
+  const retenue = (offres || []).find((o) => o.id === choix);
   const payer = async () => {
     setEnvoi(true); setMsg(null);
-    try { await acheter(choix, jeton); } catch { /* le refus ou l'annulation arrive par l'écoute d'erreurs */ }
+    try { await acheter(choix, jeton, retenue?.offerToken); } catch { /* le refus ou l'annulation arrive par l'écoute d'erreurs */ }
     setEnvoi(false);
   };
-  const retenue = (offres || []).find((o) => o.id === choix);
   return (
     <View style={styles.carte}>
       <Text style={styles.h3} accessibilityRole="header">{t.formules}</Text>
@@ -188,7 +191,7 @@ function OffreApple({ t, occupees, actuelle, jeton, setMsg }: { t: T; occupees: 
   );
 }
 
-function GestionApple({ t, langue, afficher, setMsg, recharger }: { t: T; langue: Langue; afficher: boolean; setMsg: (m: { t: string; ok: boolean } | null) => void; recharger: () => Promise<void> }) {
+function GestionApple({ t, langue, afficher, skuActuel, setMsg, recharger }: { t: T; langue: Langue; afficher: boolean; skuActuel?: string; setMsg: (m: { t: string; ok: boolean } | null) => void; recharger: () => Promise<void> }) {
   const [envoi, setEnvoi] = useState(false);
   if (!afficher) return null;
   const rest = async () => {
@@ -203,7 +206,7 @@ function GestionApple({ t, langue, afficher, setMsg, recharger }: { t: T; langue
   return (
     <View>
       <View style={styles.bouton}><Bouton titre={t.restaurer} secondaire onPress={rest} disabled={envoi} /></View>
-      <View style={styles.bouton}><Bouton titre={t.gerer} secondaire onPress={() => { gererAbonnement().catch(() => setMsg({ t: t.e_reseau, ok: false })); }} /></View>
+      <View style={styles.bouton}><Bouton titre={t.gerer} secondaire onPress={() => { gererAbonnement(skuActuel).catch(() => setMsg({ t: t.e_reseau, ok: false })); }} /></View>
       <Text style={styles.liens}>
         <Text accessibilityRole="link" style={styles.lien} onPress={() => { Linking.openURL(SITE + langue + '/' + CONDITIONS[langue]).catch(() => undefined); }}>{t.conditions}</Text>
         {'  ·  '}
