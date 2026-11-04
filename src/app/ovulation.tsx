@@ -1,9 +1,9 @@
 // Estimateur d'ovulation (méthode du calendrier), natif : mêmes textes et même calcul que le site (assets/js/ovulation.js).
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { Stack } from 'expo-router';
 import React, { useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { ChampDate } from '@/components/form';
 import { FriseCycle } from '@/components/schemas';
 import outils from '@/moteur/outils_txt.json';
 import { useProfil } from '@/profil';
@@ -12,8 +12,6 @@ import { COULEURS } from '@/theme';
 
 type T = Record<string, string>;
 const TXT = (outils as { ovulation: Record<string, T> }).ovulation;
-const pad = (n: number) => (n < 10 ? '0' : '') + n;
-const iso = (d: Date) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 
 export default function Ovulation() {
   const { langue } = useProfil();
@@ -39,12 +37,7 @@ export default function Ovulation() {
     <>
       <Stack.Screen options={{ title: page('ovulation', langue).t }} />
       <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
-        <Text style={styles.label}>{t.regles}</Text>
-        {Platform.OS === 'web' ? (
-          <TextInput style={styles.entree} value={regles} onChangeText={setRegles} placeholder="AAAA-MM-JJ" placeholderTextColor={COULEURS.texteMuet} />
-        ) : (
-          <DateTimePicker value={regles ? new Date(regles + 'T12:00:00') : new Date()} mode="date" display="compact" locale={langue} onChange={(_e, d) => { if (d) setRegles(iso(d)); }} style={styles.picker} />
-        )}
+        <ChampDate label={t.regles} value={regles} onChange={setRegles} langue={langue} />
         <Text style={styles.label}>{t.cycle}</Text>
         <TextInput style={styles.entree} value={cycle} onChangeText={setCycle} keyboardType="number-pad" maxLength={2} />
         <Pressable accessibilityRole="button" style={({ pressed }) => [styles.bouton, pressed && styles.presse]} onPress={calculer}><Text style={styles.boutonTxt}>{t.go}</Text></Pressable>

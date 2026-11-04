@@ -57,13 +57,16 @@ function AffichageArticle() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const chemin = (u || '').split('#')[0];                       // la page, sans l'ancre
+  // si l'adresse porte un préfixe de langue explicite (ex: fr/..., de/..., tr/...), lire l'index de cette langue
+  const mLg = /^(fr|en|de|es|it|pt|nl|pl|tr)\//.exec(chemin);
+  const lgArticle = (mLg ? mLg[1] : langue) as typeof langue;
   const [contenu, setContenu] = useState<{ langue: string; chemin: string; article: Article | null } | null>(null);
-  const a = !chemin ? null : contenu?.langue === langue && contenu.chemin === chemin ? contenu.article : undefined;
+  const a = !chemin ? null : contenu?.langue === lgArticle && contenu.chemin === chemin ? contenu.article : undefined;
   useEffect(() => {
     let actif = true;
-    if (chemin) article(langue, chemin).then((x) => { if (actif) setContenu({ langue, chemin, article: x }); }, () => { if (actif) setContenu({ langue, chemin, article: null }); });
+    if (chemin) article(lgArticle, chemin).then((x) => { if (actif) setContenu({ langue: lgArticle, chemin, article: x }); }, () => { if (actif) setContenu({ langue: lgArticle, chemin, article: null }); });
     return () => { actif = false; };
-  }, [chemin, langue]);
+  }, [chemin, lgArticle]);
 
   // ---- défilement jusqu'à l'ancre
   const defil = useRef<ScrollView>(null);
@@ -95,11 +98,11 @@ function AffichageArticle() {
     cible.current = ''; suivre.current = false;
     const ancre = ancreDe(u || '');
     if (ancre) { cible.current = ancre; suivre.current = true; }
-    else if (chemin) ancreRedirigee(langue, chemin).then((x) => {
+    else if (chemin) ancreRedirigee(lgArticle, chemin).then((x) => {
       if (actif && x && !cible.current) { setDemandeAncre({ ancre: x }); cible.current = x; suivre.current = true; aller(false); }
     }, () => undefined);
     return () => { actif = false; };
-  }, [u, chemin, langue, aller]);
+  }, [u, chemin, lgArticle, aller]);
 
   const sondage = useMemo(() => SONDAGES.find((s) => s.u[langue] === chemin), [chemin, langue]);
   // rubriques Santé et Sexualité (dossier de la page d'accueil de la rubrique) : mention « ne remplace pas un avis médical »

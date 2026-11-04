@@ -6,13 +6,12 @@
 // FORMULAIRE, puis le rappel des signes (date connue), puis le texte selon l'état (infosCompte / infosLocal du site), puis « Mon compte »
 // (components/mon-compte.tsx : Changer mon mot de passe, Supprimer mon compte avec confirmation ; sans compte, Se connecter / Créer un
 // compte). Plus de « Connecté : … », de synchronisation à la main ni de « Se déconnecter » ici (l'onglet Moi les a).
-import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Stack } from 'expo-router';
 import React, { useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
 import { annoncerIOS } from '@/accessibilite';
-import { F, Puce } from '@/components/form';
+import { ChampDate, ChampHeure, F, Puce } from '@/components/form';
 import { ChoixLieu, type LieuChoisi } from '@/components/lieu';
 import { MonCompte, texteInfos } from '@/components/mon-compte';
 import { ResumeSignes } from '@/components/resume-signes';
@@ -36,17 +35,6 @@ function texteRobot(lg: string, raison?: string): string | undefined {
   return raison === 'trop' ? R.trop : raison === 'reseau' ? R.reseau : R.ko;
 }
 
-function dateDe(s?: string): Date {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
-  return m ? new Date(+m[1], +m[2] - 1, +m[3], 12) : new Date(1990, 0, 1, 12);
-}
-function heureDe(s?: string): Date {
-  const m = /^(\d{2}):(\d{2})/.exec(s || '');
-  return new Date(2000, 0, 1, m ? +m[1] : 12, m ? +m[2] : 0);
-}
-const pad = (n: number) => (n < 10 ? '0' : '') + n;
-const isoDate = (d: Date) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-const isoHeure = (d: Date) => pad(d.getHours()) + ':' + pad(d.getMinutes());
 const versChoix = (l?: Lieu): LieuChoisi | null => (l && l.code ? { code: l.code, nomPays: '', lat: l.lat ?? 0, lon: l.lon ?? 0, ville: l.ville ?? null } : null);
 const versLieu = (l: LieuChoisi | null): Lieu | undefined => (l ? { code: l.code, ville: l.ville, lat: l.lat, lon: l.lon } : undefined);
 const cleLieu = (l?: Lieu): string => (l && l.code ? l.code + '|' + (l.ville || '') : '');
@@ -70,7 +58,6 @@ export default function MesInfos() {
   const [noteLettre, setNoteLettre] = useState('');
   const [occupe, setOccupe] = useState(false);
   const [profilAffiche, setProfilAffiche] = useState(profil);
-  const natif = Platform.OS !== 'web';
 
   // Réconcilier avant d'afficher les champs : aucun ancien profil n'est visible après un changement de compte.
   if (profil !== profilAffiche) {
@@ -131,26 +118,9 @@ export default function MesInfos() {
             <Puce key={v || 'np'} titre={t} label={`${TS.sexe} : ${t}`} actif={sexe === v} onPress={() => setSexe(v)} />
           ))}
         </View>
-        <Text style={styles.label}>{T.naissance}</Text>
-        {natif ? (
-          <DateTimePicker value={dateDe(naissance)} accessibilityLabel={T.naissance} mode="date" display="compact" locale={langue} maximumDate={new Date()} minimumDate={new Date(1900, 0, 1)}
-            onChange={(_e: DateTimePickerEvent, d?: Date) => { if (d) setNaissance(isoDate(d)); }} style={styles.picker} />
-        ) : (
-          <TextInput style={styles.entree} value={naissance} accessibilityLabel={T.naissance} onChangeText={setNaissance} placeholder="AAAA-MM-JJ" placeholderTextColor={COULEURS.texteMuet} />
-        )}
-        <View style={styles.ligneOption}>
-          <Text style={[styles.label, styles.flex]}>{T.heure}</Text>
-          <View style={styles.optionDroite}>
-            <Text style={styles.optionTxt}>{heureConnue ? '' : T.heureInconnue}</Text>
-            <Switch value={heureConnue} accessibilityLabel={T.heure} onValueChange={setHeureConnue} trackColor={{ true: COULEURS.secondaire }} />
-          </View>
-        </View>
-        {heureConnue ? (natif ? (
-          <DateTimePicker value={heureDe(heure)} accessibilityLabel={T.heure} mode="time" display="compact" locale={langue}
-            onChange={(_e: DateTimePickerEvent, d?: Date) => { if (d) setHeure(isoHeure(d)); }} style={styles.picker} />
-        ) : (
-          <TextInput style={styles.entree} value={heure} accessibilityLabel={T.heure} onChangeText={setHeure} placeholder="HH:MM" placeholderTextColor={COULEURS.texteMuet} />
-        )) : null}
+        <ChampDate label={T.naissance} value={naissance} onChange={setNaissance} langue={langue} max={new Date()} min={new Date(1900, 0, 1)} />
+        <ChampHeure label={T.heure} inconnue={T.heureInconnue} value={heureConnue ? (heure || '12:00') : ''}
+          onChange={(h) => { setHeureConnue(!!h); setHeure(h); }} langue={langue} />
 
         <Text style={styles.label}>{T.lieuNaissance}</Text>
         {/* clé = lieu du profil : ChoixLieu ne relit pas sa valeur après le montage ; remonté quand le profil change (connexion d'un

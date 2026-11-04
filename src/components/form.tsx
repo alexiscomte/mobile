@@ -30,14 +30,26 @@ export function Champ({ label, ...props }: { label?: string } & TextInputProps) 
 }
 
 export function ChampDate({ label, value, onChange, langue, max, min }: { label?: string; value: string; onChange: (iso: string) => void; langue: string; max?: Date; min?: Date }) {
+  const [ouvert, setOuvert] = useState(false);
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   const d = m ? new Date(+m[1], +m[2] - 1, +m[3], 12) : new Date(1990, 0, 1, 12);
+  const affiche = value ? d.toLocaleDateString(langue, { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'AAAA-MM-JJ';
   return (
     <>
       {label ? <Label>{label}</Label> : null}
-      {NATIF ? (
+      {Platform.OS === 'ios' ? (
         <DateTimePicker value={d} accessibilityLabel={label} mode="date" display="compact" locale={langue} maximumDate={max} minimumDate={min || new Date(1900, 0, 1)}
           onChange={(_e, x) => { if (x) onChange(isoDate(x)); }} style={F.picker} />
+      ) : Platform.OS === 'android' ? (
+        <>
+          <Pressable accessibilityRole="button" accessibilityLabel={label ? `${label} : ${affiche}` : affiche} onPress={() => setOuvert(true)} style={F.entree}>
+            <Text style={value ? F.dateTxt : F.dateMuet}>{affiche}</Text>
+          </Pressable>
+          {ouvert ? (
+            <DateTimePicker value={d} mode="date" display="default" maximumDate={max} minimumDate={min || new Date(1900, 0, 1)}
+              onChange={(e, x) => { setOuvert(false); if (e.type === 'set' && x) onChange(isoDate(x)); }} />
+          ) : null}
+        </>
       ) : (
         <TextInput style={F.entree} value={value} accessibilityLabel={label} onChangeText={onChange} placeholder="AAAA-MM-JJ" placeholderTextColor={COULEURS.texteMuet} />
       )}
@@ -47,8 +59,10 @@ export function ChampDate({ label, value, onChange, langue, max, min }: { label?
 
 export function ChampHeure({ label, inconnue, value, onChange, langue }: { label: string; inconnue: string; value: string; onChange: (h: string) => void; langue: string }) {
   const [connue, setConnue] = useState(!!value);
+  const [ouvert, setOuvert] = useState(false);
   const m = /^(\d{2}):(\d{2})/.exec(value);
   const d = new Date(2000, 0, 1, m ? +m[1] : 12, m ? +m[2] : 0);
+  const affiche = value || '12:00';
   return (
     <>
       <View style={F.ligneOption}>
@@ -58,8 +72,18 @@ export function ChampHeure({ label, inconnue, value, onChange, langue }: { label
           <Switch value={connue} accessibilityLabel={label} onValueChange={(v) => { setConnue(v); if (!v) onChange(''); else if (!value) onChange('12:00'); }} trackColor={{ true: COULEURS.secondaire }} />
         </View>
       </View>
-      {connue ? (NATIF ? (
+      {connue ? (Platform.OS === 'ios' ? (
         <DateTimePicker value={d} accessibilityLabel={label} mode="time" display="compact" locale={langue} onChange={(_e, x) => { if (x) onChange(isoHeure(x)); }} style={F.picker} />
+      ) : Platform.OS === 'android' ? (
+        <>
+          <Pressable accessibilityRole="button" accessibilityLabel={`${label} : ${affiche}`} onPress={() => setOuvert(true)} style={F.entree}>
+            <Text style={F.dateTxt}>{affiche}</Text>
+          </Pressable>
+          {ouvert ? (
+            <DateTimePicker value={d} mode="time" display="default" is24Hour
+              onChange={(e, x) => { setOuvert(false); if (e.type === 'set' && x) onChange(isoHeure(x)); }} />
+          ) : null}
+        </>
       ) : (
         <TextInput style={F.entree} value={value} accessibilityLabel={label} onChangeText={onChange} placeholder="HH:MM" placeholderTextColor={COULEURS.texteMuet} />
       )) : null}
@@ -107,6 +131,8 @@ export const F = StyleSheet.create({
   contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 40, backgroundColor: COULEURS.fond },
   label: { fontSize: 15, fontWeight: '600', color: COULEURS.texte, marginTop: 14, marginBottom: 6 },
   entree: { backgroundColor: COULEURS.fondDoux, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, fontSize: 17, color: COULEURS.texte },
+  dateTxt: { fontSize: 17, color: COULEURS.texte },
+  dateMuet: { fontSize: 17, color: COULEURS.texteMuet },
   picker: { alignSelf: 'flex-start', marginLeft: -8, minWidth: 120, minHeight: 44 },
   ligneOption: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   optionDroite: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 },

@@ -25,8 +25,18 @@ export async function texteUri(u: string | null): Promise<string | null> {
 }
 
 /** Le texte d'un fichier embarqué, ou null. */
-export function texteOrigine(nom: string): Promise<string | null> {
-  return texteUri(uriOrigine(nom));
+export async function texteOrigine(nom: string): Promise<string | null> {
+  const m = REGISTRE[nom];
+  if (m === undefined) return null;
+  try {
+    const a = Asset.fromModule(m);
+    if (Platform.OS === 'android' && !a.localUri && typeof a.downloadAsync === 'function') {
+      await a.downloadAsync();
+    }
+    return await texteUri(a.localUri || a.uri || null);
+  } catch {
+    return null;
+  }
 }
 
 /** Un JSON embarqué, ou null. */

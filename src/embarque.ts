@@ -2,7 +2,7 @@
 // qu'aux mises à jour). Les fichiers (assets/embarque/, générés par outils/gen/app_embarquer.py du dépôt Claude) sont des ressources Metro,
 // listées dans embarque-registre.ts : c/ paquets de contenu, s/ recherche, q/ quiz, v/ villes, i/ images, p/ pages JSON, k/ catalogue des
 // dossiers, m/ manifeste et l/ lots des mises à jour.
-import { texteUri, uriOrigine } from './embarque-origine';
+import { texteOrigine, uriOrigine } from './embarque-origine';
 import { fichierDepot, texteDepot } from './maj/depot';
 
 // Mises à jour sans nouvelle version (#162) : un fichier téléchargé et vérifié (maj/depot.ts) remplace la copie embarquée du même nom.
@@ -16,7 +16,7 @@ export function uriEmbarque(nom: string): string | null {
 export async function texteEmbarque(nom: string): Promise<string | null> {
   const t = await texteDepot(nom);
   if (t) return t;
-  return texteUri(uriOrigine(nom));
+  return texteOrigine(nom);
 }
 
 /** Un JSON, mis à jour ou embarqué. */

@@ -1,9 +1,9 @@
 // Compteur de couple, natif : jours ensemble, prochains caps, anniversaires, noces (assets/js/compteur.js).
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { Stack } from 'expo-router';
 import React, { useState } from 'react';
-import { Platform, Pressable, ScrollView, Share, StyleSheet, Text, TextInput } from 'react-native';
+import { Pressable, ScrollView, Share, StyleSheet, Text, TextInput } from 'react-native';
 
+import { ChampDate } from '@/components/form';
 import outils from '@/moteur/outils_txt.json';
 import { useProfil } from '@/profil';
 import { page, SITE } from '@/site';
@@ -11,8 +11,6 @@ import { COULEURS } from '@/theme';
 
 type T = Record<string, string> & { noces_liste: Record<string, string> };
 const TXT = (outils as unknown as { compteur: Record<string, T> }).compteur;
-const pad = (n: number) => (n < 10 ? '0' : '') + n;
-const iso = (d: Date) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 const fmt = (s: string, ...v: (string | number)[]) => { let i = 0; return s.replace(/%s/g, () => String(v[i++] ?? '')); };
 
 export default function Compteur() {
@@ -57,15 +55,12 @@ export default function Compteur() {
     }
     setRes({ n, y, caps, anniv: fmt(t.anniv_txt, f(pa[0]), pa[1], jours(auj, pa[0])), noces, texte: fmt(t.texte, noms.trim() || '❤', loc(n)) });
   };
-  const champDate = (v: string, set: (s: string) => void) => Platform.OS === 'web'
-    ? <TextInput style={styles.entree} value={v} onChangeText={set} placeholder="AAAA-MM-JJ" placeholderTextColor={COULEURS.texteMuet} />
-    : <DateTimePicker value={v ? new Date(v + 'T12:00:00') : new Date()} mode="date" display="compact" locale={langue} maximumDate={new Date()} onChange={(_e, d) => { if (d) set(iso(d)); }} style={styles.picker} />;
   return (
     <>
       <Stack.Screen options={{ title: page('compteur', langue).t }} />
       <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
-        <Text style={styles.label}>{t.rencontre}</Text>{champDate(rencontre, setRencontre)}
-        <Text style={styles.label}>{t.mariage}</Text>{champDate(mariage, setMariage)}
+        <ChampDate label={t.rencontre} value={rencontre} onChange={setRencontre} langue={langue} max={new Date()} />
+        <ChampDate label={t.mariage} value={mariage} onChange={setMariage} langue={langue} max={new Date()} />
         <Text style={styles.label}>{t.noms}</Text>
         <TextInput style={styles.entree} value={noms} onChangeText={setNoms} maxLength={60} />
         <Pressable accessibilityRole="button" style={({ pressed }) => [styles.bouton, pressed && styles.presse]} onPress={calculer}><Text style={styles.boutonTxt}>{t.go}</Text></Pressable>
