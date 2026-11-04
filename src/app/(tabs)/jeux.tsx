@@ -1,7 +1,7 @@
 // Jeux : jouer à deux, question du jour, sondages (et « Mes sondages »), quiz et tests.
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Carte, Ligne, Titre } from '@/components/carte';
@@ -9,6 +9,7 @@ import { useTabTopClearance } from '@/hooks/use-tab-top-clearance';
 import { TEXTES } from '@/i18n';
 import { TEXTES4 } from '@/i18n4';
 import { TUILES, VIGNETTES, type Img } from '@/images';
+import { JEUX_RESEAUX, URL_FACEBOOK, URL_REDDIT } from '@/jeux-reseaux';
 import { questionDuJour, sondageDuJour } from '@/moteur/qdj';
 import { ouvrirCle } from '@/nav';
 import { useProfil } from '@/profil';
@@ -33,6 +34,7 @@ export default function Jeux() {
   const router = useRouter();
   const go = (cle: Cle) => () => ouvrirCle(router, cle, langue);
   const sondage = sondageDuJour(langue);
+  const R = JEUX_RESEAUX[langue];
   return (
     <SafeAreaView style={[styles.fond, { paddingTop }]} edges={['top']}>
       <ScrollView contentContainerStyle={styles.contenu}>
@@ -44,6 +46,9 @@ export default function Jeux() {
           <Carte titre={page('sondages', langue).t} texte={sondage ? sondage.q[langue] || sondage.q.fr : T.sondagesTxt} couleur={DEGRADES.sexualite[0]} sf="chart.bar.fill" image={TUILES.sondages} onPress={() => router.push('/sondages')} />
         </View>
         <Ligne titre={T4.mesSondages} texte={T4.mesSondagesTxt} sf="chart.bar.fill" image={VIGNETTES['mes-sondages']} onPress={() => router.push({ pathname: '/sondages', params: { mes: '1' } })} />
+        <Titre>{R.titre}</Titre>
+        <Ligne titre={R.reddit.titre} texte={R.reddit.texte} sf="link" onPress={() => Linking.openURL(URL_REDDIT)} />
+        <Ligne titre={R.facebook.titre} texte={R.facebook.texte} sf="link" onPress={() => Linking.openURL(URL_FACEBOOK)} />
         <Titre>{page('quiz', langue).t}</Titre>
         {AUTRES.map(({ cle, sf, image }) => {
           const p = page(cle, langue);
