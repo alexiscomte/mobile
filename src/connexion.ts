@@ -44,7 +44,7 @@ export function dejaPropose(): boolean { return propose; }
 /** Après une déconnexion : on ne repropose pas la connexion d'office pendant ce lancement. */
 export function marquerInvite(): void { invite = true; }
 
-/** Ouvre l'écran de connexion (ecran = 'inscription' pour « Créer un compte », 'facebook', 'linkedin' ou 'snapchat' pour le lancement OAuth direct). */
+/** Ouvre l'écran de connexion (ecran = 'inscription' pour « Créer un compte », 'facebook', 'linkedin', 'snapchat' ou 'x' pour le lancement OAuth direct). */
 export async function connexionOidc(langue: string, ecran?: string): Promise<Issue> {
   if (!AVEC_OIDC || enCours) return 'annule';
   enCours = true; propose = true;

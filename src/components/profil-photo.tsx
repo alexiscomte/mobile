@@ -16,10 +16,10 @@ import { COULEURS } from '@/theme';
 
 type TX = Record<string, string>;
 const UI_P = (ui as unknown as { profilPhoto: Record<string, TX> }).profilPhoto;
-const NOMS: Record<string, string> = { google: 'Google', facebook: 'Facebook', linkedin: 'LinkedIn', snapchat: 'Snapchat' };
+const NOMS: Record<string, string> = { google: 'Google', facebook: 'Facebook', linkedin: 'LinkedIn', snapchat: 'Snapchat', x: 'X' };
 const COTE = 256, TAILLE_MAX = 180 * 1024;
 // Sur iOS, Google passe seulement par le bouton natif de l'écran de connexion (règle 4.8, connexion.ts) : pas de raccourci ici.
-const RESEAUX = Platform.OS === 'ios' ? ['facebook', 'linkedin', 'snapchat'] : ['google', 'facebook', 'linkedin', 'snapchat'];
+const RESEAUX = Platform.OS === 'ios' ? ['facebook', 'linkedin', 'snapchat', 'x'] : ['google', 'facebook', 'linkedin', 'snapchat', 'x'];
 
 type Proposition = { fournisseur: string; prenom: string; nom: string; photo: boolean };
 
