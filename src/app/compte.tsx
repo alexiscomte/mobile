@@ -37,8 +37,7 @@ WebBrowser.maybeCompleteAuthSession();   // aperçu web : ferme la fenêtre de r
 
 type TC = Record<string, string>;
 const UI = (ui as { compte: Record<string, TC> }).compte;
-const AFFECTION_ORG: Record<string, string> = { fr: 'Se connecter avec Affection.org', en: 'Sign in with Affection.org', de: 'Mit Affection.org anmelden', es: 'Iniciar sesión con Affection.org', it: 'Accedi con Affection.org', pt: 'Iniciar sessão com o Affection.org', nl: 'Inloggen met Affection.org', pl: 'Zaloguj się przez Affection.org', tr: 'Affection.org ile Giriş Yap' };
-const GOOGLE = conf as { googleIos?: string; googleWeb?: string; facebook?: boolean; linkedin?: boolean; snapchat?: boolean; affectionorg?: boolean };
+const GOOGLE = conf as { googleIos?: string; googleWeb?: string; facebook?: boolean; linkedin?: boolean; snapchat?: boolean };
 // client Google de la plateforme (iOS : client iOS ; aperçu web : client web) ; aucun sur Android : pas de bouton
 const ID_GOOGLE = Platform.OS === 'ios' ? GOOGLE.googleIos || '' : Platform.OS === 'web' ? GOOGLE.googleWeb || '' : '';
 // iOS : retour de Google par le schéma d'URL inverse du client (déclaré dans app.json, ios.scheme)
@@ -104,7 +103,6 @@ export default function CompteEcran() {
   const avecFacebook = AVEC_OIDC && !!GOOGLE.facebook && tiersAutorises;
   const avecLinkedin = AVEC_OIDC && !!GOOGLE.linkedin && tiersAutorises;
   const avecSnapchat = AVEC_OIDC && !!GOOGLE.snapchat && tiersAutorises;
-  const avecAffectionOrg = AVEC_OIDC && !!GOOGLE.affectionorg;   // site historique : identifiant et mot de passe saisis sur l'écran du serveur, jamais gardés dans l'appli
   // Apple ne donne le prénom qu'à la toute première autorisation : gardé si cette première tentative demande encore le consentement
   const prenomApple = useRef('');
 
@@ -171,7 +169,6 @@ export default function CompteEcran() {
                 {avecFacebook ? <Bouton titre={t.facebook} secondaire disabled={occupe} onPress={() => { viaOidc('facebook'); }} /> : null}
                 {avecLinkedin ? <Bouton titre={t.linkedin} secondaire disabled={occupe} onPress={() => { viaOidc('linkedin'); }} /> : null}
                 {avecSnapchat ? <Bouton titre={t.snapchat} secondaire disabled={occupe} onPress={() => { viaOidc('snapchat'); }} /> : null}
-                {avecAffectionOrg ? <Bouton titre={AFFECTION_ORG[langue] || AFFECTION_ORG.en} secondaire disabled={occupe} onPress={() => { viaOidc('affectionorg'); }} /> : null}
               </>
             ) : null}
           </>
