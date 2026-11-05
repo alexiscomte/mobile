@@ -25,6 +25,7 @@ import { TEXTES4 } from '@/i18n4';
 import { TEXTES5 } from '@/i18n5';
 import { TEXTES7 } from '@/i18n7';
 import { TEXTES8 } from '@/i18n8';
+import { TEXTES9 } from '@/i18n9';
 import { pageJson } from '@/maj/pages';
 import { infoContenu, surMaj, toutTelecharger, type EtatMaj } from '@/moteur/contenu';
 import ui from '@/moteur/ui.json';
@@ -131,6 +132,7 @@ export default function Moi() {
         })}
         {/* annuaire des comptes à suivre (03/11/2026) : comptes réseaux et candidature ; aucun achat dans l'appli */}
         <Ligne titre={TEXTES8[langue].menu} sf="person.2.fill" onPress={() => router.push('/annuaire' as never)} />
+        {compte ? <Ligne titre={TEXTES9[langue].menu} sf="doc.text.fill" onPress={() => router.push('/mes-dossiers' as never)} /> : null}
         {compte ? <Ligne titre={E.seDeconnecter} sf="rectangle.portrait.and.arrow.right" onPress={() => { seDeconnecter(); }} /> : null}
 
         <Titre>{T.langue}</Titre>

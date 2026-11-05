@@ -15,6 +15,7 @@ import { oublierSession } from '@/compte';
 import { LANGUES, NOMS_LANGUES, type Langue } from '@/i18n';
 import { ouvrirArticle } from '@/nav';
 import { TEXTES8 } from '@/i18n8';
+import { TEXTES9 } from '@/i18n9';
 import { useProfil } from '@/profil';
 import { SITE } from '@/site';
 import { COULEURS } from '@/theme';
@@ -117,6 +118,7 @@ export default function Annuaire() {
         <Text style={styles.h2} accessibilityRole="header">{t.avantagesTitre}</Text>
         <Text style={styles.puce}>• {t.avantagePub}</Text>
         <Text style={styles.puce}>• {t.avantageLiens}</Text>
+        {[TEXTES9[langue].abo1, TEXTES9[langue].abo2, TEXTES9[langue].abo3].map((x) => <Text key={x} style={styles.puce}>• {x}</Text>)}
         {!compte ? <Invitation texte={t.connecter} lg={langue} /> : (
           <>
             {actif ? <Text style={styles.actif}>{t.actif}</Text> : null}
