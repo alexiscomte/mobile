@@ -294,7 +294,8 @@ const tags: Record<string, MixedStyleDeclaration> = {
 const classes: Record<string, MixedStyleDeclaration> = {
   content: { marginBottom: 6 },
   lead: { fontSize: 17, color: C.texteMuet },
-  card: { backgroundColor: C.fondDoux, borderRadius: 12, padding: 12, marginBottom: 10 },
+  // carte-lien (<a class="card"> : image, titre, texte) : texte normal, pas de soulignement ni de couleur de lien sur toute la carte (la carte entière reste cliquable)
+  card: { backgroundColor: C.fondDoux, borderRadius: 12, padding: 12, marginBottom: 10, color: C.texte, textDecorationLine: 'none' },
   'card-grid': { marginBottom: 8 },
   'grille-titre': { fontSize: 20, fontWeight: '700', color: C.primaireFonce, marginTop: 16 },
   maj: { color: C.texteMuet, fontSize: 12 },

@@ -45,6 +45,10 @@ export function imageLocale(adresse: string): string {
 export function localiserImages(html: string): string {
   return html.replace(/src="(https:\/\/(?:images\.)?affectionplus\.com\/assets\/[^"]+)"/g, (tout, adr: string) => {
     const u = uriImage(adr);
-    return u ? 'src="' + u + '"' : tout;
+    // data-svg : clé de la ressource embarquée. Sur Android en publication, une ressource non-photo n'a ni extension ni adresse lisible par un composant d'image :
+    // image-article.tsx lit son texte (texteEmbarque, comme les autres fichiers embarqués) et la dessine avec react-native-svg
+    const m = SITE_ASSETS.exec(adr);
+    const cle = m && /\.svg$/i.test(m[1]) ? 'i/' + m[1].slice('assets/'.length) : '';
+    return u ? 'src="' + u + '"' + (cle ? ' data-svg="' + cle + '"' : '') : tout;
   });
 }

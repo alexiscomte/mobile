@@ -79,7 +79,7 @@ function CarteImport({ p, T, surFin, surErreur, rendu }: { p: Proposition; T: TX
 
 export function ProfilPhoto({ langue, appliquer }: { langue: string; appliquer: (q: { prenom?: string; nom?: string }) => void }) {
   const T = UI_P[langue] || UI_P.fr;
-  const [aPhoto, setAPhoto] = useState(false);
+  const [aPhoto, setAPhoto] = useState(true);   // une photo est supposée présente : l'image reçoit 404 sinon (voir relirePhoto)
   const [rendu, setRendu] = useState(0);
   const [propositions, setPropositions] = useState<Proposition[]>([]);
   const [mineur, setMineur] = useState(false);
@@ -96,7 +96,16 @@ export function ProfilPhoto({ langue, appliquer }: { langue: string; appliquer: 
   }, []);
   // La présence d'une photo se lit sur la réponse de l'image : un compte sans photo reçoit 404.
   const relirePhoto = useCallback(() => { setAPhoto(true); setRendu((n) => n + 1); }, []);
-  useEffect(() => { relire(); relirePhoto(); }, [relire, relirePhoto]);
+  // première lecture au montage ; l'image se charge d'elle-même au premier rendu (aPhoto vrai, rendu 0) ; drapeau : réponse ignorée si l'écran est déjà quitté
+  useEffect(() => {
+    let actif = true;
+    api('import', undefined, 'GET').then((r) => {
+      if (!actif || !r.ok) return;
+      setMineur(!!r.mineur);
+      setPropositions(Array.isArray(r.propositions) ? (r.propositions as Proposition[]) : []);
+    }, () => undefined);
+    return () => { actif = false; };
+  }, []);
 
   const choisir = async () => {
     dire('');
