@@ -65,6 +65,8 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Votre position sert une seule fois à trouver la maternité la plus proche ; elle n'est pas conservée (hors de France, elle est transmise à OpenStreetMap pour la recherche).</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>AffectionPlus utilise la photo que vous choisissez comme photo de profil.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>AffectionPlus n'utilise pas les capteurs de mouvement de l'appareil.</string>
 	<key>NSUserActivityTypes</key>
