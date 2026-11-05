@@ -21,6 +21,8 @@ import { TEXTES8 } from '@/i18n8';
 import { TEXTES2 } from '@/i18n2';
 import { TEXTES3 } from '@/i18n3';
 import { TEXTES5 } from '@/i18n5';
+import { dossiersDeLaPage } from '@/dossiers-api';
+import { TEXTES9 } from '@/i18n9';
 import { ancreDe, ancreRedirigee, article, cheminDe, type Article } from '@/moteur/contenu';
 import { ouvrir } from '@/nav';
 import { choixDepuisUrl } from '@/moteur/comparateur';
@@ -103,6 +105,15 @@ function AffichageArticle() {
     }, () => undefined);
     return () => { actif = false; };
   }, [u, chemin, lgArticle, aller]);
+
+  // bouton du dossier documentaire (05/11/2026) : seulement si un dossier est publié pour cette page (table du serveur, gardée un jour et hors ligne)
+  const [dossierPage, setDossierPage] = useState<{ cle: string; slug: string } | null>(null);
+  useEffect(() => {
+    let actif = true;
+    const cle = mLg ? chemin : lgArticle + '/' + chemin;
+    if (chemin) dossiersDeLaPage(cle).then((l) => { if (actif) setDossierPage(l[0] ? { cle, slug: l[0] } : null); }, () => undefined);
+    return () => { actif = false; };
+  }, [chemin, lgArticle, mLg]);
 
   const sondage = useMemo(() => SONDAGES.find((s) => s.u[langue] === chemin), [chemin, langue]);
   // rubriques Santé et Sexualité (dossier de la page d'accueil de la rubrique) : mention « ne remplace pas un avis médical »
@@ -217,6 +228,11 @@ function AffichageArticle() {
             <Pouce u={chemin} titre={a.h1 || a.t} fil={a.fil} partager={partager} libellePartage={T.partagerPage} />
             <Text style={styles.h1} accessibilityRole="header">{a.h1 || a.t}</Text>
             {a.lead ? <Text style={styles.lead}>{a.lead}</Text> : null}
+            {dossierPage ? (
+              <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/dossier', params: { slug: dossierPage.slug } } as never)} style={styles.bouton}>
+                <Text style={styles.boutonTxt}>{TEXTES9[langue].bouton}</Text>
+              </Pressable>
+            ) : null}
             <AncreActualitesContext.Provider value={demandeAncre}>
             <RenderHtml
               contentWidth={Math.min(width, 760) - 32}
