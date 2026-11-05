@@ -2,7 +2,7 @@
 // (écran de l'annuaire, achat intégré) ; téléchargement direct pour qui a le droit. Aucun lien vers un paiement extérieur (App Store 3.1.1, Google Play). Le droit est relu au serveur à chaque ouverture.
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Invitation } from '@/components/espace';
@@ -42,7 +42,8 @@ export default function EcranDossier() {
   }, [slug, langue, compte, T]);
   useFocusEffect(useCallback(() => { let actif = true; charger().catch(() => { if (actif) setMsg({ t: T.erreur, err: true }); }); return () => { actif = false; }; }, [charger, T]));
 
-  useEffect(() => {
+  // à chaque retour sur l'écran : l'écran de l'annuaire ferme la connexion commune à la boutique en se fermant
+  useFocusEffect(useCallback(() => {
     let fermer: () => void = () => undefined, actif = true;
     if (ACHAT_POSSIBLE && compte) {
       ouvrirAchats((r: Resultat) => {
@@ -50,12 +51,13 @@ export default function EcranDossier() {
         if (r === 'enregistre') { setMsg({ t: T.confirme }); charger().catch(() => undefined); }
         else if (r === 'attente') { setMsg({ t: T.attente }); charger().catch(() => undefined); }
         else setMsg({ t: T.enregistrer, err: true });
-      }, () => { setOccupe(false); setMsg({ t: T.erreur, err: true }); })
-        .then((f) => { if (actif) fermer = f; else f(); }, () => undefined);
-      lirePrix().then((p) => { if (actif) setPrix(p); }, () => undefined);
+      }, () => { setOccupe(false); setMsg({ t: T.erreur, err: true }); }, () => { setOccupe(false); })
+        .then((f) => {
+          if (actif) { fermer = f; lirePrix().then((p) => { if (actif) setPrix(p); }, () => undefined); } else f();
+        }, () => undefined);
     }
     return () => { actif = false; fermer(); };
-  }, [compte, charger, T]);
+  }, [compte, charger, T]));
 
   const payer = async () => {
     if (!fiche) return;
@@ -64,18 +66,23 @@ export default function EcranDossier() {
       const r = await acheter(fiche.slug, langue);
       if (r === 'deja') { setOccupe(false); await charger(); }
       else if (r === 'session') { setOccupe(false); if (compte) await oublierSession(compte.session); setMsg({ t: T.session, err: true }); }
+      else if (r === 'bloque') { setOccupe(false); setMsg({ t: T.enregistrer, err: true }); }
       else if (r === 'erreur') { setOccupe(false); setMsg({ t: T.achatImpossible, err: true }); }
-    } catch { setOccupe(false); setMsg({ t: T.achatImpossible, err: true }); }
+    } catch (e) {
+      setOccupe(false);
+      if ((e as { code?: string })?.code !== 'user-cancelled') setMsg({ t: T.achatImpossible, err: true });   // annulation : aucun message
+    }
   };
   const telecharger = async (l: Livrable) => {
     if (!fiche) return;
     setOccupe(true); setMsg({ t: T.prepare });
     try {
       const r = await demanderUrl(fiche.slug, l.id);
+      if (r.statut === 403) { setOccupe(false); setMsg(null); await charger(); return; }   // droit perdu : l'écran relit le vrai état
       if (r.ok && r.url) {
         if (Platform.OS === 'android') await Linking.openURL(r.url); else await WebBrowser.openBrowserAsync(r.url);   // URL temporaire : Safari affiche ou enregistre, Android télécharge
         setMsg({ t: T.commence });
-      } else setMsg({ t: r.erreur === 'quota' ? T.quota : r.statut === 429 ? T.trop : r.statut === 401 ? T.session : r.statut === 403 ? T.expire : r.statut === 404 ? T.fichierIndispo : T.erreurDl, err: true });
+      } else setMsg({ t: r.erreur === 'quota' ? T.quota : r.statut === 429 ? T.trop : r.statut === 401 ? T.session : r.statut === 404 ? T.fichierIndispo : T.erreurDl, err: true });
     } catch { setMsg({ t: T.erreurDl, err: true }); }
     setOccupe(false);
   };

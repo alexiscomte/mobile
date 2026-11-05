@@ -25,25 +25,29 @@ export async function traiterAchat(a: Achat): Promise<Resultat> {
 }
 
 /** Connexion et écoute : l'annuaire a sa propre écoute, chacun ne traite que ses produits. Rend la fonction de fermeture. */
-export async function ouvrirAchats(surAchat: (r: Resultat) => void, surErreur: () => void): Promise<() => void> {
+export async function ouvrirAchats(surAchat: (r: Resultat) => void, surErreur: () => void, surAnnule?: () => void): Promise<() => void> {
   if (!ACHAT_POSSIBLE) return () => undefined;
   const m = await iap();
   await m.initConnection();
   const a = m.purchaseUpdatedListener((p) => { if (estDossier(p as Achat)) traiterAchat(p as Achat).then(surAchat).catch(() => surAchat('erreur')); });
-  const e = m.purchaseErrorListener((x) => { if (x.code !== m.ErrorCode.UserCancelled) surErreur(); });
-  return () => { a.remove(); e.remove(); m.endConnection().catch(() => undefined); };
+  const e = m.purchaseErrorListener((x) => { if (x.code === m.ErrorCode.UserCancelled) { if (surAnnule) surAnnule(); } else surErreur(); });
+  // la connexion à la boutique reste ouverte : elle est commune à l'écran de l'annuaire, et rouverte ici à chaque retour sur l'écran (initConnection est sans effet si elle l'est déjà)
+  return () => { a.remove(); e.remove(); };
 }
 
 /** Prix localisé lu chez Apple / Google Play ; '' si le produit est inconnu de la boutique (l'achat est alors proposé désactivé). */
 export async function lirePrix(): Promise<string> {
-  const { fetchProducts } = await iap();
+  const { fetchProducts, initConnection } = await iap();
+  await initConnection();
   const l = ((await fetchProducts({ skus: [PRODUIT_DOSSIER], type: 'in-app' })) || []) as { id: string; displayPrice?: string }[];
   const p = l.find((x) => x.id === PRODUIT_DOSSIER);
   return (p && p.displayPrice) || '';
 }
 
 /** Lance l'achat ; le résultat arrive par l'écoute. Rend le refus du serveur ('deja' : déjà autorisé, ne jamais faire payer). */
-export async function acheter(slug: string, langue: string): Promise<'lance' | 'deja' | 'session' | 'erreur'> {
+export async function acheter(slug: string, langue: string): Promise<'lance' | 'deja' | 'session' | 'erreur' | 'bloque'> {
+  // un paiement déjà encaissé mais pas encore accepté par le serveur passe d'abord : jamais de second achat par-dessus
+  if ((await reprendreDetail()).restants > 0) return 'bloque';
   const plateforme = Platform.OS === 'android' ? 'google' : 'apple';
   const i = await creerIntention(slug, langue, plateforme);
   if (i.erreur === 'deja') return 'deja';
@@ -58,12 +62,14 @@ export async function acheter(slug: string, langue: string): Promise<'lance' | '
   return 'lance';
 }
 
-/** Achats payés mais pas encore acceptés par le serveur (appli fermée, réseau coupé) : à l'ouverture des écrans. Sans message : le résultat se voit dans l'état du dossier. */
-export async function reprendre(): Promise<number> {
-  if (!ACHAT_POSSIBLE) return 0;
-  const { getAvailablePurchases } = await iap();
-  const l = ((await getAvailablePurchases()) as Achat[]).filter(estDossier);
-  let n = 0;
-  for (const a of l) { if ((await traiterAchat(a).catch(() => 'erreur')) === 'enregistre') n += 1; }
-  return n;
+/** Achats payés mais pas encore acceptés par le serveur (appli fermée, réseau coupé) : à l'ouverture des écrans et avant tout achat. iOS : les transactions non terminées, car la liste habituelle exclut les consommables. */
+async function reprendreDetail(): Promise<{ traites: number; restants: number }> {
+  if (!ACHAT_POSSIBLE) return { traites: 0, restants: 0 };
+  const m = await iap();
+  await m.initConnection();
+  const l = ((Platform.OS === 'ios' ? await m.getPendingTransactionsIOS() : await m.getAvailablePurchases()) as Achat[]).filter(estDossier);
+  let traites = 0, restants = 0;
+  for (const a of l) { if ((await traiterAchat(a).catch(() => 'erreur')) === 'enregistre') traites += 1; else restants += 1; }
+  return { traites, restants };
 }
+export async function reprendre(): Promise<number> { return (await reprendreDetail()).traites; }

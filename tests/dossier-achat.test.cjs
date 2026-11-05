@@ -14,9 +14,10 @@ function client(plateforme, o = {}) {
     finishTransaction: async (x) => { a.finish.push(x); if (o.finishEchoue) throw new Error('consomme'); },
     requestPurchase: async (x) => { a.request.push(x); },
     getAvailablePurchases: async () => o.disponibles || [],
+    getPendingTransactionsIOS: async () => o.disponibles || [],
     fetchProducts: async () => [{ id: 'com.affectionplus.app.dossier.unite', displayPrice: '1,00 €' }],
     initConnection: async () => true, endConnection: async () => true,
-    purchaseUpdatedListener: (f) => { a.ecoute = f; return { remove() {} }; }, purchaseErrorListener: () => ({ remove() {} }), ErrorCode: { UserCancelled: 'x' },
+    purchaseUpdatedListener: (f) => { a.ecoute = f; return { remove() {} }; }, purchaseErrorListener: (f) => { a.ecouteErreur = f; return { remove() {} }; }, ErrorCode: { UserCancelled: 'x' },
   };
   const req = (m) => {
     if (m === 'react-native') return { Platform: { OS: plateforme } };
@@ -94,4 +95,19 @@ test('écoute : un achat de l\'annuaire ne passe pas par ce module', async () =>
   await new Promise((f) => setTimeout(f, 5));
   assert.equal(a.apple.length, 0);
   assert.equal(r.length, 0);
+});
+test('un paiement non accepté par le serveur bloque un nouvel achat', async () => {
+  const { m, a } = client('ios', { reponse: { ok: false, statut: 503 }, disponibles: [{ productId: 'com.affectionplus.app.dossier.unite', purchaseToken: 'do' }] });
+  assert.equal(await m.acheter('x-y-z', 'fr'), 'bloque');
+  assert.equal(a.request.length, 0);
+});
+test('annulation par l\'utilisateur : rappel d\'annulation, pas d\'erreur', async () => {
+  const { m, a } = client('ios');
+  let annule = 0, erreur = 0;
+  await m.ouvrirAchats(() => undefined, () => { erreur += 1; }, () => { annule += 1; });
+  a.ecouteErreur({ code: 'x' });
+  assert.equal(annule, 1);
+  assert.equal(erreur, 0);
+  a.ecouteErreur({ code: 'autre' });
+  assert.equal(erreur, 1);
 });
