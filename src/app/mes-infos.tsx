@@ -14,6 +14,7 @@ import { annoncerIOS } from '@/accessibilite';
 import { ChampDate, ChampHeure, F, Puce } from '@/components/form';
 import { ChoixLieu, type LieuChoisi } from '@/components/lieu';
 import { MonCompte, texteInfos } from '@/components/mon-compte';
+import { ProfilPhoto } from '@/components/profil-photo';
 import { ResumeSignes } from '@/components/resume-signes';
 import { lettre } from '@/compte';
 import { TEXTES, fmt } from '@/i18n';
@@ -40,6 +41,16 @@ const versLieu = (l: LieuChoisi | null): Lieu | undefined => (l ? { code: l.code
 const cleLieu = (l?: Lieu): string => (l && l.code ? l.code + '|' + (l.ville || '') : '');
 const RX_COURRIEL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+/** Moins de 15 ans d'après la date de naissance : pas de bio (même règle que espace.js moinsDe15 et profil_import_api.js). */
+function moinsDe15(naissance?: string): boolean {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(naissance || '');
+  if (!m) return false;
+  const n = new Date();
+  let age = n.getFullYear() - Number(m[1]);
+  if (n.getMonth() + 1 < Number(m[2]) || (n.getMonth() + 1 === Number(m[2]) && n.getDate() < Number(m[3]))) age -= 1;
+  return age < 15;
+}
+
 export default function MesInfos() {
   const { langue, profil, compte, setProfil } = useProfil();
   const T = TEXTES[langue], T3 = TEXTES3[langue];
@@ -53,6 +64,7 @@ export default function MesInfos() {
   const [courriel, setCourriel] = useState(profil.courriel || '');
   const [lieuN, setLieuN] = useState<LieuChoisi | null>(versChoix(profil.naissance_lieu));
   const [lieuR, setLieuR] = useState<LieuChoisi | null>(versChoix(profil.residence));
+  const [bio, setBio] = useState(profil.bio || '');
   const [message, setMessage] = useState('');
   const { etat, courriel: courrielLettre, recharger } = useLettre(compte);
   const [noteLettre, setNoteLettre] = useState('');
@@ -67,13 +79,14 @@ export default function MesInfos() {
     // lieux aussi (appareil partagé, 08/10/2026) : après une connexion qui a remplacé les données d'un autre compte, ses lieux affichés
     // seraient restés et « Enregistrer » les aurait donnés au compte connecté
     setLieuN(versChoix(profil.naissance_lieu)); setLieuR(versChoix(profil.residence));
+    setBio(profil.bio || '');
   }
 
   const enregistrer = async () => {
     const c = courriel.trim().toLowerCase();
     await setProfil({ ...profil, prenom: prenom.trim(), nom: nom.trim() || undefined, sexe: sexe || undefined, naissance: naissance || undefined,
       heure: heureConnue && heure ? heure : undefined, courriel: c && RX_COURRIEL.test(c) ? c : undefined,
-      naissance_lieu: versLieu(lieuN), residence: versLieu(lieuR) });
+      naissance_lieu: versLieu(lieuN), residence: versLieu(lieuR), bio: bio.trim().slice(0, 500) || undefined });
     setMessage(T.enregistre); annoncerIOS(T.enregistre); setTimeout(() => setMessage(''), 2000);
   };
 
@@ -108,6 +121,7 @@ export default function MesInfos() {
     <>
       <Stack.Screen options={{ title: T.moiTitre }} />
       <ScrollView contentContainerStyle={styles.contenu} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="interactive">
+        {compte ? <ProfilPhoto key={compte.courriel} langue={langue} appliquer={(q) => { setProfil({ ...profil, ...q }); }} /> : null}
         <Text style={styles.label}>{T.prenom}</Text>
         <TextInput style={styles.entree} value={prenom} accessibilityLabel={T.prenom} onChangeText={setPrenom} maxLength={40} autoComplete="given-name" autoCapitalize="words" />
         <Text style={styles.label}>{NF}</Text>
@@ -121,6 +135,14 @@ export default function MesInfos() {
         <ChampDate label={T.naissance} value={naissance} onChange={setNaissance} langue={langue} max={new Date()} min={new Date(1900, 0, 1)} />
         <ChampHeure label={T.heure} inconnue={T.heureInconnue} value={heureConnue ? (heure || '12:00') : ''}
           onChange={(h) => { setHeureConnue(!!h); setHeure(h); }} langue={langue} />
+
+        {moinsDe15(naissance) ? null : (
+          <>
+            <Text style={styles.label}>{E.bioLib}</Text>
+            <TextInput style={[styles.entree, styles.bio]} value={bio} accessibilityLabel={E.bioLib} accessibilityHint={E.bioAide} onChangeText={setBio} maxLength={500} multiline textAlignVertical="top" />
+            <Text style={styles.aide}>{E.bioAide}</Text>
+          </>
+        )}
 
         <Text style={styles.label}>{T.lieuNaissance}</Text>
         {/* clé = lieu du profil : ChoixLieu ne relit pas sa valeur après le montage ; remonté quand le profil change (connexion d'un
@@ -157,6 +179,7 @@ const styles = StyleSheet.create({
   contenu: { width: '100%', maxWidth: 760, alignSelf: 'center', padding: 16, paddingBottom: 60 },
   label: { fontSize: 15, fontWeight: '600', color: COULEURS.texte, marginTop: 14, marginBottom: 6 },
   entree: { backgroundColor: COULEURS.fondDoux, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, fontSize: 17, color: COULEURS.texte },
+  bio: { minHeight: 96 },
   picker: { alignSelf: 'flex-start', marginLeft: -8, minWidth: 120, minHeight: 44 },
   ligneOption: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   optionDroite: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, flexShrink: 1, maxWidth: '55%' },

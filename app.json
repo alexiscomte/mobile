@@ -31,6 +31,7 @@
           "tr"
         ],
         "CFBundleDevelopmentRegion": "fr",
+        "NSPhotoLibraryUsageDescription": "AffectionPlus utilise la photo que vous choisissez comme photo de profil.",
         "NSMotionUsageDescription": "AffectionPlus n'utilise pas les capteurs de mouvement de l'appareil."
       },
       "scheme": [
@@ -93,6 +94,14 @@
       "expo-router",
       "expo-localization",
       "expo-apple-authentication",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "AffectionPlus utilise la photo que vous choisissez comme photo de profil.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ],
       [
         "expo-splash-screen",
         {

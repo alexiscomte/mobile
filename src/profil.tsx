@@ -22,6 +22,7 @@ export type Profil = {
   naissance_lieu?: Lieu;
   residence?: Lieu;
   courriel?: string;
+  bio?: string;              // quelques mots, 500 caractères au plus, privée (05/11/2026)
 };
 /** Favori : forme du site (espace.js) — url = chemin « /fr/….html », titre, langue, date AAAA-MM-JJ. */
 export type Favori = { url: string; titre: string; lang?: string; date?: string };
