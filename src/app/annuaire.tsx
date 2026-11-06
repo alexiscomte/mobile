@@ -118,7 +118,7 @@ export default function Annuaire() {
         <Text style={styles.h2} accessibilityRole="header">{t.avantagesTitre}</Text>
         <Text style={styles.puce}>• {t.avantagePub}</Text>
         <Text style={styles.puce}>• {t.avantageLiens}</Text>
-        {[TEXTES9[langue].abo1, TEXTES9[langue].abo2, TEXTES9[langue].abo3, TEXTES9[langue].abo4].map((x) => <Text key={x} style={styles.puce}>• {x}</Text>)}
+        {[TEXTES9[langue].abo1, TEXTES9[langue].abo2, TEXTES9[langue].abo3].map((x) => <Text key={x} style={styles.puce}>• {x}</Text>)}
         {!compte ? <Invitation texte={t.connecter} lg={langue} /> : (
           <>
             {actif ? <Text style={styles.actif}>{t.actif}</Text> : null}
@@ -221,14 +221,15 @@ function GestionApple({ t, langue, afficher, skuActuel, setMsg, recharger }: { t
 
 function CarteVeille({ t, langue, setMsg }: { t: T; langue: Langue; setMsg: (m: { t: string; ok: boolean } | null) => void }) {
   const [courriel, setCourriel] = useState('');
-  const [quot, setQuot] = useState(true);
-  const [rech, setRech] = useState(true);
+  const [quot, setQuot] = useState(false);
+  const [rech, setRech] = useState(false);
+  const [pret, setPret] = useState(false);
   const [themes, setThemes] = useState<string[]>([]);
   const [envoi, setEnvoi] = useState(false);
   useEffect(() => {
     let vivant = true;
     lireVeille().then((v) => {
-      if (vivant && v.ok) { setCourriel(v.courriel); setQuot(v.quotidienne); setRech(v.recherche); setThemes(v.themes); }
+      if (vivant && v.ok) { setCourriel(v.courriel); setQuot(v.quotidienne); setRech(v.recherche); setThemes(v.themes); setPret(true); }
     }).catch(() => undefined);
     return () => { vivant = false; };
   }, []);
@@ -250,7 +251,7 @@ function CarteVeille({ t, langue, setMsg }: { t: T; langue: Langue; setMsg: (m: 
         style={({ pressed }) => [styles.choix, rech && styles.choixCoche, pressed && F.presse]}>
         <Text style={styles.formuleNom}>{(rech ? '✓ ' : '') + t.veilleRech}</Text>
       </Pressable>
-      <View style={styles.bouton}><Bouton titre={t.veilleEnregistrer} onPress={sauver} disabled={envoi} /></View>
+      <View style={styles.bouton}><Bouton titre={t.veilleEnregistrer} onPress={sauver} disabled={envoi || !pret} /></View>
     </View>
   );
 }
