@@ -5,7 +5,7 @@ import type { Langue } from './i18n';
 
 const EST_ANDROID = Platform.OS === 'android';
 
-type T8 = Record<'e_attente' | 'refuseDate' | 'st_a_justifier' | 'formuleActuelle' | 'sansAbo' | 'placesPleines' | 'places' | 'avantageLiens' | 'avantagePub' | 'site' | 'aideSite' | 'retirerDabord' | 'formules' | 'jusque' | 'unePage' | 'gereSite' | 'e_banni' | 'e_doublon' | 'offrePages' | 'offrePrix' | 'offreDuree' | 'sabonner' | 'restaurer' | 'gerer' | 'conditions' | 'confidentialite' | 'merci' | 'restaure' | 'rienRestaurer' | 'e_achat' | 'e_enregistrement' | 'offreIndispo' | 'menu' | 'proposer' | 'intro' | 'avantagesTitre' | 'connecter' | 'actif' | 'mesComptes' | 'aucunCompte' | 'ajouter' | 'reseau' | 'url' | 'nom' | 'langues' | 'enregistrer' | 'supprimer' | 'confirmer' | 'annuler' | 'proposerPage' | 'langueDePage' | 'chercher' | 'aucunePage' | 'envoyer' | 'recu' | 'st_attente_examen' | 'st_attente_justification' | 'st_actif' | 'st_refuse' | 'st_inactif' | 'avis' | 'justif' | 'justifEnvoyer' | 'retirer' | 'e_url' | 'e_nom' | 'e_langue' | 'e_limite' | 'e_deja' | 'e_justif' | 'e_trop' | 'e_reseau', string>;
+type T8 = Record<'e_attente' | 'refuseDate' | 'st_a_justifier' | 'formuleActuelle' | 'sansAbo' | 'placesPleines' | 'places' | 'avantageLiens' | 'avantagePub' | 'site' | 'aideSite' | 'retirerDabord' | 'formules' | 'jusque' | 'unePage' | 'gereSite' | 'e_banni' | 'e_doublon' | 'offrePages' | 'offrePrix' | 'offreDuree' | 'sabonner' | 'restaurer' | 'gerer' | 'conditions' | 'confidentialite' | 'merci' | 'restaure' | 'rienRestaurer' | 'e_achat' | 'e_enregistrement' | 'offreIndispo' | 'menu' | 'proposer' | 'intro' | 'avantagesTitre' | 'connecter' | 'actif' | 'mesComptes' | 'aucunCompte' | 'ajouter' | 'reseau' | 'url' | 'nom' | 'langues' | 'enregistrer' | 'supprimer' | 'confirmer' | 'annuler' | 'proposerPage' | 'langueDePage' | 'chercher' | 'aucunePage' | 'envoyer' | 'recu' | 'st_attente_examen' | 'st_attente_justification' | 'st_actif' | 'st_refuse' | 'st_inactif' | 'avis' | 'justif' | 'justifEnvoyer' | 'retirer' | 'e_url' | 'e_nom' | 'e_langue' | 'e_limite' | 'e_deja' | 'e_justif' | 'e_trop' | 'e_reseau' | 'veilleTitre' | 'veilleCourriel' | 'veilleQuot' | 'veilleRech' | 'veilleEnregistrer' | 'veilleOk', string>;
 
 export const TEXTES8: Record<Langue, T8> = {
   fr: {
@@ -85,6 +85,12 @@ export const TEXTES8: Record<Langue, T8> = {
     e_justif: "Écrivez votre justification.",
     e_trop: "Trop de demandes. Réessayez plus tard.",
     e_reseau: "Service indisponible. Vérifiez votre connexion et réessayez.",
+    veilleTitre: "Ma veille quotidienne",
+    veilleCourriel: "Adresse d’envoi : %s",
+    veilleQuot: "Recevoir la veille quotidienne de l’actualité",
+    veilleRech: "Recevoir les alertes des nouvelles recherches scientifiques",
+    veilleEnregistrer: "Enregistrer mes préférences",
+    veilleOk: "Vos préférences de veille sont enregistrées.",
   },
   en: {
     e_attente: "You can submit again from %s.",
@@ -163,6 +169,12 @@ export const TEXTES8: Record<Langue, T8> = {
     e_justif: "Write your explanation.",
     e_trop: "Too many requests. Try again later.",
     e_reseau: "Service unavailable. Check your connection and try again.",
+    veilleTitre: "My daily news watch",
+    veilleCourriel: "Delivery address: %s",
+    veilleQuot: "Receive the daily news watch",
+    veilleRech: "Receive alerts for new scientific research",
+    veilleEnregistrer: "Save my preferences",
+    veilleOk: "Your watch preferences have been saved.",
   },
   de: {
     e_attente: "Sie können ab %s erneut einreichen.",
@@ -241,6 +253,12 @@ export const TEXTES8: Record<Langue, T8> = {
     e_justif: "Schreiben Sie Ihre Begründung.",
     e_trop: "Zu viele Anfragen. Versuchen Sie es später erneut.",
     e_reseau: "Dienst nicht verfügbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    veilleTitre: "Meine tägliche Nachrichtenübersicht",
+    veilleCourriel: "Versandadresse: %s",
+    veilleQuot: "Tägliche Nachrichtenübersicht erhalten",
+    veilleRech: "Hinweise zu neuen wissenschaftlichen Studien erhalten",
+    veilleEnregistrer: "Meine Einstellungen speichern",
+    veilleOk: "Ihre Einstellungen wurden gespeichert.",
   },
   es: {
     e_attente: "Podrá volver a enviar a partir del %s.",
@@ -319,6 +337,12 @@ export const TEXTES8: Record<Langue, T8> = {
     e_justif: "Escriba su justificación.",
     e_trop: "Demasiadas solicitudes. Inténtelo más tarde.",
     e_reseau: "Servicio no disponible. Compruebe su conexión e inténtelo de nuevo.",
+    veilleTitre: "Mi seguimiento diario de la actualidad",
+    veilleCourriel: "Dirección de envío: %s",
+    veilleQuot: "Recibir el seguimiento diario de la actualidad",
+    veilleRech: "Recibir alertas de nuevas investigaciones científicas",
+    veilleEnregistrer: "Guardar mis preferencias",
+    veilleOk: "Sus preferencias se han guardado.",
   },
   it: {
     e_attente: "Potrete inviare di nuovo dal %s.",
@@ -397,6 +421,12 @@ export const TEXTES8: Record<Langue, T8> = {
     e_justif: "Scrivete la motivazione.",
     e_trop: "Troppe richieste. Riprovate più tardi.",
     e_reseau: "Servizio non disponibile. Controllate la connessione e riprovate.",
+    veilleTitre: "La mia rassegna quotidiana",
+    veilleCourriel: "Indirizzo di invio: %s",
+    veilleQuot: "Ricevere la rassegna quotidiana dell’attualità",
+    veilleRech: "Ricevere avvisi sulle nuove ricerche scientifiche",
+    veilleEnregistrer: "Salva le mie preferenze",
+    veilleOk: "Le vostre preferenze sono state salvate.",
   },
   pt: {
     e_attente: "Poderá enviar novamente a partir de %s.",
@@ -475,6 +505,12 @@ export const TEXTES8: Record<Langue, T8> = {
     e_justif: "Escreva a sua justificação.",
     e_trop: "Demasiados pedidos. Tente mais tarde.",
     e_reseau: "Serviço indisponível. Verifique a ligação e tente novamente.",
+    veilleTitre: "O meu acompanhamento diário",
+    veilleCourriel: "Endereço de envio: %s",
+    veilleQuot: "Receber o acompanhamento diário da atualidade",
+    veilleRech: "Receber alertas de novas investigações científicas",
+    veilleEnregistrer: "Guardar as minhas preferências",
+    veilleOk: "As suas preferências foram guardadas.",
   },
   nl: {
     e_attente: "U kunt opnieuw indienen vanaf %s.",
@@ -553,6 +589,12 @@ export const TEXTES8: Record<Langue, T8> = {
     e_justif: "Schrijf uw toelichting.",
     e_trop: "Te veel verzoeken. Probeer het later opnieuw.",
     e_reseau: "Dienst niet beschikbaar. Controleer uw verbinding en probeer het opnieuw.",
+    veilleTitre: "Mijn dagelijks nieuwsoverzicht",
+    veilleCourriel: "Verzendadres: %s",
+    veilleQuot: "Het dagelijks nieuwsoverzicht ontvangen",
+    veilleRech: "Meldingen ontvangen over nieuw wetenschappelijk onderzoek",
+    veilleEnregistrer: "Mijn voorkeuren opslaan",
+    veilleOk: "Uw voorkeuren zijn opgeslagen.",
   },
   pl: {
     e_attente: "Ponowne zgłoszenie będzie możliwe od %s.",
@@ -631,6 +673,12 @@ export const TEXTES8: Record<Langue, T8> = {
     e_justif: "Napisz uzasadnienie.",
     e_trop: "Zbyt wiele żądań. Spróbuj później.",
     e_reseau: "Usługa niedostępna. Sprawdź połączenie i spróbuj ponownie.",
+    veilleTitre: "Mój codzienny przegląd aktualności",
+    veilleCourriel: "Adres wysyłki: %s",
+    veilleQuot: "Otrzymuj codzienny przegląd aktualności",
+    veilleRech: "Otrzymuj powiadomienia o nowych badaniach naukowych",
+    veilleEnregistrer: "Zapisz moje preferencje",
+    veilleOk: "Twoje preferencje zostały zapisane.",
   },
   tr: {
     e_attente: "%s tarihinden itibaren yeniden gönderebilirsiniz.",
@@ -709,5 +757,11 @@ export const TEXTES8: Record<Langue, T8> = {
     e_justif: "Gerekçenizi yazın.",
     e_trop: "Çok fazla istek. Daha sonra yeniden deneyin.",
     e_reseau: "Hizmet kullanılamıyor. Bağlantınızı kontrol edip yeniden deneyin.",
+    veilleTitre: "Günlük gündem takibim",
+    veilleCourriel: "Gönderim adresi: %s",
+    veilleQuot: "Günlük gündem özetini al",
+    veilleRech: "Yeni bilimsel araştırmalar için bildirim al",
+    veilleEnregistrer: "Tercihlerimi kaydet",
+    veilleOk: "Tercihleriniz kaydedildi.",
   },
 };

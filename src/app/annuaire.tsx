@@ -7,7 +7,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ACHAT_POSSIBLE, acheter, gererAbonnement, lireOffres, ouvrirAchats, restaurer, type Offre } from '@/annuaire-achat';
-import { candidater, enregistrerCompte, lireEtat, lirePages, retirerPage, RESEAUX, supprimerCompte, type CompteAnnuaire, type PageAnnuaire, type PageChoix, type Retour } from '@/annuaire-api';
+import { candidater, enregistrerCompte, enregistrerVeille, lireEtat, lirePages, lireVeille, retirerPage, RESEAUX, supprimerCompte, type CompteAnnuaire, type PageAnnuaire, type PageChoix, type Retour } from '@/annuaire-api';
 import { PRODUITS_ANNUAIRE } from '@/annuaire-produits';
 import { Invitation } from '@/components/espace';
 import { Bouton, Champ, F, fmt, Label, Puce } from '@/components/form';
@@ -127,6 +127,7 @@ export default function Annuaire() {
             {ACHAT_POSSIBLE && gereSite ? <Text style={styles.muet}>{t.gereSite}</Text> : null}
             {ACHAT_POSSIBLE && !gereSite ? <OffreApple key={source + pagesPayees + '/' + pagesUtilisees} t={t} occupees={pagesUtilisees} actuelle={actif ? pagesPayees : 0} jeton={jetonApple} setMsg={setMsg} /> : null}
             {ACHAT_POSSIBLE && !gereSite ? <GestionApple t={t} langue={langue} afficher skuActuel={skuActuel} setMsg={setMsg} recharger={charger} /> : null}
+            {actif ? <CarteVeille t={t} langue={langue} setMsg={setMsg} /> : null}
             <Text style={styles.h2} accessibilityRole="header">{t.mesComptes}</Text>
             {actif ? <Text style={styles.statut}>{places ? fmt(t.places, places) : t.placesPleines}</Text> : <Text style={styles.muet}>{t.sansAbo}</Text>}
             {comptes === null ? <ActivityIndicator color={COULEURS.primaire} style={styles.attente} /> : null}
@@ -215,6 +216,43 @@ function GestionApple({ t, langue, afficher, skuActuel, setMsg, recharger }: { t
         {'  ·  '}
         <Text accessibilityRole="link" style={styles.lien} onPress={() => { Linking.openURL(SITE + langue + '/' + CONFIDENTIALITE[langue]).catch(() => undefined); }}>{t.confidentialite}</Text>
       </Text>
+    </View>
+  );
+}
+
+function CarteVeille({ t, langue, setMsg }: { t: T; langue: Langue; setMsg: (m: { t: string; ok: boolean } | null) => void }) {
+  const [courriel, setCourriel] = useState('');
+  const [quot, setQuot] = useState(false);
+  const [rech, setRech] = useState(false);
+  const [pret, setPret] = useState(false);
+  const [themes, setThemes] = useState<string[]>([]);
+  const [envoi, setEnvoi] = useState(false);
+  useEffect(() => {
+    let vivant = true;
+    lireVeille().then((v) => {
+      if (vivant && v.ok) { setCourriel(v.courriel); setQuot(v.quotidienne); setRech(v.recherche); setThemes(v.themes); setPret(true); }
+    }).catch(() => undefined);
+    return () => { vivant = false; };
+  }, []);
+  const sauver = async () => {
+    setEnvoi(true); setMsg(null);
+    const r = await enregistrerVeille(quot, rech, themes, langue);
+    setMsg(r.ok ? { t: t.veilleOk, ok: true } : { t: t.e_reseau, ok: false });
+    setEnvoi(false);
+  };
+  return (
+    <View style={styles.carte}>
+      <Text style={styles.h3} accessibilityRole="header">{t.veilleTitre}</Text>
+      {courriel ? <Text style={styles.muet}>{fmt(t.veilleCourriel, courriel)}</Text> : null}
+      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: quot }} onPress={() => setQuot((x) => !x)}
+        style={({ pressed }) => [styles.choix, quot && styles.choixCoche, pressed && F.presse]}>
+        <Text style={styles.formuleNom}>{(quot ? '✓ ' : '') + t.veilleQuot}</Text>
+      </Pressable>
+      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: rech }} onPress={() => setRech((x) => !x)}
+        style={({ pressed }) => [styles.choix, rech && styles.choixCoche, pressed && F.presse]}>
+        <Text style={styles.formuleNom}>{(rech ? '✓ ' : '') + t.veilleRech}</Text>
+      </Pressable>
+      <View style={styles.bouton}><Bouton titre={t.veilleEnregistrer} onPress={sauver} disabled={envoi || !pret} /></View>
     </View>
   );
 }

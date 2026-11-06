@@ -34,7 +34,9 @@ export type Compte = { courriel: string; session: string;
   depuis?: string;
   mdp?: boolean;                     // le compte a un mot de passe (sinon l'écran « Changer mon mot de passe » n'en demande pas l'actuel)
   newsletter?: string | null;        // état de la lettre pour l'adresse du compte ('confirme' | 'desinscrit' | null), lu chez Amazon SES par le serveur
-  admin?: boolean };                 // compte ADMIN (historique des connexions détaillé, entrées « a » du menu du site)
+  admin?: boolean;                   // compte ADMIN (historique des connexions détaillé, entrées « a » du menu du site)
+  abonne?: boolean;                  // abonnement Premium actif (06/11/2026)
+  sans_pub_jusqu?: string };
 export type Reponse = { ok?: boolean; erreur?: string; statut: number; [k: string]: unknown };
 type Score = { s?: number; n?: number; d?: string; t?: string; u?: string };
 type FavoriBrut = { url?: unknown; date?: unknown; [k: string]: unknown };
@@ -76,6 +78,8 @@ function nettoyerCompte(x: unknown): Compte | null {
   if (typeof c.mdp === 'boolean') out.mdp = c.mdp;
   if (typeof c.newsletter === 'string') out.newsletter = c.newsletter;
   if (typeof c.admin === 'boolean') out.admin = c.admin;
+  if (typeof c.abonne === 'boolean') out.abonne = c.abonne;
+  if (typeof c.sans_pub_jusqu === 'string') out.sans_pub_jusqu = c.sans_pub_jusqu;
   return out;
 }
 function lireJson(v: string | null | undefined): unknown {
@@ -552,7 +556,9 @@ async function tirerALaConnexion(): Promise<boolean> {
   await garderCompte({ ...actuel, courriel: typeof j.courriel === 'string' && j.courriel ? j.courriel : actuel.courriel, sync: new Date().toISOString(),
     ...(typeof j.mdp === 'boolean' ? { mdp: j.mdp } : {}),
     ...(j.newsletter !== undefined ? { newsletter: typeof j.newsletter === 'string' ? j.newsletter : null } : {}),
-    ...(typeof j.admin === 'boolean' ? { admin: j.admin } : {}) });
+    ...(typeof j.admin === 'boolean' ? { admin: j.admin } : {}),
+    ...(typeof j.abonne === 'boolean' ? { abonne: j.abonne } : {}),
+    ...(typeof j.sans_pub_jusqu === 'string' ? { sans_pub_jusqu: j.sans_pub_jusqu } : {}) });
   signaler('donnees');
   if (await noter()) pousserMaintenant();
   return true;
@@ -564,13 +570,13 @@ async function ouvrir(j: Reponse) {
   const session = typeof j.session === 'string' ? j.session : '';
   if (!session) return;
   const mdp = !!j.mdp, newsletter = typeof j.newsletter === 'string' ? j.newsletter : null;
-  const admin = !!j.admin;
+  const admin = !!j.admin, abonne = !!j.abonne, sans_pub_jusqu = typeof j.sans_pub_jusqu === 'string' ? j.sans_pub_jusqu : '';
   arreterEnvois();
   const depuis = new Date().toISOString().slice(0, 10);
-  await garderCompte({ courriel, session, sync: null, depuis, mdp, newsletter, admin });
+  await garderCompte({ courriel, session, sync: null, depuis, mdp, newsletter, admin, ...(abonne ? { abonne: true, sans_pub_jusqu } : {}) });
   // prénom donné par Google (prenom_google) ou par Apple à la première autorisation (prenom_fournisseur, 12/10/2026)
   await recevoir(j, typeof j.prenom_google === 'string' ? j.prenom_google : typeof j.prenom_fournisseur === 'string' ? j.prenom_fournisseur : '');
-  await garderCompte({ courriel, session, sync: new Date().toISOString(), depuis, mdp, newsletter, admin });
+  await garderCompte({ courriel, session, sync: new Date().toISOString(), depuis, mdp, newsletter, admin, ...(abonne ? { abonne: true, sans_pub_jusqu } : {}) });
   signaler('donnees');
   noter().then((d) => { if (d) pousserMaintenant(); }).catch(() => undefined);
 }

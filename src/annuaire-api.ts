@@ -27,3 +27,14 @@ export const candidater = (id: number, page: string, justification?: string) => 
 export const envoyerTransaction = (signedTransaction: string) => poster('apple/transaction', { signedTransaction });
 export const envoyerTransactionGoogle = (productId: string, purchaseToken: string) => poster('google/transaction', { productId, purchaseToken });
 export const retirerPage = (id: number) => poster('page/supprimer', { id });
+
+export type EtatVeille = { ok: boolean; statut: number; courriel: string; quotidienne: boolean; recherche: boolean; themes: string[]; langue: string };
+export async function lireVeille(): Promise<EtatVeille> {
+  // préférences communes au site (/api/veille, veille_api.js) : rien n'est coché tant que l'abonné ne l'a pas choisi (inscription volontaire)
+  const r = (await appelApi('api/veille/etat', undefined, 'GET')) as unknown as { ok: boolean; statut: number; courriel?: string; veille?: { quotidienne_choisie?: boolean; recherche_choisie?: boolean; themes?: string[]; langue?: string } | null };
+  const v = r.veille || {};
+  return { ok: !!r.ok, statut: r.statut, courriel: r.courriel || '', quotidienne: v.quotidienne_choisie === true, recherche: v.recherche_choisie === true, themes: Array.isArray(v.themes) ? v.themes : [], langue: v.langue || 'fr' };
+}
+export async function enregistrerVeille(quotidienne: boolean, recherche: boolean, themes: string[], langue: string): Promise<Retour> {
+  return (await appelApi('api/veille/preferences', { quotidienne, recherche, themes, langue })) as unknown as Retour;
+}
