@@ -293,6 +293,7 @@ const tags: Record<string, MixedStyleDeclaration> = {
 };
 const classes: Record<string, MixedStyleDeclaration> = {
   'pays-essentiel': { backgroundColor: C.fondDoux, borderLeftWidth: 4, borderLeftColor: C.primaire, padding: 14, borderRadius: 10, marginBottom: 16 },
+  'pays-contexte': { marginBottom: 16 },
   'pays-navigation': { backgroundColor: C.fondDoux, padding: 14, borderRadius: 10, marginBottom: 20 },
   'pays-question': { borderWidth: 1, borderColor: C.bordure, padding: 12, borderRadius: 10, marginBottom: 12 },
   'droit-theme': { borderTopWidth: 1, borderTopColor: C.bordure, paddingTop: 16, marginTop: 22 },
