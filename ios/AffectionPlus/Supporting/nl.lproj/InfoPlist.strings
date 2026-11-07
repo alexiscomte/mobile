@@ -1,3 +1,4 @@
 CFBundleDisplayName = "AffectionPlus";
 NSLocationWhenInUseUsageDescription = "Uw locatie wordt één keer gebruikt om de dichtstbijzijnde kraamafdeling te vinden; ze wordt niet bewaard (buiten Frankrijk wordt ze voor de zoekopdracht naar OpenStreetMap gestuurd).";
 NSMotionUsageDescription = "AffectionPlus gebruikt de bewegingssensoren van het toestel niet.";
+"NSMicrophoneUsageDescription" = "De microfoon neemt een audiobericht op wanneer u daarom vraagt.";

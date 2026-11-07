@@ -1,3 +1,4 @@
 CFBundleDisplayName = "AffectionPlus";
 NSLocationWhenInUseUsageDescription = "Your location is used once to find the nearest maternity hospital; it is not stored (outside France, it is sent to OpenStreetMap for the search).";
 NSMotionUsageDescription = "AffectionPlus does not use the device's motion sensors.";
+"NSMicrophoneUsageDescription" = "The microphone records an audio message when you ask to do so.";
