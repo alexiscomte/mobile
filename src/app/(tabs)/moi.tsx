@@ -130,6 +130,7 @@ export default function Moi() {
           // entrée de l'administrateur : séparée des autres par un trait, comme dans le menu du site
           return m.a ? <View key={m.c}><View style={styles.separateur} />{ligne}</View> : ligne;
         })}
+        <Ligne titre="Chat" sf="bubble.left.and.bubble.right.fill" onPress={() => router.push('/jeanne' as never)} />
         {/* annuaire des comptes à suivre (03/11/2026) : comptes réseaux et candidature ; aucun achat dans l'appli */}
         <Ligne titre={TEXTES8[langue].menu} sf="person.2.fill" onPress={() => router.push('/annuaire' as never)} />
         {compte ? <Ligne titre={TEXTES9[langue].menu} sf="doc.text.fill" onPress={() => router.push('/mes-dossiers' as never)} /> : null}

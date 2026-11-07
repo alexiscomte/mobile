@@ -120,5 +120,7 @@
 	<string>Automatic</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Le microphone permet d’enregistrer un message audio lorsque vous le demandez.</string>
 </dict>
 </plist>

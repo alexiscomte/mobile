@@ -32,7 +32,8 @@
         ],
         "CFBundleDevelopmentRegion": "fr",
         "NSPhotoLibraryUsageDescription": "AffectionPlus utilise la photo que vous choisissez comme photo de profil.",
-        "NSMotionUsageDescription": "AffectionPlus n'utilise pas les capteurs de mouvement de l'appareil."
+        "NSMotionUsageDescription": "AffectionPlus n'utilise pas les capteurs de mouvement de l'appareil.",
+        "NSMicrophoneUsageDescription": "Le microphone permet d’enregistrer un message audio lorsque vous le demandez."
       },
       "scheme": [
         "com.googleusercontent.apps.271367624923-5cr1gk0rs0q9r86uj7q5m7llkfp45tlf"
@@ -83,7 +84,8 @@
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
