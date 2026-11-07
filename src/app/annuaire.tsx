@@ -119,6 +119,7 @@ export default function Annuaire() {
         <Text style={styles.puce}>• {t.avantagePub}</Text>
         <Text style={styles.puce}>• {t.avantageLiens}</Text>
         {[TEXTES9[langue].abo1, TEXTES9[langue].abo2, TEXTES9[langue].abo3].map((x) => <Text key={x} style={styles.puce}>• {x}</Text>)}
+        {langue === 'fr' ? <Text style={styles.puce}>• Abonnement Affection.org inclus (version française)</Text> : null}
         {!compte ? <Invitation texte={t.connecter} lg={langue} /> : (
           <>
             {actif ? <Text style={styles.actif}>{t.actif}</Text> : null}
