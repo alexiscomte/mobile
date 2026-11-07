@@ -292,6 +292,11 @@ const tags: Record<string, MixedStyleDeclaration> = {
   figcaption: { fontSize: 13, lineHeight: 18, color: C.texteMuet, textAlign: 'center', marginTop: 4 },
 };
 const classes: Record<string, MixedStyleDeclaration> = {
+  'pays-essentiel': { backgroundColor: C.fondDoux, borderLeftWidth: 4, borderLeftColor: C.primaire, padding: 14, borderRadius: 10, marginBottom: 16 },
+  'pays-navigation': { backgroundColor: C.fondDoux, padding: 14, borderRadius: 10, marginBottom: 20 },
+  'pays-question': { borderWidth: 1, borderColor: C.bordure, padding: 12, borderRadius: 10, marginBottom: 12 },
+  'droit-theme': { borderTopWidth: 1, borderTopColor: C.bordure, paddingTop: 16, marginTop: 22 },
+  'ap-sources': { backgroundColor: C.fondMuet, padding: 12, borderRadius: 10, lineHeight: 23 },
   content: { marginBottom: 6 },
   lead: { fontSize: 17, color: C.texteMuet },
   // carte-lien (<a class="card"> : image, titre, texte) : texte normal, pas de soulignement ni de couleur de lien sur toute la carte (la carte entière reste cliquable)
