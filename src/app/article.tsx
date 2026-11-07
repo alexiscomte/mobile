@@ -14,6 +14,7 @@ import RenderHtml, { type MixedStyleDeclaration } from 'react-native-render-html
 import { localiserImages } from '@/embarque';
 import { ActualitesDetails, AncreActualitesContext } from '@/components/actualites-details';
 import { CarteJourArticle } from '@/components/horoscope-carte';
+import { CitiesArticle } from '@/components/cities-article';
 import { ImageArticle } from '@/components/image-article';
 import { Pouce } from '@/components/pouce';
 import { TEXTES } from '@/i18n';
@@ -156,6 +157,7 @@ function AffichageArticle() {
     };
     r.img = ImageArticle;
     r.div = ({ tnode, TDefaultRenderer, ...props }: any) => {
+      if (tnode.attributes['data-app-cities']) return <CitiesArticle country={tnode.attributes['data-app-cities']} lang={langue} />;
       const outil = tnode.attributes['data-app-outil'], quiz = tnode.attributes['data-app-quiz'];
       // pages « horoscope du jour par signe / par animal » (12/10/2026) : la carte native du jour, en ligne, à la place du lien
       // data-app-jour="1" : page « horoscope de demain » (J+1, textes au lendemain)

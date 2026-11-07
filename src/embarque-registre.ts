@@ -2,6 +2,7 @@
 /* eslint-disable */
 export const REGISTRE: Record<string, number> = {
   "c/de-astrologie.json": require("../assets/embarque/c/de-astrologie.dat"),
+  "c/de-conseils_pays.json": require("../assets/embarque/c/de-conseils_pays.dat"),
   "c/de-gesundheit.json": require("../assets/embarque/c/de-gesundheit.dat"),
   "c/de-index.json": require("../assets/embarque/c/de-index.dat"),
   "c/de-newsletter.json": require("../assets/embarque/c/de-newsletter.dat"),
@@ -93,6 +94,7 @@ export const REGISTRE: Record<string, number> = {
   "c/en-advice_transgender.json": require("../assets/embarque/c/en-advice_transgender.dat"),
   "c/en-advice_travel.json": require("../assets/embarque/c/en-advice_travel.dat"),
   "c/en-astrology.json": require("../assets/embarque/c/en-astrology.dat"),
+  "c/en-conseils_pays.json": require("../assets/embarque/c/en-conseils_pays.dat"),
   "c/en-games.json": require("../assets/embarque/c/en-games.dat"),
   "c/en-health.json": require("../assets/embarque/c/en-health.dat"),
   "c/en-index.json": require("../assets/embarque/c/en-index.dat"),
@@ -100,6 +102,7 @@ export const REGISTRE: Record<string, number> = {
   "c/en-racine.json": require("../assets/embarque/c/en-racine.dat"),
   "c/en-sexuality.json": require("../assets/embarque/c/en-sexuality.dat"),
   "c/es-astrologia.json": require("../assets/embarque/c/es-astrologia.dat"),
+  "c/es-conseils_pays.json": require("../assets/embarque/c/es-conseils_pays.dat"),
   "c/es-consejos.json": require("../assets/embarque/c/es-consejos.dat"),
   "c/es-consejos_citas-en-linea.json": require("../assets/embarque/c/es-consejos_citas-en-linea.dat"),
   "c/es-consejos_como-nos-conocemos.json": require("../assets/embarque/c/es-consejos_como-nos-conocemos.dat"),
@@ -207,6 +210,7 @@ export const REGISTRE: Record<string, number> = {
   "c/fr-sante.json": require("../assets/embarque/c/fr-sante.dat"),
   "c/fr-sexualite.json": require("../assets/embarque/c/fr-sexualite.dat"),
   "c/it-astrologia.json": require("../assets/embarque/c/it-astrologia.dat"),
+  "c/it-conseils_pays.json": require("../assets/embarque/c/it-conseils_pays.dat"),
   "c/it-consigli.json": require("../assets/embarque/c/it-consigli.dat"),
   "c/it-consigli_affidamento-dei-figli.json": require("../assets/embarque/c/it-consigli_affidamento-dei-figli.dat"),
   "c/it-consigli_come-ci-si-incontra.json": require("../assets/embarque/c/it-consigli_come-ci-si-incontra.dat"),
@@ -275,6 +279,7 @@ export const REGISTRE: Record<string, number> = {
   "c/nl-advies_test-je-kennis.json": require("../assets/embarque/c/nl-advies_test-je-kennis.dat"),
   "c/nl-advies_transseksuelen.json": require("../assets/embarque/c/nl-advies_transseksuelen.dat"),
   "c/nl-astrologie.json": require("../assets/embarque/c/nl-astrologie.dat"),
+  "c/nl-conseils_pays.json": require("../assets/embarque/c/nl-conseils_pays.dat"),
   "c/nl-gezondheid.json": require("../assets/embarque/c/nl-gezondheid.dat"),
   "c/nl-index.json": require("../assets/embarque/c/nl-index.dat"),
   "c/nl-newsletter.json": require("../assets/embarque/c/nl-newsletter.dat"),
@@ -282,6 +287,7 @@ export const REGISTRE: Record<string, number> = {
   "c/nl-seksualiteit.json": require("../assets/embarque/c/nl-seksualiteit.dat"),
   "c/nl-spellen.json": require("../assets/embarque/c/nl-spellen.dat"),
   "c/pl-astrologia.json": require("../assets/embarque/c/pl-astrologia.dat"),
+  "c/pl-conseils_pays.json": require("../assets/embarque/c/pl-conseils_pays.dat"),
   "c/pl-gry.json": require("../assets/embarque/c/pl-gry.dat"),
   "c/pl-index.json": require("../assets/embarque/c/pl-index.dat"),
   "c/pl-newsletter.json": require("../assets/embarque/c/pl-newsletter.dat"),
@@ -321,6 +327,7 @@ export const REGISTRE: Record<string, number> = {
   "c/pl-seksualnosc.json": require("../assets/embarque/c/pl-seksualnosc.dat"),
   "c/pl-zdrowie.json": require("../assets/embarque/c/pl-zdrowie.dat"),
   "c/pt-astrologia.json": require("../assets/embarque/c/pt-astrologia.dat"),
+  "c/pt-conseils_pays.json": require("../assets/embarque/c/pt-conseils_pays.dat"),
   "c/pt-conselhos.json": require("../assets/embarque/c/pt-conselhos.dat"),
   "c/pt-conselhos_burlas-romanticas.json": require("../assets/embarque/c/pt-conselhos_burlas-romanticas.dat"),
   "c/pt-conselhos_casal-e-religiao.json": require("../assets/embarque/c/pt-conselhos_casal-e-religiao.dat"),
@@ -363,6 +370,7 @@ export const REGISTRE: Record<string, number> = {
   "c/pt-sexualidade.json": require("../assets/embarque/c/pt-sexualidade.dat"),
   "c/tr-astroloji.json": require("../assets/embarque/c/tr-astroloji.dat"),
   "c/tr-cinsellik.json": require("../assets/embarque/c/tr-cinsellik.dat"),
+  "c/tr-conseils_pays.json": require("../assets/embarque/c/tr-conseils_pays.dat"),
   "c/tr-index.json": require("../assets/embarque/c/tr-index.dat"),
   "c/tr-newsletter.json": require("../assets/embarque/c/tr-newsletter.dat"),
   "c/tr-oyunlar.json": require("../assets/embarque/c/tr-oyunlar.dat"),
@@ -3049,4 +3057,4 @@ export const REGISTRE: Record<string, number> = {
   "v/zm.js": require("../assets/embarque/v/zm.dat"),
   "v/zw.js": require("../assets/embarque/v/zw.dat"),
 };
-export const VERSION_EMBARQUEE = "2026-11-07T00:55:52Z";
+export const VERSION_EMBARQUEE = "2026-11-07T01:54:15Z";
