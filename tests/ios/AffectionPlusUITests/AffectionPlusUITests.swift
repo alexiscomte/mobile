@@ -151,10 +151,16 @@ final class AffectionPlusUITests: XCTestCase {
         }
         let first = app.textFields["Parent qui commence"]
         first.tap()
-        first.typeText("Alexandrine-Dominique")
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
+        // One event at a time lets the simulator keyboard settle between characters.
+        // Keep exact input and rendered-name assertions; never retry or accept lost text.
+        for character in "Alexandrine-Dominique" { first.typeText(String(character)) }
+        XCTAssertEqual(first.value as? String, "Alexandrine-Dominique")
         let second = app.textFields["Autre parent"]
         second.tap()
-        second.typeText("Jean-Christophe\n")
+        for character in "Jean-Christophe" { second.typeText(String(character)) }
+        XCTAssertEqual(second.value as? String, "Jean-Christophe")
+        second.typeText("\n")
         app.scrollViews.firstMatch.swipeUp()
         let calculate = app.buttons["Afficher le calendrier"]
         for _ in 0..<8 where !calculate.isHittable { app.scrollViews.firstMatch.swipeUp() }

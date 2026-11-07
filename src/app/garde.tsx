@@ -126,8 +126,8 @@ export default function Garde() {
         {/* deux semaines du rythme choisi, dans les couleurs du calendrier (components/schemas.tsx) */}
         <FriseGarde motif={MOTIFS[rythme]} jours={T.jours} couleurs={COUL} noms={[p1.trim() || T.p1, p2.trim() || T.p2]} langue={langue} />
         <ChampDate label={T.debut} value={debut} onChange={setDebut} langue={langue} min={new Date(2000, 0, 1)} max={new Date(2100, 0, 1)} />
-        <Champ label={T.p1} value={p1} onChangeText={setP1} maxLength={30} autoCapitalize="words" autoCorrect={false} spellCheck={false} />
-        <Champ label={T.p2} value={p2} onChangeText={setP2} maxLength={30} autoCapitalize="words" autoCorrect={false} spellCheck={false} />
+        <Champ label={T.p1} value={p1} onChangeText={setP1} maxLength={30} autoCapitalize="words" />
+        <Champ label={T.p2} value={p2} onChangeText={setP2} maxLength={30} autoCapitalize="words" />
         <Champ label={T.mois} value={mois} onChangeText={setMois} keyboardType="number-pad" maxLength={2} />
         <Bouton titre={T.go} onPress={calculer} />
         <Erreur>{erreur}</Erreur>
