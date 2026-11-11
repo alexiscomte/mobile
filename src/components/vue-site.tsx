@@ -3,7 +3,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { WebView, type WebViewMessageEvent, type WebViewNavigation } from 'react-native-webview';
-import { adopterCompte, proprioLocal } from '../compte';
+import { adopterCompte, memeProprioPage, proprioLocal, proprioLocalAdresse } from '../compte';
 import { TEXTES } from '../i18n';
 import { profilPourSite, useProfil } from '../profil';
 import { INJECTION_APRES, estExterne, injectionAvant, lireMessage } from '../site';
@@ -31,8 +31,9 @@ export const VueSite = React.forwardRef<VueSiteRef, Props>(function VueSite({ ur
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(false);
   const [cle, setCle] = useState(0);
-  // propriétaire des données de l'appli (appareil partagé, 08/10/2026) : la page efface les données d'un autre propriétaire avant tout
-  const avant = injectionAvant(profilPourSite(profil), favoris, compte, proprioLocal());
+  // propriétaire des données de l'appli (appareil partagé, 08/10/2026 ; « c:<id> » du compte depuis le lot 7, avec l'empreinte de son adresse) :
+  // la page efface les données d'un autre propriétaire avant tout
+  const avant = injectionAvant(profilPourSite(profil), favoris, compte, proprioLocal(), proprioLocalAdresse());
 
   React.useImperativeHandle(ref, () => ({
     revenir: () => { if (peutRevenir.current && web.current) { web.current.goBack(); return true; } return false; },
@@ -44,7 +45,7 @@ export const VueSite = React.forwardRef<VueSiteRef, Props>(function VueSite({ ur
     if (!m) return;
     // appareil partagé (08/10/2026) : une page chargée avec les données d'un autre propriétaire (avant une connexion qui les a remplacées
     // dans l'appli) ne renvoie ni profil ni favoris : ils ne doivent pas revenir dans l'appli ni partir au compte connecté
-    const meme = (typeof m.proprio === 'string' ? m.proprio : '') === proprioLocal();
+    const meme = memeProprioPage(m.proprio, m.proprioA);   // même compte, sous l'une ou l'autre forme du propriétaire (lot 7)
     try { if (meme && m.profil) fusionnerProfil(JSON.parse(m.profil)); } catch { /* profil illisible */ }
     try { if (meme && m.favoris) setFavoris(JSON.parse(m.favoris)); } catch { /* favoris illisibles */ }
     if (m.compteChange) adopterCompte(m.compte ?? null).catch(() => undefined);   // connexion ou déconnexion faite dans la page

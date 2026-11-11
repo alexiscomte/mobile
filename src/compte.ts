@@ -22,6 +22,14 @@
 // faites hors compte depuis la déconnexion, qui suivent la règle des données d'invité. La vue web (site.ts injectionAvant) reçoit le
 // propriétaire de l'appli et vide ses propres données s'il diffère ; vue-site.tsx ignore le profil d'une page d'un autre propriétaire.
 // Détail : bloc « propriétaire des données locales » plus bas (mêmes noms que compte.js).
+// Changement de l'adresse de connexion (comptes unifiés, lot 7, 11/11/2026 ; mêmes règles que compte.js du site) : le propriétaire des
+// données est le COMPTE (son numéro, « c:<id> », champ id des réponses de connexion et de session), plus l'empreinte de son adresse : une
+// adresse changée sur le site ne fait plus passer le même compte pour un autre (ses données locales auraient été effacées). Migration
+// douce, sans rien effacer : « ap.compte » garde le numéro dès qu'il est connu (connexion, premier envoi, page du site) ; un propriétaire
+// noté sous l'ancienne forme (empreinte de l'adresse) est reconnu par l'adresse de la session ou par les empreintes des anciennes
+// adresses du compte que le serveur joint à la connexion (anciennes), puis réécrit sous la forme « c:<id> » avec l'empreinte de
+// l'adresse (a). Une session sans numéro (serveur plus ancien) retombe sur la comparaison par l'adresse, jamais sur un effacement
+// de plus.
 // Messagerie interne supprimée le 14/10/2026 (Alexis : contact par courriel, page Contact du site) : plus de compteurs messages_non_lus
 // ni a_valider dans « ap.compte » (ceux d'un ancien enregistrement sont ignorés par nettoyerCompte).
 // Ce module n'importe ni profil.tsx ni les écrans (pas de cycle) : il prévient le contexte par surCompte().
@@ -29,7 +37,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SITE } from './site';
 import { fusionnerCompat, K_CT } from './compat_tests';
 
-export type Compte = { courriel: string; session: string;
+export type Compte = { id?: number | string;   // numéro du compte (lot 7) : le propriétaire des données de l'appareil ; absent d'une session ouverte avant le lot 7 ou avec un serveur plus ancien
+  courriel: string; session: string;
   sync: string | null;               // dernier échange réussi avec le compte (connexion ou envoi)
   depuis?: string;
   mdp?: boolean;                     // le compte a un mot de passe (sinon l'écran « Changer mon mot de passe » n'en demande pas l'actuel)
@@ -74,6 +83,8 @@ function nettoyerCompte(x: unknown): Compte | null {
   const c = x as Record<string, unknown>;
   if (typeof c.session !== 'string' || !c.session) return null;
   const out: Compte = { courriel: typeof c.courriel === 'string' ? c.courriel : '', session: c.session, sync: typeof c.sync === 'string' ? c.sync : null };
+  const id = idValide(c.id);
+  if (id !== undefined) out.id = id;
   if (typeof c.depuis === 'string') out.depuis = c.depuis;
   if (typeof c.mdp === 'boolean') out.mdp = c.mdp;
   if (typeof c.newsletter === 'string') out.newsletter = c.newsletter;
@@ -92,8 +103,7 @@ export async function chargerCompte(): Promise<Compte | null> {
   try {
     const v = new Map(await AsyncStorage.multiGet([K_COMPTE, K_PROPRIO]));
     actuel = nettoyerCompte(lireJson(v.get(K_COMPTE)));
-    const pr = proprioDe(lireJson(v.get(K_PROPRIO)));
-    proprioMem = pr ? pr.id : '';
+    memoriserProprio(proprioDe(lireJson(v.get(K_PROPRIO))));
   } catch { actuel = null; }
   charge = true;
   return actuel;
@@ -217,13 +227,18 @@ export function empreinte(f: unknown): string {
   h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
   return (h2 >>> 0).toString(16) + '.' + (h1 >>> 0).toString(16);
 }
+/** La base est celle d'un compte : reconnue par son numéro quand la base et la session le connaissent (lot 7 : l'adresse peut changer),
+ *  sinon par l'adresse (lireBase de compte.js). */
 function baseDe(brut: unknown, c: Compte | null): Forme | null {
   const b = objet(brut);
-  return c && b.courriel === c.courriel && b.donnees && typeof b.donnees === 'object' ? (b.donnees as Forme) : null;
+  if (!c || !b.donnees || typeof b.donnees !== 'object') return null;
+  return (b.id && c.id ? String(b.id) === String(c.id) : b.courriel === c.courriel) ? (b.donnees as Forme) : null;
 }
 function marqueurDe(brut: unknown): Marqueur { return objet(brut) as Marqueur; }
 async function garderBase(c: Compte, f: Forme) {
-  await AsyncStorage.multiSet([[K_BASE, JSON.stringify({ courriel: c.courriel, donnees: f })], [K_EMPREINTE, JSON.stringify(empreinte(f))]]);
+  const b: Record<string, unknown> = { courriel: c.courriel, donnees: f };
+  if (c.id) b.id = c.id;
+  await AsyncStorage.multiSet([[K_BASE, JSON.stringify(b)], [K_EMPREINTE, JSON.stringify(empreinte(f))]]);
 }
 
 /* Les lectures-écritures du marqueur et de la base passent l'une après l'autre (AsyncStorage est asynchrone : deux contrôles mêlés
@@ -232,10 +247,11 @@ let file: Promise<unknown> = Promise.resolve();
 function enFile<T>(f: () => Promise<T>): Promise<T> { const p = file.then(f, f); file = p.catch(() => undefined); return p; }
 
 /* ---- propriétaire des données locales (appareil partagé, 08/10/2026 ; exactement les règles de compte.js du site) ----
-   ap.compte.proprio = { id, d } : id = empreinte (hachage non réversible, celui d'empreinte()) de l'adresse du compte dont viennent les
-   données de l'appareil, jamais l'adresse elle-même ; posé à chaque connexion (recevoir) et GARDÉ après la déconnexion, avec d = instantané
-   pris à la déconnexion : empreintes de chaque champ du profil et de chaque score, des adresses des favoris, des identifiants des tests de
-   compatibilité (aucune valeur en clair).
+   ap.compte.proprio = { id, a, d } : id = « c:<numéro du compte> » (lot 7, 11/11/2026) ; a = empreinte (hachage non réversible, celui
+   d'empreinte()) de l'adresse du compte, jamais l'adresse elle-même, gardée pour reconnaître une session sans numéro ; avant le lot 7,
+   id était cette empreinte (ancienne forme, sans a, toujours comprise : migration douce, réécrite dès que le numéro est connu). Posé à
+   chaque connexion (recevoir) et GARDÉ après la déconnexion, avec d = instantané pris à la déconnexion : empreintes de chaque champ du
+   profil et de chaque score, des adresses des favoris, des identifiants des tests de compatibilité (aucune valeur en clair).
    À la connexion : pas de propriétaire (invité jamais connecté) ou le même compte → fusion « le local gagne » comme avant ; un AUTRE
    compte → ses données ne sont ni fusionnées ni envoyées : l'appareil les efface (marqueur « sale », calendrier, base, empreinte, jeton
    de vote et votes, ap.lettre compris) et prend celles du compte qui se connecte. Seules restent les saisies faites HORS COMPTE depuis la
@@ -245,20 +261,68 @@ function enFile<T>(f: () => Promise<T>): Promise<T> { const p = file.then(f, f);
    propriétaire (invité jamais connecté). La vue web reçoit le propriétaire de l'appli (proprioLocal, site.ts injectionAvant). */
 const K_PROPRIO = 'ap.compte.proprio';
 type Instantane = { p?: Record<string, string>; s?: Record<string, string>; f?: string[]; c?: string[] };
-type Proprio = { id: string; d?: Instantane };
+type Proprio = { id: string; a?: string; d?: Instantane };
 type Saisies = { profil: Record<string, unknown>; scores: Record<string, unknown>; favoris: unknown[]; compat: unknown[] };
 /** Données de l'appareil liées à une personne (synchronisées ou non), effacées quand elles appartiennent à un autre compte (plus apq:*
  *  et ap.sondage:*). */
 const DONNEES_PERSO = [K_PROFIL, K_FAVS, K_QDJ, K_JEU2, K_CT, K_SJ, K_SALE, K_ESSAI, K_BASE, K_EMPREINTE, 'ap.lettre', 'ap.messages'];
-let proprioMem = '';
+let proprioMem = '', proprioAdr = '';
 /** Empreinte de l'adresse d'un compte (jamais l'adresse en clair) ; '' sans adresse. Même calcul que compte.js idDe. */
 export function idDe(courriel: unknown): string { const s = String(courriel || '').trim().toLowerCase(); return s ? empreinte('ap:' + s) : ''; }
-function proprioDe(brut: unknown): Proprio | null { const p = objet(brut); return typeof p.id === 'string' && p.id ? { id: p.id, ...(p.d ? { d: p.d as Instantane } : {}) } : null; }
-/** Propriétaire des données de l'appareil (empreinte), lu sans attendre : la vue web le reçoit (site.ts) et vue-site.tsx compare celui
- *  de la page avant de reprendre son profil. '' = invité jamais connecté. */
+/** Numéro de compte valable (nombre ou chaîne de 1 à 15 chiffres, sans zéro en tête) ; undefined sinon. */
+function idValide(n: unknown): number | string | undefined { return (typeof n === 'number' || typeof n === 'string') && /^[1-9]\d{0,14}$/.test(String(n)) ? n : undefined; }
+/** « c:<numéro> » du compte de cette session ; '' tant que la session ne le connaît pas (ouverte avant le lot 7, serveur plus ancien, rien envoyé
+ *  depuis). Même nom et même règle que compte.js idCompte. */
+function idCompte(c: { id?: unknown } | null | undefined): string { const n = idValide(c ? c.id : undefined); return n === undefined ? '' : 'c:' + n; }
+function proprioDe(brut: unknown): Proprio | null {
+  const p = objet(brut);
+  return typeof p.id === 'string' && p.id ? { id: p.id, ...(typeof p.a === 'string' && p.a ? { a: p.a } : {}), ...(p.d ? { d: p.d as Instantane } : {}) } : null;
+}
+/** Empreinte de l'adresse d'un propriétaire noté : a pour « c:<id> », l'id lui-même pour l'ancienne forme ; '' si inconnue. */
+function adresseDe(id: string, a: string): string { return id.indexOf('c:') === 0 ? a : id; }
+function memoriserProprio(p: Proprio | null) {
+  proprioMem = p ? p.id : '';
+  proprioAdr = p ? adresseDe(p.id, p.a || '') : '';
+}
+/** Propriétaire des données de l'appareil (« c:<id> », ou l'empreinte de l'adresse sous l'ancienne forme), lu sans attendre : la vue web le
+ *  reçoit (site.ts) et vue-site.tsx compare celui de la page avant de reprendre son profil. '' = invité jamais connecté. */
 export function proprioLocal(): string { return proprioMem; }
+/** Empreinte de l'adresse du propriétaire (sa partie « a ») : la vue web la reçoit aussi, pour reconnaître le même compte sous l'autre forme. */
+export function proprioLocalAdresse(): string { return proprioAdr; }
+/** Deux propriétaires notés (id, empreinte de l'adresse), l'un dans l'appli, l'autre dans la vue web, sont-ils le même compte ? Même numéro,
+ *  ou une forme ancienne dont l'empreinte est celle de l'adresse de l'autre ; deux numéros différents : jamais. Même règle dans le script
+ *  injecté (site.ts injectionAvant). */
+function memeProprioNotes(p: string, pa: string, w: string, wa: string): boolean {
+  if (p === w) return true;
+  if (!p || !w || (p.indexOf('c:') === 0 && w.indexOf('c:') === 0)) return false;
+  const fp = adresseDe(p, pa);
+  return !!fp && fp === adresseDe(w, wa);
+}
+/** Le propriétaire noté par la vue web (« ap.compte.proprio » de la page : id et a) est-il celui des données de l'appli ? */
+export function memeProprioPage(id: unknown, a?: unknown): boolean {
+  return memeProprioNotes(proprioMem, proprioAdr, typeof id === 'string' ? id : '', typeof a === 'string' ? a : '');
+}
+/** Le propriétaire noté est-il ce compte ? anciennes : empreintes des anciennes adresses du compte (données par le serveur à la connexion) ;
+ *  reprise : son adresse actuelle a été autrefois celle d'un autre compte (un propriétaire noté par cette seule adresse n'est alors pas
+ *  reconnu). Avec le numéro du compte, l'adresse ne compte pour rien ; sans lui (serveur plus ancien), elle reste le repli (compte.js memeProprio). */
+function memeProprio(pr: Proprio | null, c: { id?: unknown; courriel?: unknown } | null, anciennes?: unknown, reprise?: unknown): boolean {
+  if (!pr || !c) return false;
+  const n = idCompte(c), a = idDe(c.courriel);
+  if (pr.id.indexOf('c:') === 0) return n ? pr.id === n : (!!a && pr.a === a);
+  if (Array.isArray(anciennes) && anciennes.includes(pr.id)) return true;
+  return !!a && pr.id === a && !reprise;
+}
+/** Le compte comme propriétaire des données de l'appareil (d : instantané de la déconnexion) ; null sans numéro ni adresse. */
+function noterProprio(c: { id?: unknown; courriel?: unknown } | null, d?: Instantane): Proprio | null {
+  const n = idCompte(c), a = idDe(c ? c.courriel : '');
+  if (!n && !a) return null;
+  const o: Proprio = { id: n || a };
+  if (n && a) o.a = a;
+  if (d) o.d = d;
+  return o;
+}
 async function garderProprio(p: Proprio) {
-  proprioMem = p.id;
+  memoriserProprio(p);
   try { await AsyncStorage.setItem(K_PROPRIO, JSON.stringify(p)); } catch { /* stockage indisponible */ }
 }
 /** Instantané de la déconnexion : empreintes de ce qui est sur l'appareil, pas les valeurs. */
@@ -299,14 +363,18 @@ async function remplacerLocal(d: unknown) {
   if (g.compat.length) ecrire.push([K_CT, JSON.stringify(g.compat)]);
   try { if (ecrire.length) await AsyncStorage.multiSet(ecrire); } catch { /* stockage indisponible */ }
 }
-/** Session présente sans être passée par recevoir (ouverte avant le 08/10/2026) : le propriétaire est noté ; si les données sont celles
+/** Session présente sans être passée par recevoir (ouverte avant le 08/10/2026, ou avant le lot 7 : numéro du compte appris depuis) : le
+ *  propriétaire est noté, et réécrit sous la forme « c:<id> » dès que le numéro est connu, sans rien effacer ; si les données sont celles
  *  d'un AUTRE compte et que rien n'a encore été convenu avec celui-ci, elles sont effacées (jamais envoyées). Vrai si effacées. */
 async function verifierProprio(c: Compte, pr: Proprio | null, b: Forme | null): Promise<boolean> {
-  const id = idDe(c.courriel);
-  if (!id || (pr && pr.id === id && !pr.d)) return false;
-  const efface = !!(pr && pr.id !== id && !b);
+  const n = idCompte(c);
+  if (!n && !idDe(c.courriel)) return false;
+  const meme = memeProprio(pr, c);
+  if (meme && pr && !pr.d && (!n || pr.id === n)) return false;   // déjà noté, et sous le numéro du compte dès qu'il est connu (sinon : réécrit)
+  const efface = !!(pr && !meme && !b);
   if (efface) await viderDonnees();
-  await garderProprio({ id });
+  const np = noterProprio(c);
+  if (np) await garderProprio(np);
   return efface;
 }
 /** Jeton de vote transmis à la connexion : seulement celui d'un invité jamais connecté (avec un propriétaire, c'est le jeton d'un compte). */
@@ -385,8 +453,10 @@ function arreterEnvois() {
  *  MÊME compte. Les données restent, avec leur propriétaire et l'instantané de ce moment (appareil partagé, 08/10/2026). */
 async function oublierCompteLocal() {
   arreterEnvois();
-  const id = actuel ? idDe(actuel.courriel) : '';
-  if (id) { try { await garderProprio({ id, d: await instantane() }); } catch { /* stockage indisponible */ } }
+  try {
+    const np = actuel ? noterProprio(actuel, await instantane()) : null;
+    if (np) await garderProprio(np);
+  } catch { /* stockage indisponible */ }
   try { await AsyncStorage.multiRemove([K_BASE, K_EMPREINTE, K_ESSAI]); } catch { /* stockage indisponible */ }
   await garderCompte(null);
 }
@@ -448,12 +518,15 @@ async function pousserMaintenant(): Promise<void> {
   if (!actuel || actuel.session !== c.session) { if (actuel) pousser(); return; }   // déconnecté ou autre session pendant l'envoi
   if (j.ok) {
     const moi = actuel;
+    // session ouverte avant le lot 7 (ou serveur plus ancien jusque-là) : le numéro du compte arrive avec la réponse ; il range la base et
+    // le propriétaire, que noter() réécrit sous la forme « c:<id> » sans rien effacer
+    const nouvelId = moi.id === undefined ? idValide(j.id) : undefined;
     await enFile(async () => {
       const b = baseDe(lireJson(await AsyncStorage.getItem(K_BASE)), moi) || forme(await etatLocal());
-      await garderBase(moi, baseApres(b, dn));
+      await garderBase(nouvelId !== undefined ? { ...moi, id: nouvelId } : moi, baseApres(b, dn));
     });
     await finEssais();
-    if (actuel && actuel.session === c.session) await garderCompte({ ...actuel, sync: new Date().toISOString() });
+    if (actuel && actuel.session === c.session) await garderCompte({ ...actuel, ...(nouvelId !== undefined && actuel.id === undefined ? { id: nouvelId } : {}), sync: new Date().toISOString() });
     // un changement arrivé PENDANT l'envoi est resté marqué : il repart (jamais deux fois le même envoi)
     if (await noter()) { const d2 = await enFile(chargeEnvoi); if (canon(d2) !== canon(dn)) pousser(); }
     return;
@@ -524,12 +597,18 @@ async function appliquer(j: Reponse) {
 async function recevoir(j: Reponse, prenomGoogle?: string) {
   const moi = actuel;
   if (!moi) return;
-  const id = idDe(typeof j.courriel === 'string' && j.courriel ? j.courriel : moi.courriel);
+  // le compte de la réponse : son numéro (id), son adresse (celle de la session si la réponse n'en donne pas)
+  const cj = { id: idValide(j.id), courriel: typeof j.courriel === 'string' && j.courriel ? j.courriel : moi.courriel };
+  // anciennes : empreintes des anciennes adresses de CE compte ; adresse_reprise : son adresse a été celle d'un autre compte (connexion seulement :
+  // la lecture des données du compte, tirerALaConnexion, ne les donne pas)
+  const anciennes = Array.isArray(j.anciennes) ? j.anciennes.filter((x): x is string => typeof x === 'string') : undefined;
   await enFile(async () => {
     const pr = proprioDe(lireJson(await AsyncStorage.getItem(K_PROPRIO).catch(() => null)));
-    if (pr && id && pr.id !== id) await remplacerLocal(pr.d);
+    // un AUTRE compte (jamais seulement une autre adresse) : ses données ne sont ni fusionnées ni envoyées
+    if (pr && (idCompte(cj) || idDe(cj.courriel)) && !memeProprio(pr, cj, anciennes, j.adresse_reprise === true)) await remplacerLocal(pr.d);
     await appliquer(j);
-    if (id) await garderProprio({ id });            // les données de l'appareil sont désormais celles de ce compte
+    const np = noterProprio(cj);                    // les données de l'appareil sont désormais celles de ce compte
+    if (np) await garderProprio(np);
     // connexion Google : le prénom du compte Google remplit « Mes infos » seulement si l'appareil et le compte n'en ont pas (compte.js)
     if (prenomGoogle) {
       try {
@@ -537,7 +616,7 @@ async function recevoir(j: Reponse, prenomGoogle?: string) {
         if (!pf.prenom) { pf.prenom = prenomGoogle.slice(0, 40); await AsyncStorage.setItem(K_PROFIL, JSON.stringify(pf)); }
       } catch { /* stockage indisponible */ }
     }
-    await garderBase(moi, forme(j.donnees));
+    await garderBase({ ...moi, courriel: cj.courriel, ...(cj.id !== undefined ? { id: cj.id } : {}) }, forme(j.donnees));   // base rangée sous le numéro du compte
     try { await AsyncStorage.removeItem(K_ESSAI); } catch { /* stockage indisponible */ }
   });
 }
@@ -553,7 +632,8 @@ async function tirerALaConnexion(): Promise<boolean> {
   if (!j.ok || !actuel || actuel.session !== c.session) return false;
   await recevoir(j);
   if (!actuel || actuel.session !== c.session) return false;
-  await garderCompte({ ...actuel, courriel: typeof j.courriel === 'string' && j.courriel ? j.courriel : actuel.courriel, sync: new Date().toISOString(),
+  const id = idValide(j.id);
+  await garderCompte({ ...actuel, ...(id !== undefined ? { id } : {}), courriel: typeof j.courriel === 'string' && j.courriel ? j.courriel : actuel.courriel, sync: new Date().toISOString(),
     ...(typeof j.mdp === 'boolean' ? { mdp: j.mdp } : {}),
     ...(j.newsletter !== undefined ? { newsletter: typeof j.newsletter === 'string' ? j.newsletter : null } : {}),
     ...(typeof j.admin === 'boolean' ? { admin: j.admin } : {}),
@@ -573,10 +653,11 @@ async function ouvrir(j: Reponse) {
   const admin = !!j.admin, abonne = !!j.abonne, sans_pub_jusqu = typeof j.sans_pub_jusqu === 'string' ? j.sans_pub_jusqu : '';
   arreterEnvois();
   const depuis = new Date().toISOString().slice(0, 10);
-  await garderCompte({ courriel, session, sync: null, depuis, mdp, newsletter, admin, ...(abonne ? { abonne: true, sans_pub_jusqu } : {}) });
+  const id = idValide(j.id);                          // numéro du compte (lot 7) : absent d'un serveur plus ancien
+  await garderCompte({ ...(id !== undefined ? { id } : {}), courriel, session, sync: null, depuis, mdp, newsletter, admin, ...(abonne ? { abonne: true, sans_pub_jusqu } : {}) });
   // prénom donné par Google (prenom_google) ou par Apple à la première autorisation (prenom_fournisseur, 12/10/2026)
   await recevoir(j, typeof j.prenom_google === 'string' ? j.prenom_google : typeof j.prenom_fournisseur === 'string' ? j.prenom_fournisseur : '');
-  await garderCompte({ courriel, session, sync: new Date().toISOString(), depuis, mdp, newsletter, admin, ...(abonne ? { abonne: true, sans_pub_jusqu } : {}) });
+  await garderCompte({ ...(id !== undefined ? { id } : {}), courriel, session, sync: new Date().toISOString(), depuis, mdp, newsletter, admin, ...(abonne ? { abonne: true, sans_pub_jusqu } : {}) });
   signaler('donnees');
   noter().then((d) => { if (d) pousserMaintenant(); }).catch(() => undefined);
 }
@@ -696,18 +777,43 @@ export async function supprimer(): Promise<{ ok: boolean; erreur?: string; apple
   return { ok: false, erreur: typeof j.erreur === 'string' ? j.erreur : 'reseau' };
 }
 
+/** L'adresse de connexion du compte vient d'être changée (bloc « Adresse de connexion » du site, dans une page ouverte dans l'appli ; j = { id,
+ *  courriel } comme la réponse de /api/compte/courriel/confirmer) : la session, la base convenue et le propriétaire des données suivent
+ *  la nouvelle adresse, SANS rien effacer ni renvoyer (même compte, mêmes données). Même nom et même règle que compte.js adresseChangee ;
+ *  seul ajout : un numéro différent de celui de la session est un autre compte, jamais repris (faux). */
+export async function adresseChangee(j: { id?: unknown; courriel?: unknown }): Promise<boolean> {
+  await assurer();
+  const c = actuel;
+  if (!c || !j || typeof j.courriel !== 'string' || !j.courriel) return false;
+  const id = idValide(j.id);
+  if (id !== undefined && c.id !== undefined && String(id) !== String(c.id)) return false;
+  const nouveau: Compte = { ...c, courriel: j.courriel, ...(id !== undefined ? { id } : {}) };
+  await enFile(async () => {
+    const b = baseDe(lireJson(await AsyncStorage.getItem(K_BASE).catch(() => null)), c);   // lue AVANT de changer l'adresse : elle peut encore être rangée sous l'ancienne
+    await garderCompte(nouveau);
+    if (b) await garderBase(nouveau, b);                                                     // même base, même empreinte
+    const np = noterProprio(nouveau);
+    if (np) await garderProprio(np);
+  });
+  return true;
+}
+
 /** La page du site ouverte dans l'appli a changé « ap.compte » (connexion, déconnexion) : l'appli reprend la session.
  *  La date de synchro de la page n'est pas reprise : elle dit que la vue web a reçu le compte, pas l'appareil (scores, votes…).
- *  Même session : seule l'adresse posée par la page est reprise. */
+ *  Même session : seules l'adresse posée par la page (changée dans « Adresse de connexion ») et le numéro du compte, qu'elle a appris
+ *  avant l'appli, sont repris (adresseChangee). */
 export async function adopterCompte(brut: string | null): Promise<void> {
   await assurer();
   const c = nettoyerCompte(lireJson(brut));
   if (!c) { if (actuel) await oublierCompteLocal(); return; }
   if (!actuel || actuel.session !== c.session) {   // connexion faite dans la page : c'est une connexion, l'appli reçoit les données du compte
     arreterEnvois();
-    await garderCompte({ courriel: c.courriel, session: c.session, sync: null, depuis: c.depuis });
+    await garderCompte({ ...(c.id !== undefined ? { id: c.id } : {}), courriel: c.courriel, session: c.session, sync: null, depuis: c.depuis });
     tirerALaConnexion().catch(() => undefined);
     return;
   }
-  if (c.courriel && c.courriel !== actuel.courriel) await garderCompte({ ...actuel, courriel: c.courriel });
+  if (c.id !== undefined && actuel.id !== undefined && String(c.id) !== String(actuel.id)) return;   // page d'un autre compte : rien n'est repris
+  const courriel = c.courriel || actuel.courriel;
+  const id = actuel.id === undefined ? c.id : undefined;   // le numéro de la session, reçu du serveur, n'est jamais remplacé par celui de la page
+  if (courriel !== actuel.courriel || id !== undefined) await adresseChangee({ id, courriel });
 }
