@@ -56,7 +56,12 @@ export function urlPropre(u: string): string {
  *  ap_naissance), puis le propriétaire de l'appli est posé : rien de l'ancien propriétaire ne revient dans l'appli ni ne part au compte.
  *  Lot 7 (changement d'adresse, 11/11/2026) : le MÊME compte noté sous l'une ou l'autre forme (« c:<id> » d'un côté, empreinte de son adresse
  *  de l'autre) n'efface rien (compte.ts memeProprioNotes : même règle) ; deux numéros différents sont deux comptes. Le numéro du compte
- *  (id) accompagne la session posée dans la page, que compte.js reconnaît ainsi sans l'adresse. */
+ *  (id) accompagne la session posée dans la page, que compte.js reconnaît ainsi sans l'adresse ; une session déjà présente dans la page
+ *  sans numéro le reçoit de l'appli (compte.js réécrit alors le propriétaire sous la forme « c:<id> », sans rien effacer).
+ *  Signal « ap.app.proprio » = c (sessionStorage, 11/11/2026) : cette appli comprend la forme du compte. Il est posé ICI, juste après
+ *  « ap.app » et avant tout calcul du propriétaire, donc avant que la page exécute compte.js, qui sinon garde l'ancienne forme
+ *  (empreinte de l'adresse) pour une appli publiée avant le lot 7 dont le script d'injection effacerait les données de la page à
+ *  chaque chargement. Ne jamais le retirer, ne pas toucher à « ap.app ». */
 export function injectionAvant(profil: Profil | null, favoris?: Favori[] | null, compte?: Compte | null, proprio?: string, adresse?: string): string {
   const p = JSON.stringify(profil || {});
   const f = JSON.stringify(favoris || []);
@@ -65,7 +70,7 @@ export function injectionAvant(profil: Profil | null, favoris?: Favori[] | null,
   // admin : comme ap.compte.admin du site (messages.js : pas de formulaire « Nous écrire » pour l'admin dès le premier affichage)
   const c = JSON.stringify(compte ? { ...(compte.id !== undefined ? { id: compte.id } : {}), courriel: compte.courriel, session: compte.session, sync: null,
     ...(compte.depuis ? { depuis: compte.depuis } : {}), ...(compte.admin ? { admin: true } : {}) } : null);
-  return `(function(){try{document.documentElement.classList.add('app');sessionStorage.setItem('ap.app','1');
+  return `(function(){try{document.documentElement.classList.add('app');sessionStorage.setItem('ap.app','1');sessionStorage.setItem('ap.app.proprio','c');
 var P=${pr},A=${ad},wo={};try{wo=JSON.parse(localStorage.getItem('ap.compte.proprio')||'null')||{};}catch(e){}
 var wp=typeof wo.id==='string'?wo.id:'',wa=typeof wo.a==='string'?wo.a:'',cp=P.indexOf('c:')===0,cw=wp.indexOf('c:')===0,fp=cp?A:P,fw=cw?wa:wp;
 var meme=P===wp||(P!==''&&wp!==''&&!(cp&&cw)&&fp!==''&&fp===fw);
@@ -80,7 +85,7 @@ var vus={},u=[];f.concat(g).forEach(function(x){if(x&&x.url&&!vus[x.url]){vus[x.
 u.sort(function(x,y){return String(y.date||'').localeCompare(String(x.date||''));});u=u.slice(0,500);
 if(JSON.stringify(u)!==JSON.stringify(g)){localStorage.setItem('ap.favoris',JSON.stringify(u));}}
 var c=${c};var ac=localStorage.getItem('ap.compte');var ao=null;try{ao=JSON.parse(ac||'null');}catch(e){}
-if(c){if(!ao||ao.session!==c.session){localStorage.setItem('ap.compte',JSON.stringify(c));}}else if(ac){localStorage.removeItem('ap.compte');}
+if(c){if(!ao||ao.session!==c.session){localStorage.setItem('ap.compte',JSON.stringify(c));}else if(c.id!==undefined&&ao.id===undefined){ao.id=c.id;localStorage.setItem('ap.compte',JSON.stringify(ao));}}else if(ac){localStorage.removeItem('ap.compte');}
 }catch(e){}})();true;`;
 }
 

@@ -660,3 +660,60 @@ test('vue web : le message renvoyé à l’appli porte le propriétaire de la pa
   assert.equal(p.messages.length, 2);
   assert.deepEqual([p.messages[1].compteChange, p.messages[1].proprio, p.messages[1].proprioA, JSON.parse(p.messages[1].compte).id], [true, 'c:42', FP_NOUVELLE, 42]);
 });
+
+// ---------------------------------------------------------------------------------------------------------------- signal « cette appli comprend la forme du compte »
+// compte.js du site garde l'ancienne forme (propriétaire = empreinte de l'adresse) dans la vue web d'une appli qui pose « ap.app » = 1 SANS « ap.app.proprio » = c
+// (appli publiée avant le lot 7 : son script d'injection effacerait les données de la page à chaque chargement). Une appli à jour doit donc poser le signal AVANT
+// que la page n'exécute compte.js, c'est-à-dire dans le script injecté avant le chargement, sans toucher à « ap.app ».
+test('vue web : le signal « ap.app.proprio = c » est posé juste après « ap.app », avant tout calcul du propriétaire, et « ap.app » reste à 1', () => {
+  const script = site.injectionAvant({ prenom: 'Appli' }, [FAV_A], { id: 42, courriel: NOUVELLE, session: 'S1', sync: null }, 'c:42', FP_NOUVELLE);
+  const app = script.indexOf("sessionStorage.setItem('ap.app','1');"), marqueur = script.indexOf("sessionStorage.setItem('ap.app.proprio','c');");
+  assert.ok(app >= 0, 'ap.app = 1 est toujours posé');
+  assert.equal(marqueur, app + "sessionStorage.setItem('ap.app','1');".length, 'le signal suit immédiatement ap.app');
+  assert.equal(script.split('ap.app.proprio').length - 1, 1, 'posé une seule fois, jamais retiré');
+  // texte : avant toute lecture du stockage de la page (propriétaire, profil, favoris, session)
+  for (const acces of ["localStorage.getItem('ap.compte.proprio')", "localStorage.getItem('ap.profil')", "localStorage.getItem('ap.favoris')", "localStorage.getItem('ap.compte')", 'localStorage.removeItem', 'localStorage.setItem']) {
+    assert.ok(script.indexOf(acces) > marqueur, 'le signal précède : ' + acces);
+  }
+  // exécution : au premier accès au localStorage de la page, sessionStorage porte déjà les deux marques
+  const p = pageWeb({ ...DONNEES_PAGE, 'ap.compte.proprio': { id: FP_NOUVELLE } });
+  const accesLocal = [];
+  for (const m of ['getItem', 'setItem', 'removeItem', 'key']) {
+    const reel = p.contexte.localStorage[m].bind(p.contexte.localStorage);
+    p.contexte.localStorage[m] = (...a) => { accesLocal.push({ m, cle: a[0], app: p.contexte.sessionStorage.getItem('ap.app'), proprio: p.contexte.sessionStorage.getItem('ap.app.proprio') }); return reel(...a); };
+  }
+  p.executer(script);
+  assert.ok(accesLocal.length > 0);
+  assert.deepEqual(accesLocal.filter((a) => a.app !== '1' || a.proprio !== 'c'), [], 'aucun accès au stockage de la page avant que les deux marques soient posées');
+  assert.equal(p.contexte.sessionStorage.getItem('ap.app'), '1');
+  assert.equal(p.contexte.sessionStorage.getItem('ap.app.proprio'), 'c');
+  // sans compte ni propriétaire (invité jamais connecté) : le signal est posé aussi
+  const invite = pageWeb();
+  invite.executer(site.injectionAvant(null, [], null, '', ''));
+  assert.equal(invite.contexte.sessionStorage.getItem('ap.app.proprio'), 'c');
+});
+
+test('vue web : une session déjà posée dans la page sans numéro le reçoit de l’appli (même session) ; jamais un numéro déjà connu, ni une autre session', () => {
+  const page = (compte) => pageWeb({ 'ap.compte': compte, 'ap.compte.proprio': { id: FP_NOUVELLE } });
+  const injecter = (p, compte) => p.executer(site.injectionAvant(null, [], compte, compte && compte.id ? 'c:' + compte.id : FP_NOUVELLE, FP_NOUVELLE));
+  // la page n'a pas le numéro : elle le reçoit, le reste de sa fiche (date de synchro…) est gardé
+  const a = page({ courriel: NOUVELLE, session: 'S1', sync: '2026-11-11T00:00:00.000Z', mdp: true });
+  injecter(a, { id: 42, courriel: NOUVELLE, session: 'S1', sync: null });
+  assert.deepEqual(a.lire('ap.compte'), { courriel: NOUVELLE, session: 'S1', sync: '2026-11-11T00:00:00.000Z', mdp: true, id: 42 });
+  // la page a déjà un numéro (même autre) : jamais écrasé
+  const b = page({ id: 43, courriel: NOUVELLE, session: 'S1', sync: '2026-11-11T00:00:00.000Z' });
+  injecter(b, { id: 42, courriel: NOUVELLE, session: 'S1', sync: null });
+  assert.equal(b.lire('ap.compte').id, 43);
+  // l'appli n'a pas le numéro : la page garde le sien
+  const c = page({ id: 42, courriel: NOUVELLE, session: 'S1', sync: '2026-11-11T00:00:00.000Z' });
+  injecter(c, { courriel: NOUVELLE, session: 'S1', sync: null });
+  assert.equal(c.lire('ap.compte').id, 42);
+  // autre session : la session de l'appli remplace celle de la page, comme avant
+  const d = page({ id: 43, courriel: AUTRE, session: 'S-autre', sync: '2026-11-11T00:00:00.000Z' });
+  injecter(d, { id: 42, courriel: NOUVELLE, session: 'S1', sync: null });
+  assert.deepEqual(d.lire('ap.compte'), { id: 42, courriel: NOUVELLE, session: 'S1', sync: null });
+  // fiche illisible dans la page : remplacée par celle de l'appli
+  const e = pageWeb({ 'ap.compte': 'pas du json' });
+  injecter(e, { id: 42, courriel: NOUVELLE, session: 'S1', sync: null });
+  assert.deepEqual(e.lire('ap.compte'), { id: 42, courriel: NOUVELLE, session: 'S1', sync: null });
+});
