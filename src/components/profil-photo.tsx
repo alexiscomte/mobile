@@ -135,7 +135,7 @@ export function ProfilPhoto({ langue, appliquer }: { langue: string; appliquer: 
   };
   const connecter = async (f: string) => {
     dire('');
-    const issue = await connexionOidc(langue, f === 'google' ? undefined : f);   // session éphémère : on repasse toujours par le réseau
+    const issue = await connexionOidc(langue, f === 'google' ? undefined : f);   // ecran = réseau : prompt=login (connexion.ts), on repasse toujours par le réseau
     if (issue === 'ok') { relire(); relirePhoto(); } else if (issue === 'echec') dire(T.ko);
   };
 

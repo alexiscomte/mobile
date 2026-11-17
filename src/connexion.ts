@@ -1,5 +1,8 @@
-// Connexion par le service commun (connexion_oidc.js) depuis n'importe quel écran (espace membre, 07/10/2026) : écran web en session
-// privée (code + PKCE, rien n'est gardé dans Safari), échange du code, session de l'appli (compte.ts connecterOidc).
+// Connexion par le service commun (connexion_oidc.js) depuis n'importe quel écran (espace membre, 07/10/2026) : écran web de
+// connect.capit.net (code + PKCE), échange du code, session de l'appli (compte.ts connecterOidc).
+// Session web PARTAGÉE avec Safari / Chrome (17/11/2026, une seule session pour tous les sites et applis) : ASWebAuthenticationSession
+// non éphémère sur iOS, Custom Tabs sur Android ; un membre connecté sur le web est reconnu sans ressaisie. prompt=login quand l'écran
+// demandé l'exige (créer un compte, lancement direct d'un réseau social, import de profil) ou après une déconnexion dans l'appli.
 // « Continuer en invité » : le service renvoie error=access_denied&error_description=invite ; ce choix vaut pour ce lancement de
 // l'appli (comme une visite sur le site), et l'onglet Moi ne repropose pas la connexion d'office.
 //
@@ -10,7 +13,7 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import * as AuthSession from 'expo-auth-session';
 import { Platform } from 'react-native';
 
-import { OIDC, connecterOidc } from './compte';
+import { OIDC, connecterOidc, reconnexionDemandee } from './compte';
 
 export type Issue = 'ok' | 'invite' | 'annule' | 'echec';
 /** Pas de service commun dans l'aperçu web (adresse de retour com.affectionplus.app). */
@@ -52,11 +55,13 @@ export async function connexionOidc(langue: string, ecran?: string): Promise<Iss
     const extra: Record<string, string> = { ui_locales: langue };
     if (ecran) extra.ecran = ecran;
     if (Platform.OS === 'ios') extra.fournisseurs = 'sans-google';   // règle 4.8 : Google seulement en natif, à côté d'Apple
+    // session web partagée : sans prompt=login, une session ouverte sur connect.capit.net rendrait le code d'office, sans l'écran demandé
+    const forcer = !!ecran || (await reconnexionDemandee());
     const req = new AuthSession.AuthRequest({
       clientId: OIDC.client, redirectUri: OIDC.retour, scopes: ['openid', 'email', 'profile'], usePKCE: true,
-      responseType: AuthSession.ResponseType.Code, extraParams: extra,
+      responseType: AuthSession.ResponseType.Code, extraParams: extra, ...(forcer ? { prompt: AuthSession.Prompt.Login } : {}),
     });
-    const r = await req.promptAsync(OIDC.decouverte, { preferEphemeralSession: true });
+    const r = await req.promptAsync(OIDC.decouverte, { preferEphemeralSession: false });
     if (r.type === 'success' && r.params.code) {
       const tok = await AuthSession.exchangeCodeAsync({ clientId: OIDC.client, code: r.params.code, redirectUri: OIDC.retour,
         extraParams: { code_verifier: req.codeVerifier || '' } }, OIDC.decouverte);

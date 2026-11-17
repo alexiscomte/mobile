@@ -659,14 +659,17 @@ async function ouvrir(j: Reponse) {
   await recevoir(j, typeof j.prenom_google === 'string' ? j.prenom_google : typeof j.prenom_fournisseur === 'string' ? j.prenom_fournisseur : '');
   await garderCompte({ ...(id !== undefined ? { id } : {}), courriel, session, sync: new Date().toISOString(), depuis, mdp, newsletter, admin, ...(abonne ? { abonne: true, sans_pub_jusqu } : {}) });
   signaler('donnees');
+  AsyncStorage.removeItem(K_RECONNEXION).catch(() => undefined);   // connecté : plus de prompt=login forcé (deconnecter)
   noter().then((d) => { if (d) pousserMaintenant(); }).catch(() => undefined);
 }
 
-/** Client de l'appli auprès du service de connexion commun (connexion_oidc.js) : public, code + PKCE, retour par le schéma de l'appli. */
+/** Client de l'appli auprès du service de connexion commun (connexion_oidc.js) : public, code + PKCE, retour par le schéma de l'appli.
+ *  Écran de connexion = connect.capit.net (décision d'Alexis du 17/11/2026 : une seule boîte, une seule session pour tous les sites et
+ *  applis) ; l'émetteur signé reste https://affectionplus.com/connexion, d'où l'échange du code sur l'émetteur (appel direct, sans cookie). */
 export const OIDC = {
   client: 'affectionplus-appli',
   retour: 'com.affectionplus.app:/connexion',
-  decouverte: { authorizationEndpoint: SITE + 'connexion/auth', tokenEndpoint: SITE + 'connexion/token' },
+  decouverte: { authorizationEndpoint: 'https://connect.capit.net/connexion/auth', tokenEndpoint: SITE + 'connexion/token' },
 };
 
 /** Ouvre la session de l'appli avec le jeton d'identité du service commun. Erreurs : jeton (401), trop, reseau. */
@@ -755,6 +758,15 @@ export async function deconnecter(): Promise<void> {
   if (!actuel) return;
   api('deconnexion', {}).catch(() => undefined);   // l'en-tête est lu avant l'effacement ci-dessous
   await oublierCompteLocal();
+  // session web partagée (connect.capit.net) : la prochaine connexion redemande l'identifiant (prompt=login), sinon la session du navigateur
+  // reconnecterait d'office le même compte ; effacé à la connexion suivante (ouvrir)
+  try { await AsyncStorage.setItem(K_RECONNEXION, '1'); } catch { /* stockage indisponible */ }
+}
+
+const K_RECONNEXION = 'ap.oidc.reconnexion';
+/** Déconnexion explicite depuis la dernière connexion : la connexion suivante doit redemander l'identifiant (connexion.ts). */
+export async function reconnexionDemandee(): Promise<boolean> {
+  try { return (await AsyncStorage.getItem(K_RECONNEXION)) === '1'; } catch { return false; }
 }
 
 /** Suppression du compte sur le serveur (POST /api/compte/supprimer, après la confirmation de « Mon compte ») : tout ce que le compte
