@@ -41,7 +41,8 @@ function JeanneScreen(){
      if(data.type==='jeanne:ready'){ready.current=true;paused.current=false;void revalidate();}
      if(data.type==='jeanne:paused')paused.current=true;
      if(data.type==='jeanne:microphone'){
-      const allowed=Platform.OS!=='android'||await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO)===PermissionsAndroid.RESULTS.GRANTED;
+      let allowed=Platform.OS!=='android';
+      if(!allowed){try{allowed=await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO)===PermissionsAndroid.RESULTS.GRANTED;}catch{allowed=false;}}
       ref.current?.injectJavaScript('window.JeanneNative?.microphone('+JSON.stringify(allowed)+');true;');
      }
     }} onError={()=>setError(text.unavailable)} />}

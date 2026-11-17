@@ -162,7 +162,7 @@ export default function Moi() {
 
         <Titre>{T.aPropos}</Titre>
         <Text style={styles.aide}>{T.aProposTxt}</Text>
-        <Ligne titre={T.siteWeb} sf="safari" onPress={() => Linking.openURL(SITE + page('accueil', langue).u)} />
+        <Ligne titre={T.siteWeb} sf="safari" onPress={() => { Linking.openURL(SITE + page('accueil', langue).u).catch(() => undefined); }} />
         {/* pages décrites en JSON (#162) : lues hors ligne et mises à jour avec le contenu ; la version en ligne sans page JSON */}
         <Ligne titre={T.confidentialite} sf="lock.fill" onPress={() => ouvrirFiche('confidentialite')} />
         <Ligne titre={page('apropos', langue).t} sf="info.circle.fill" onPress={() => ouvrirFiche('apropos')} />

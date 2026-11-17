@@ -46,8 +46,8 @@ export default function Maternite() {
       chercher(p.coords.latitude, p.coords.longitude, null);
     } catch { setMsg(T.geoloc_non); }
   };
-  const itineraire = (lat: number, lon: number) => Linking.openURL('https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lon);
-  const carte = (lat: number, lon: number) => Linking.openURL('https://www.openstreetmap.org/?mlat=' + lat + '&mlon=' + lon + '#map=13/' + lat + '/' + lon);
+  const itineraire = (lat: number, lon: number) => { Linking.openURL('https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lon).catch(() => undefined); };
+  const carte = (lat: number, lon: number) => { Linking.openURL('https://www.openstreetmap.org/?mlat=' + lat + '&mlon=' + lon + '#map=13/' + lat + '/' + lon).catch(() => undefined); };
   const nb = (n: number) => n.toLocaleString(langue);
 
   return (
@@ -79,7 +79,7 @@ export default function Maternite() {
                   <View style={styles.liens}>
                     <Pressable accessibilityRole="button" onPress={() => itineraire(e.lat, e.lon)}><Text style={F.lien}>{T.itin}</Text></Pressable>
                     <Pressable accessibilityRole="button" onPress={() => carte(e.lat, e.lon)}><Text style={F.lien}>{T.carte}</Text></Pressable>
-                    {e.site ? <Pressable accessibilityRole="button" onPress={() => Linking.openURL(e.site as string)}><Text style={F.lien}>site</Text></Pressable> : null}
+                    {e.site && /^https?:\/\//i.test(e.site) ? <Pressable accessibilityRole="button" onPress={() => { Linking.openURL(e.site as string).catch(() => undefined); }}><Text style={F.lien}>site</Text></Pressable> : null}
                   </View>
                 </View>
               </View>

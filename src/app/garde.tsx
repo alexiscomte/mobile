@@ -97,7 +97,8 @@ export default function Garde() {
     if (!res) return;
     const texte = ics(res.attrib, res.noms, res.debut, res.jours, T.chez);
     try {
-      if (Platform.OS === 'web') { await Share.share({ message: texte }); return; }
+      // Android : Share ne partage que du texte (url ignorée, le partage partait vide) ; on envoie donc le calendrier lui-même
+      if (Platform.OS !== 'ios') { await Share.share({ message: texte, title: 'garde.ics' }); return; }
       const f = new File(Paths.cache, 'garde.ics');
       f.write(texte);
       await Share.share({ url: f.uri, title: 'garde.ics' });

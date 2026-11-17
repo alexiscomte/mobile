@@ -94,7 +94,9 @@ export const VueSite = React.forwardRef<VueSiteRef, Props>(function VueSite({ ur
           sharedCookiesEnabled
           domStorageEnabled
           setSupportMultipleWindows={false}
-          decelerationRate="normal"
+          // iOS seulement : sur Android, react-native-webview transmet le texte « normal » tel quel au code natif, qui attend un
+          // nombre (ClassCastException à l'ouverture de toute page : refus Google Play du 17/11/2026, fonctionnalités défectueuses)
+          {...(Platform.OS === 'ios' ? { decelerationRate: 'normal' as const } : {})}
         />
       )}
       {chargement && !erreur ? (

@@ -109,7 +109,9 @@ export function ProfilPhoto({ langue, appliquer }: { langue: string; appliquer: 
 
   const choisir = async () => {
     dire('');
-    const res = await launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 1 });
+    let res: Awaited<ReturnType<typeof launchImageLibraryAsync>>;
+    try { res = await launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 1 }); }
+    catch { dire(T.ko); return; }   // galerie indisponible : message au lieu d'un rejet non géré
     if (res.canceled || !res.assets || !res.assets[0]) return;
     const a = res.assets[0];
     setOccupe(true);

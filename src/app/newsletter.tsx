@@ -88,7 +88,7 @@ export default function Newsletter() {
             <Text style={styles.h2} accessibilityRole="header">{T.h_donnees}</Text>
             <Text style={styles.donneesTxt}>{T.donnees}</Text>
             {T.confidentialite_url ? (
-              <Text style={styles.lien} accessibilityRole="link" onPress={() => Linking.openURL(SITE + langue + '/' + T.confidentialite_url)}>
+              <Text style={styles.lien} accessibilityRole="link" onPress={() => { Linking.openURL(SITE + langue + '/' + T.confidentialite_url).catch(() => undefined); }}>
                 {T.confidentialite_lbl}
               </Text>
             ) : null}
