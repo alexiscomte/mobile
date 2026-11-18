@@ -2762,10 +2762,12 @@ export const REGISTRE: Record<string, number> = {
   "i/vignettes/picto-f6bf5b0c36d6.svg": require("../assets/embarque/i/vignettes/picto-f6bf5b0c36d6.svg.dat"),
   "i/vignettes/picto-f8b7115bab63.svg": require("../assets/embarque/i/vignettes/picto-f8b7115bab63.svg.dat"),
   "i/vignettes/picto-f9882d112a23.svg": require("../assets/embarque/i/vignettes/picto-f9882d112a23.svg.dat"),
+  "i/vignettes/picto-fadd9f7b58fe.svg": require("../assets/embarque/i/vignettes/picto-fadd9f7b58fe.svg.dat"),
   "i/vignettes/picto-fb15c926e6ed.svg": require("../assets/embarque/i/vignettes/picto-fb15c926e6ed.svg.dat"),
   "i/vignettes/picto-fe5d98ef34a0.svg": require("../assets/embarque/i/vignettes/picto-fe5d98ef34a0.svg.dat"),
   "i/vignettes/picto-fe75ea213015.svg": require("../assets/embarque/i/vignettes/picto-fe75ea213015.svg.dat"),
   "i/vignettes/picto-fe91b670a893.svg": require("../assets/embarque/i/vignettes/picto-fe91b670a893.svg.dat"),
+  "i/vignettes/reseau-bluesky.svg": require("../assets/embarque/i/vignettes/reseau-bluesky.svg.dat"),
   "i/vignettes/reseau-threads.svg": require("../assets/embarque/i/vignettes/reseau-threads.svg.dat"),
   "i/vignettes/reseau-youtube.svg": require("../assets/embarque/i/vignettes/reseau-youtube.svg.dat"),
   "k/catalogue.json": require("../assets/embarque/k/catalogue.dat"),
@@ -3057,4 +3059,4 @@ export const REGISTRE: Record<string, number> = {
   "v/zm.js": require("../assets/embarque/v/zm.dat"),
   "v/zw.js": require("../assets/embarque/v/zw.dat"),
 };
-export const VERSION_EMBARQUEE = "2026-11-09T00:42:55Z";
+export const VERSION_EMBARQUEE = "2026-11-18T08:27:53Z";
