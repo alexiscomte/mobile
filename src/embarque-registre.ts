@@ -2478,6 +2478,7 @@ export const REGISTRE: Record<string, number> = {
   "i/vignettes/picto-0acdb92532e3.svg": require("../assets/embarque/i/vignettes/picto-0acdb92532e3.svg.dat"),
   "i/vignettes/picto-0b243667324d.svg": require("../assets/embarque/i/vignettes/picto-0b243667324d.svg.dat"),
   "i/vignettes/picto-0b7e2e98b2dd.svg": require("../assets/embarque/i/vignettes/picto-0b7e2e98b2dd.svg.dat"),
+  "i/vignettes/picto-0dacbd24b4e2.svg": require("../assets/embarque/i/vignettes/picto-0dacbd24b4e2.svg.dat"),
   "i/vignettes/picto-0f40890a19bc.svg": require("../assets/embarque/i/vignettes/picto-0f40890a19bc.svg.dat"),
   "i/vignettes/picto-0fbb7b25da7f.svg": require("../assets/embarque/i/vignettes/picto-0fbb7b25da7f.svg.dat"),
   "i/vignettes/picto-10eebf970769.svg": require("../assets/embarque/i/vignettes/picto-10eebf970769.svg.dat"),
@@ -3059,4 +3060,4 @@ export const REGISTRE: Record<string, number> = {
   "v/zm.js": require("../assets/embarque/v/zm.dat"),
   "v/zw.js": require("../assets/embarque/v/zw.dat"),
 };
-export const VERSION_EMBARQUEE = "2026-11-18T08:36:22Z";
+export const VERSION_EMBARQUEE = "2026-11-18T08:50:55Z";
