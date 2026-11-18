@@ -3060,4 +3060,4 @@ export const REGISTRE: Record<string, number> = {
   "v/zm.js": require("../assets/embarque/v/zm.dat"),
   "v/zw.js": require("../assets/embarque/v/zw.dat"),
 };
-export const VERSION_EMBARQUEE = "2026-11-18T11:14:46Z";
+export const VERSION_EMBARQUEE = "2026-11-18T11:20:58Z";
