@@ -2693,6 +2693,7 @@ export const REGISTRE: Record<string, number> = {
   "i/vignettes/picto-c2aa1927d04d.svg": require("../assets/embarque/i/vignettes/picto-c2aa1927d04d.svg.dat"),
   "i/vignettes/picto-c305d03e9076.svg": require("../assets/embarque/i/vignettes/picto-c305d03e9076.svg.dat"),
   "i/vignettes/picto-c3b6cff0c71d.svg": require("../assets/embarque/i/vignettes/picto-c3b6cff0c71d.svg.dat"),
+  "i/vignettes/picto-c3e3cbdee860.svg": require("../assets/embarque/i/vignettes/picto-c3e3cbdee860.svg.dat"),
   "i/vignettes/picto-c3e9e62d3ecc.svg": require("../assets/embarque/i/vignettes/picto-c3e9e62d3ecc.svg.dat"),
   "i/vignettes/picto-c50bfaabf902.svg": require("../assets/embarque/i/vignettes/picto-c50bfaabf902.svg.dat"),
   "i/vignettes/picto-c67c9adbf487.svg": require("../assets/embarque/i/vignettes/picto-c67c9adbf487.svg.dat"),
@@ -2769,6 +2770,7 @@ export const REGISTRE: Record<string, number> = {
   "i/vignettes/picto-fe75ea213015.svg": require("../assets/embarque/i/vignettes/picto-fe75ea213015.svg.dat"),
   "i/vignettes/picto-fe91b670a893.svg": require("../assets/embarque/i/vignettes/picto-fe91b670a893.svg.dat"),
   "i/vignettes/reseau-bluesky.svg": require("../assets/embarque/i/vignettes/reseau-bluesky.svg.dat"),
+  "i/vignettes/reseau-facebook.svg": require("../assets/embarque/i/vignettes/reseau-facebook.svg.dat"),
   "i/vignettes/reseau-threads.svg": require("../assets/embarque/i/vignettes/reseau-threads.svg.dat"),
   "i/vignettes/reseau-youtube.svg": require("../assets/embarque/i/vignettes/reseau-youtube.svg.dat"),
   "k/catalogue.json": require("../assets/embarque/k/catalogue.dat"),
@@ -3060,4 +3062,4 @@ export const REGISTRE: Record<string, number> = {
   "v/zm.js": require("../assets/embarque/v/zm.dat"),
   "v/zw.js": require("../assets/embarque/v/zw.dat"),
 };
-export const VERSION_EMBARQUEE = "2026-11-18T11:20:58Z";
+export const VERSION_EMBARQUEE = "2026-11-18T19:05:03Z";
