@@ -2728,6 +2728,7 @@ export const REGISTRE: Record<string, number> = {
   "i/vignettes/picto-d3b9eb4b4102.svg": require("../assets/embarque/i/vignettes/picto-d3b9eb4b4102.svg.dat"),
   "i/vignettes/picto-d3d311f0c5a9.svg": require("../assets/embarque/i/vignettes/picto-d3d311f0c5a9.svg.dat"),
   "i/vignettes/picto-d4c98c2ef096.svg": require("../assets/embarque/i/vignettes/picto-d4c98c2ef096.svg.dat"),
+  "i/vignettes/picto-d70b6c2f72ae.svg": require("../assets/embarque/i/vignettes/picto-d70b6c2f72ae.svg.dat"),
   "i/vignettes/picto-d8732ed42f7b.svg": require("../assets/embarque/i/vignettes/picto-d8732ed42f7b.svg.dat"),
   "i/vignettes/picto-d87947791bd6.svg": require("../assets/embarque/i/vignettes/picto-d87947791bd6.svg.dat"),
   "i/vignettes/picto-db458c22c88b.svg": require("../assets/embarque/i/vignettes/picto-db458c22c88b.svg.dat"),
@@ -3064,4 +3065,4 @@ export const REGISTRE: Record<string, number> = {
   "v/zm.js": require("../assets/embarque/v/zm.dat"),
   "v/zw.js": require("../assets/embarque/v/zw.dat"),
 };
-export const VERSION_EMBARQUEE = "2026-11-20T14:20:25Z";
+export const VERSION_EMBARQUEE = "2026-11-20T14:34:26Z";
