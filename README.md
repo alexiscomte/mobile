@@ -135,7 +135,8 @@ Depuis le 17/10/2026, `ios/` est versionné : le projet Xcode `ios/AffectionPlus
    et le profil « AffectionPlus AppStore Mac » (créés par l'API App Store Connect ; clé `~/Developer/claude/Gandi/asc-api.p8`).
 2. Contenu hors ligne : `python outils/gen/app_embarquer.py` (dépôt Claude) remplit `assets/embarque/`.
 3. `scripts/ios-publier.sh` : `pod install`, numéro de build AAAAMMJJHH, archive Release signée, envoi sur App Store Connect.
-4. Dans App Store Connect : rattacher le build à la version, puis « Ajouter pour examen ».
+4. Rattacher le build à la version, mettre à jour les « Nouveautés » et les notes d'examen, puis envoyer à l'examen :
+   `python3 ../claude/outils/asc_publier_version.py --verifier | --preparer BUILD | --soumettre BUILD` (ou à la main dans App Store Connect).
 
 Essais : ouvrir `ios/AffectionPlus.xcworkspace` dans Xcode et lancer sur un simulateur (⌘R), ou `npx expo run:ios`.
 
