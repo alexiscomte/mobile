@@ -48,7 +48,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>2026110400</string>
+	<string>2026112317</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSMinimumSystemVersion</key>
@@ -64,10 +64,12 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Votre position sert une seule fois à trouver la maternité la plus proche ; elle n'est pas conservée (hors de France, elle est transmise à OpenStreetMap pour la recherche).</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>AffectionPlus utilise la photo que vous choisissez comme photo de profil.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Le microphone permet d’enregistrer un message audio lorsque vous le demandez.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>AffectionPlus n'utilise pas les capteurs de mouvement de l'appareil.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>AffectionPlus utilise la photo que vous choisissez comme photo de profil.</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
@@ -119,7 +121,5 @@
 	<string>Automatic</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Le microphone permet d’enregistrer un message audio lorsque vous le demandez.</string>
 </dict>
 </plist>
