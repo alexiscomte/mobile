@@ -138,7 +138,12 @@ export function ProfilPhoto({ langue, appliquer }: { langue: string; appliquer: 
   };
   const connecter = async (f: string) => {
     dire('');
-    const issue = await connexionOidc(langue, f);   // ecran = réseau : kc_idp_hint + prompt=login (connexion.ts), on repasse toujours par le réseau
+    // ecran = réseau : kc_idp_hint + prompt=login (connexion.ts), on repasse toujours par le réseau ; memeCompte : un réseau relié à un autre
+    // compte ne remplace jamais la session ni les données de la personne connectée
+    if (occupe) return;
+    setOccupe(true);
+    const issue = await connexionOidc(langue, f, true);
+    setOccupe(false);
     if (issue === 'ok') { relire(); relirePhoto(); } else { const m = messageConnexion(issue, langue); if (m !== null) dire(m || T.ko); }
   };
 
@@ -171,7 +176,7 @@ export function ProfilPhoto({ langue, appliquer }: { langue: string; appliquer: 
       <Text style={styles.sousTitre} accessibilityRole="header">{T.importTitre}</Text>
       <Text style={styles.aide}>{T.importTexte}</Text>
       <View style={styles.boutons}>
-        {RESEAUX.map((f) => <Bouton key={f} titre={NOMS[f]} onPress={() => connecter(f)} />)}
+        {RESEAUX.map((f) => <Bouton key={f} titre={NOMS[f]} desactive={occupe} onPress={() => connecter(f)} />)}
       </View>
       {message ? <Text style={styles.message} accessibilityLiveRegion="polite">{message}</Text> : null}
     </View>

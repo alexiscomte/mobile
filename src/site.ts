@@ -45,7 +45,13 @@ export function urlPropre(u: string): string {
 /** Script injecté AVANT le chargement : mode application + profil de l'appareil vers le stockage du site (fusion) ;
  *  favoris de l'appareil ajoutés à ceux de la page (union par url, comme compte.js), pour que la page ne renvoie pas une liste
  *  plus courte que celle du compte ; compte (06/10/2026) : la session de l'appli est posée dans « ap.compte » (page connectée
- *  elle aussi), ou retirée si l'appli n'a pas de compte. La page garde sa propre date de synchro (sync = null pour une session
+ *  elle aussi), ou retirée si l'appli n'a pas de compte.
+ *  Le JETON de session n'est jamais écrit sur le disque de la vue web (23/11/2026, relecture) : il vit dans une variable de la page (J),
+ *  et la lecture, l'écriture et le retrait de « ap.compte » dans localStorage sont détournés pour cette seule clé (Storage.prototype) :
+ *  le site lit « ap.compte » avec sa session comme avant, mais le disque ne garde que l'adresse, les dates et les drapeaux. Une connexion
+ *  faite dans la page passe par le même détour (jeton en mémoire, repris par l'appli dans son coffre : adopterCompte). Une copie laissée
+ *  en clair par une version précédente est réécrite sans jeton au premier chargement. Après une déconnexion, plus rien à purger. Ce que la
+ *  page garde sur le disque est repris tant que c'est le même compte (même ancienne session, ou même numéro). La page garde sa propre date de synchro (sync = null pour une session
  *  nouvelle pour elle). Depuis le 07/10/2026 nuit (« le local gagne », cahier specs/synchro-local-0710.md), compte.js ne tire plus
  *  rien hors connexion : à son premier chargement avec cette session, l'état de la vue web devient sa base, et elle n'envoie
  *  ensuite QUE ce qui y change (envoi partiel) ; ses scores apq:*, vides dans la vue web, ne remplacent donc jamais ceux du compte.
@@ -84,8 +90,18 @@ var f=${f};if(f.length){var g=[];try{g=JSON.parse(localStorage.getItem('ap.favor
 var vus={},u=[];f.concat(g).forEach(function(x){if(x&&x.url&&!vus[x.url]){vus[x.url]=1;u.push(x);}});
 u.sort(function(x,y){return String(y.date||'').localeCompare(String(x.date||''));});u=u.slice(0,500);
 if(JSON.stringify(u)!==JSON.stringify(g)){localStorage.setItem('ap.favoris',JSON.stringify(u));}}
-var c=${c};var ac=localStorage.getItem('ap.compte');var ao=null;try{ao=JSON.parse(ac||'null');}catch(e){}
-if(c){if(!ao||ao.session!==c.session){localStorage.setItem('ap.compte',JSON.stringify(c));}else if(c.id!==undefined&&ao.id===undefined){ao.id=c.id;localStorage.setItem('ap.compte',JSON.stringify(ao));}}else if(ac){localStorage.removeItem('ap.compte');}
+var c=${c};var LS=window.localStorage,SP=Storage.prototype,g0=SP.getItem,s0=SP.setItem,r0=SP.removeItem,J=null;
+function ici(o){try{return o===LS;}catch(e){return false;}}
+function sans(v){var o=null;try{o=JSON.parse(v);}catch(e){}if(o&&typeof o==='object'&&!Array.isArray(o)){J=typeof o.session==='string'&&o.session?o.session:null;delete o.session;return JSON.stringify(o);}J=null;return v;}
+var ac=g0.call(LS,'ap.compte');var ao=null;try{ao=JSON.parse(ac||'null');}catch(e){}if(!ao||typeof ao!=='object'||Array.isArray(ao)){ao=null;}
+var vieux=ao&&typeof ao.session==='string'?ao.session:null;if(ao){delete ao.session;}
+if(c){var js=c.session;delete c.session;
+var meme=!!ao&&((vieux!==null&&vieux===js)||(c.id!==undefined&&ao.id!==undefined&&String(ao.id)===String(c.id)));
+if(!meme){ao=c;}else if(c.id!==undefined&&ao.id===undefined){ao.id=c.id;}
+var na=JSON.stringify(ao);if(na!==ac){s0.call(LS,'ap.compte',na);}J=js;}else if(ac){r0.call(LS,'ap.compte');}
+SP.getItem=function(k){var v=g0.apply(this,arguments);if(J&&v&&k==='ap.compte'&&ici(this)){try{var o=JSON.parse(v);if(o&&typeof o==='object'&&!Array.isArray(o)){o.session=J;return JSON.stringify(o);}}catch(e){}}return v;};
+SP.setItem=function(k,v){if(k==='ap.compte'&&ici(this)){return s0.call(this,k,sans(String(v)));}return s0.apply(this,arguments);};
+SP.removeItem=function(k){if(k==='ap.compte'&&ici(this)){J=null;}return r0.apply(this,arguments);};
 }catch(e){}})();true;`;
 }
 

@@ -68,6 +68,8 @@ function Pile() {
       <Stack.Screen name="mot-de-passe" options={{ title: '' }} />
       <Stack.Screen name="nouveautes" options={{ title: '' }} />
       <Stack.Screen name="fiche" options={{ title: '' }} />
+      {/* retour de la connexion (Android) : écran neutre, sans en-tête ni animation, qui rend aussitôt la main */}
+      <Stack.Screen name="connexion" options={{ headerShown: false, animation: 'none', presentation: 'transparentModal' }} />
     </Stack>
   );
 }

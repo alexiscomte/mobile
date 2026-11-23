@@ -72,13 +72,13 @@ function appareil(t, { stockage = {}, brut = {}, routes = {} } = {}) {
     if (!r) throw new Error('appel réseau imprévu : ' + demande.methode + ' ' + chemin);
     return { status: r.statut, json: async () => r.corps };
   };
-  const coffre = new Map();   // stockage sécurisé (Keychain / Keystore) de l'appareil : jeton de session
-  const modules = { '@react-native-async-storage/async-storage': asyncStorage, './site': { SITE: 'https://compte.example/' }, './session-sure': { lireSession: async () => coffre.get('s') ?? null, ecrireSession: async (v) => { coffre.set('s', v); return true; }, effacerSession: async () => { coffre.delete('s'); } } };
+  const sur = require('./aide-coffre.cjs').coffreSur();   // stockage sécurisé (Keychain / Keystore) de l'appareil : jeton de session, lié à son compte
+  const modules = { '@react-native-async-storage/async-storage': asyncStorage, './site': { SITE: 'https://compte.example/' }, './session-sure': sur.module };
   modules['./compat_tests'] = charger(SOURCE_CT, modules);
   const api = charger(SOURCE_COMPTE, modules, { fetch, setTimeout: minuterie, clearTimeout: couper });
   const lu = (k) => { const v = memoire.get(k); return v === undefined ? null : JSON.parse(v); };
   const posts = (session) => appels.filter((a) => a.methode === 'POST' && a.chemin === 'api/compte/donnees' && (!session || a.session === session));
-  return { api, memoire, appels, routes, lu, posts, coffre };
+  return { api, memoire, appels, routes, lu, posts, coffre: sur };
 }
 /** Laisse finir ce que la connexion ou l'envoi lance sans l'attendre (noter().then(pousserMaintenant) de ouvrir). */
 async function repos() { for (let i = 0; i < 60; i++) await new Promise((r) => setImmediate(r)); }
@@ -131,7 +131,7 @@ test('adresse changée dans une page du site (session gardée) : session, base e
   assert.equal(appels.length, 0, 'aucun appel : ni lecture ni envoi, même compte');
   assert.deepEqual([api.compteActuel().id, api.compteActuel().courriel, api.compteActuel().session], [42, NOUVELLE, 'S1']);
   // jeton de session dans le coffre (Keychain / Keystore), plus jamais en clair dans « ap.compte » (23/11/2026)
-  assert.deepEqual([lu('ap.compte').id, lu('ap.compte').courriel, lu('ap.compte').session, coffre.get('s')], [42, NOUVELLE, undefined, 'S1']);
+  assert.deepEqual([lu('ap.compte').id, lu('ap.compte').courriel, lu('ap.compte').session, coffre.jeton(), coffre.contenu().id], [42, NOUVELLE, undefined, 'S1', '42']);
   assert.deepEqual(lu('ap.profil'), { prenom: 'Camille', nom: 'Pas-Encore-Envoyé' }, 'profil local intact');
   assert.equal(lu('ap.favoris').length, 2, 'favoris locaux intacts');
   assert.deepEqual(lu('ap.compte.proprio'), { id: 'c:42', a: FP_NOUVELLE }, 'propriétaire = le compte, sans instantané');
@@ -560,8 +560,9 @@ function pageWeb(initial = {}) {
   const contexte = { Storage, localStorage, sessionStorage: new Storage(new Map()), document: { documentElement: { classList: { add() {} } }, title: 'Titre', hidden: false, addEventListener() {} },
     window: { localStorage, ReactNativeWebView: { postMessage: (s) => messages.push(JSON.parse(s)) } }, location: { href: 'https://compte.example/fr/page.html' } };
   vm.createContext(contexte);
-  const lire = (k) => (m.has(k) ? JSON.parse(m.get(k)) : null);
-  return { m, contexte, messages, lire, executer: (script) => vm.runInContext(script, contexte) };
+  const lire = (k) => (m.has(k) ? JSON.parse(m.get(k)) : null);   // ce qui est écrit sur le « disque » de la vue web
+  const vu = (k) => { const v = localStorage.getItem(k); return v === null ? null : JSON.parse(v); };   // ce que lit la page (localStorage.getItem)
+  return { m, contexte, messages, lire, vu, executer: (script) => vm.runInContext(script, contexte) };
 }
 const DONNEES_PAGE = { 'ap.profil': { prenom: 'Page', champ_page: 'garde' }, 'ap.favoris': [FAV_A], 'ap.compte.sale': { profil: { prenom: 1 } }, 'ap.compte.base': { courriel: ANCIENNE, donnees: BASE }, 'ap.qdj': { serie: 3 } };
 
@@ -618,16 +619,21 @@ test('vue web : valeurs illisibles ou étrangères notées par la page ne sont j
 test('vue web : la session posée dans la page porte le numéro du compte quand l’appli le connaît (compte.js la reconnaît sans l’adresse)', () => {
   const avecNumero = pageWeb();
   avecNumero.executer(site.injectionAvant(null, [], { id: 42, courriel: NOUVELLE, session: 'S1', sync: null, depuis: '2026-11-01', admin: true }, 'c:42', FP_NOUVELLE));
-  assert.deepEqual(avecNumero.lire('ap.compte'), { id: 42, courriel: NOUVELLE, session: 'S1', sync: null, depuis: '2026-11-01', admin: true });
+  // le disque de la vue web ne porte jamais le jeton ; la page, elle, lit « ap.compte » avec sa session (lecture détournée)
+  assert.deepEqual(avecNumero.lire('ap.compte'), { id: 42, courriel: NOUVELLE, sync: null, depuis: '2026-11-01', admin: true });
+  assert.deepEqual(avecNumero.vu('ap.compte'), { id: 42, courriel: NOUVELLE, session: 'S1', sync: null, depuis: '2026-11-01', admin: true });
   assert.deepEqual(avecNumero.lire('ap.compte.proprio'), { id: 'c:42', a: FP_NOUVELLE }, 'avec l’empreinte de l’adresse : compte.js reconnaît aussi une session sans numéro');
   const sansNumero = pageWeb();
   sansNumero.executer(site.injectionAvant(null, [], { courriel: ANCIENNE, session: 'S1', sync: null }, FP_ANCIENNE, FP_ANCIENNE));
-  assert.deepEqual(sansNumero.lire('ap.compte'), { courriel: ANCIENNE, session: 'S1', sync: null }, 'sans numéro connu : rien d’inventé');
+  assert.deepEqual(sansNumero.vu('ap.compte'), { courriel: ANCIENNE, session: 'S1', sync: null }, 'sans numéro connu : rien d’inventé');
+  assert.equal(sansNumero.lire('ap.compte').session, undefined);
   assert.deepEqual(sansNumero.lire('ap.compte.proprio'), { id: FP_ANCIENNE });
   // session déjà posée dans la page (même session) : elle garde sa propre fiche, comme avant
   const deja = pageWeb({ 'ap.compte': { id: 42, courriel: NOUVELLE, session: 'S1', sync: '2026-11-11T00:00:00.000Z' }, 'ap.compte.proprio': { id: 'c:42', a: FP_NOUVELLE } });
   deja.executer(site.injectionAvant(null, [], { id: 42, courriel: NOUVELLE, session: 'S1', sync: null }, 'c:42', FP_NOUVELLE));
-  assert.equal(deja.lire('ap.compte').sync, '2026-11-11T00:00:00.000Z');
+  assert.equal(deja.vu('ap.compte').sync, '2026-11-11T00:00:00.000Z');
+  assert.equal(deja.vu('ap.compte').session, 'S1');
+  assert.equal(deja.lire('ap.compte').session, undefined, 'copie en clair d’une version précédente : réécrite sans jeton');
   // appli sans compte : la session de la page est retirée
   const dehors = pageWeb({ 'ap.compte': { courriel: NOUVELLE, session: 'S1' } });
   dehors.executer(site.injectionAvant(null, [], null, '', ''));
@@ -674,7 +680,7 @@ test('vue web : le signal « ap.app.proprio = c » est posé juste après « ap.
   assert.equal(marqueur, app + "sessionStorage.setItem('ap.app','1');".length, 'le signal suit immédiatement ap.app');
   assert.equal(script.split('ap.app.proprio').length - 1, 1, 'posé une seule fois, jamais retiré');
   // texte : avant toute lecture du stockage de la page (propriétaire, profil, favoris, session)
-  for (const acces of ["localStorage.getItem('ap.compte.proprio')", "localStorage.getItem('ap.profil')", "localStorage.getItem('ap.favoris')", "localStorage.getItem('ap.compte')", 'localStorage.removeItem', 'localStorage.setItem']) {
+  for (const acces of ["localStorage.getItem('ap.compte.proprio')", "localStorage.getItem('ap.profil')", "localStorage.getItem('ap.favoris')", "g0.call(LS,'ap.compte')", 'localStorage.removeItem', 'localStorage.setItem']) {
     assert.ok(script.indexOf(acces) > marqueur, 'le signal précède : ' + acces);
   }
   // exécution : au premier accès au localStorage de la page, sessionStorage porte déjà les deux marques
@@ -701,7 +707,8 @@ test('vue web : une session déjà posée dans la page sans numéro le reçoit d
   // la page n'a pas le numéro : elle le reçoit, le reste de sa fiche (date de synchro…) est gardé
   const a = page({ courriel: NOUVELLE, session: 'S1', sync: '2026-11-11T00:00:00.000Z', mdp: true });
   injecter(a, { id: 42, courriel: NOUVELLE, session: 'S1', sync: null });
-  assert.deepEqual(a.lire('ap.compte'), { courriel: NOUVELLE, session: 'S1', sync: '2026-11-11T00:00:00.000Z', mdp: true, id: 42 });
+  assert.deepEqual(a.vu('ap.compte'), { courriel: NOUVELLE, sync: '2026-11-11T00:00:00.000Z', mdp: true, id: 42, session: 'S1' });
+  assert.deepEqual(a.lire('ap.compte'), { courriel: NOUVELLE, sync: '2026-11-11T00:00:00.000Z', mdp: true, id: 42 });
   // la page a déjà un numéro (même autre) : jamais écrasé
   const b = page({ id: 43, courriel: NOUVELLE, session: 'S1', sync: '2026-11-11T00:00:00.000Z' });
   injecter(b, { id: 42, courriel: NOUVELLE, session: 'S1', sync: null });
@@ -713,9 +720,51 @@ test('vue web : une session déjà posée dans la page sans numéro le reçoit d
   // autre session : la session de l'appli remplace celle de la page, comme avant
   const d = page({ id: 43, courriel: AUTRE, session: 'S-autre', sync: '2026-11-11T00:00:00.000Z' });
   injecter(d, { id: 42, courriel: NOUVELLE, session: 'S1', sync: null });
-  assert.deepEqual(d.lire('ap.compte'), { id: 42, courriel: NOUVELLE, session: 'S1', sync: null });
+  assert.deepEqual(d.vu('ap.compte'), { id: 42, courriel: NOUVELLE, sync: null, session: 'S1' });
+  assert.doesNotMatch(d.m.get('ap.compte'), /S1|S-autre/);
   // fiche illisible dans la page : remplacée par celle de l'appli
   const e = pageWeb({ 'ap.compte': 'pas du json' });
   injecter(e, { id: 42, courriel: NOUVELLE, session: 'S1', sync: null });
-  assert.deepEqual(e.lire('ap.compte'), { id: 42, courriel: NOUVELLE, session: 'S1', sync: null });
+  assert.deepEqual(e.vu('ap.compte'), { id: 42, courriel: NOUVELLE, sync: null, session: 'S1' });
+});
+
+test('vue web : le jeton de session n’est jamais écrit sur le disque de la vue web (chargements, connexion et déconnexion dans la page)', () => {
+  const sansJeton = (p) => assert.doesNotMatch([...p.m.values()].join(' '), /S1|S2|S-page/, 'aucun jeton sur le disque de la vue web');
+  // chargements successifs de la même session : la page lit sa session, garde sa fiche (mdp, date de synchro), le disque reste sans jeton
+  const p = pageWeb();
+  const compte = { id: 42, courriel: NOUVELLE, session: 'S1', sync: null };
+  p.executer(site.injectionAvant(null, [], compte, 'c:42', FP_NOUVELLE));
+  p.contexte.localStorage.setItem('ap.compte', JSON.stringify({ ...p.vu('ap.compte'), sync: '2026-11-23T10:00:00.000Z', mdp: true }));   // compte.js après une synchro
+  assert.equal(p.vu('ap.compte').session, 'S1'); sansJeton(p);
+  const m2 = pageWeb(Object.fromEntries(p.m));   // chargement suivant : même disque, nouvelle page
+  m2.executer(site.injectionAvant(null, [], compte, 'c:42', FP_NOUVELLE));
+  assert.deepEqual(m2.vu('ap.compte'), { id: 42, courriel: NOUVELLE, sync: '2026-11-23T10:00:00.000Z', mdp: true, session: 'S1' }, 'même compte : la fiche de la page est gardée');
+  sansJeton(m2);
+  // nouvelle session du MÊME compte (reconnexion dans l'appli) : la page reçoit la nouvelle session, sans rien écrire du jeton
+  const m3 = pageWeb(Object.fromEntries(m2.m));
+  m3.executer(site.injectionAvant(null, [], { ...compte, session: 'S2' }, 'c:42', FP_NOUVELLE));
+  assert.equal(m3.vu('ap.compte').session, 'S2'); sansJeton(m3);
+  // connexion faite DANS la page : jeton en mémoire seulement, rendu à l'appli par le message « compteChange » (adopterCompte)
+  const q = pageWeb();
+  q.executer(site.injectionAvant(null, [], null, '', ''));
+  q.executer(site.INJECTION_APRES);
+  q.contexte.localStorage.setItem('ap.compte', JSON.stringify({ id: 7, courriel: AUTRE, session: 'S-page', sync: null }));
+  const dernier = q.messages[q.messages.length - 1];
+  assert.equal(dernier.compteChange, true);
+  assert.equal(JSON.parse(dernier.compte).session, 'S-page', 'l’appli reçoit la session de la page');
+  assert.equal(q.vu('ap.compte').session, 'S-page'); sansJeton(q);
+  // chargement suivant SANS que l'appli ait la session (injection sans compte) : la fiche sans jeton est retirée, la page est déconnectée
+  const q2 = pageWeb(Object.fromEntries(q.m));
+  q2.executer(site.injectionAvant(null, [], null, '', ''));
+  assert.equal(q2.m.has('ap.compte'), false);
+  // déconnexion dans la page : plus de session en mémoire non plus
+  m3.executer(site.INJECTION_APRES);
+  m3.contexte.localStorage.removeItem('ap.compte');
+  assert.equal(m3.vu('ap.compte'), null);
+  assert.equal(m3.messages[m3.messages.length - 1].compte, null);
+  // les autres clés et sessionStorage ne sont pas détournés
+  m2.contexte.sessionStorage.setItem('ap.compte', '{"session":"X"}');
+  assert.equal(m2.contexte.sessionStorage.getItem('ap.compte'), '{"session":"X"}');
+  m2.contexte.localStorage.setItem('ap.profil', '{"prenom":"Zoé"}');
+  assert.equal(m2.m.get('ap.profil'), '{"prenom":"Zoé"}');
 });

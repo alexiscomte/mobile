@@ -23,6 +23,8 @@ import { COULEURS } from '@/theme';
 export type TX = Record<string, string>;
 /** Textes de messages.js du site (connexion, historique des connexions), exportés par app_moteurs.py. */
 export const UI_M = (ui as unknown as { messages: Record<string, TX> }).messages;
+/** Textes de compte.js du site (oidcKo : la connexion n'a pas abouti). */
+const UI_C = (ui as unknown as { compte: Record<string, TX> }).compte;
 /** Textes d'espace.js (ongOutils, astroVos, aime…). */
 export const UI_E = (ui as unknown as { espace: Record<string, TX> }).espace;
 /** Textes des pages du site reprises en écrans natifs (espace_membre.P, par app_moteurs.espace_pages) : « Mes outils » (lead, intro avec
@@ -162,8 +164,12 @@ export function Invitation({ texte, lg, apres }: { texte: string; lg: string; ap
   const aller = async (ecran?: string) => {
     // aperçu web (pas de service commun), ou iPhone avec Se connecter avec Apple (règle 4.8, 12/10/2026) : l'écran natif du compte
     if (await ecranNatif()) { router.push('/compte'); return; }
-    // refus du serveur (compte suspendu, adresse à confirmer…) : dit tout de suite ; un échec sans cause connue reste silencieux, comme avant
-    connexionOidc(lg, ecran).then((r) => { const m = messageConnexion(r, lg); if (m) Alert.alert('AffectionPlus', m); if (apres) apres(); }).catch(() => undefined);
+    // refus du serveur (compte suspendu, adresse à confirmer…) ou échec sans cause connue (panne du service de connexion) : dit tout de suite
+    connexionOidc(lg, ecran).then((r) => {
+      const m = messageConnexion(r, lg);
+      if (m !== null) Alert.alert('AffectionPlus', m || (UI_C[lg] || UI_C.fr).oidcKo);
+      if (apres) apres();
+    }).catch(() => undefined);
   };
   return (
     <View style={styles.avert} accessibilityRole="summary">

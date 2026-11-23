@@ -4,7 +4,8 @@
 // remplissent l'appareil (profil, favoris, réponses aux sondages, scores des quiz) ; ensuite chaque changement local est renvoyé
 // au compte (pousser(), appelé par profil.tsx, moteur/quiz.ts, sondages.tsx, qdj.tsx, jeu2.tsx, compat.tsx, mes-compat.tsx). Sans
 // compte, rien ne change : tout reste sur l'appareil. Clé AsyncStorage « ap.compte » = { courriel, sync, depuis, mdp, newsletter, admin } ;
-// le jeton de session est dans le stockage sécurisé (session-sure.ts : Keychain / Keystore, 23/11/2026), jamais en clair. Une session
+// le jeton de session est dans le stockage sécurisé (session-sure.ts : Keychain / Keystore, 23/11/2026), jamais en clair, rangé avec le numéro et
+// l'adresse de son compte (il n'est rendu qu'à lui). Une session
 // gardée en clair par une version précédente y passe au premier lancement, sans déconnecter personne (chargerCompte).
 // Synchronisation entièrement automatique depuis le 07/10/2026 (nuit, cahier specs/espace-membre-retouches-0710.md, décisions 3 et 7 :
 // plus de bouton « Synchroniser maintenant ») ; « le local gagne » depuis la même nuit (cahier specs/synchro-local-0710.md) : toute
@@ -37,7 +38,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SITE } from './site';
 import { fusionnerCompat, K_CT } from './compat_tests';
-import { ecrireSession, effacerSession, lireSession } from './session-sure';
+import { ecrireSession, effacerSession, lireSession, memeCompte } from './session-sure';
 
 export type Compte = { id?: number | string;   // numéro du compte (lot 7) : le propriétaire des données de l'appareil ; absent d'une session ouverte avant le lot 7 ou avec un serveur plus ancien
   courriel: string; session: string;
@@ -100,24 +101,54 @@ function lireJson(v: string | null | undefined): unknown {
   try { return JSON.parse(v); } catch { return null; }
 }
 
-let sessionRangee: string | null = null;   // jeton déjà dans le coffre (pas d'écriture du Keychain / Keystore à chaque synchro)
+let sessionRangee: string | null = null;   // ce que le coffre contient déjà (cleCoffre : pas d'écriture du Keychain / Keystore à chaque synchro)
+let jetonRange: string | null = null;      // jeton que le coffre contient déjà
+let enClairEnAttente = '';                 // jeton d'une version précédente resté en clair dans AsyncStorage : le coffre l'a refusé au lancement
 /** « ap.compte » tel qu'il est écrit dans AsyncStorage : tout sauf le jeton (rangé dans le coffre). */
 function sansJeton(c: Compte): Record<string, unknown> { const o: Record<string, unknown> = { ...c }; delete o.session; return o; }
+/** Ce que le coffre doit contenir pour ce compte : son numéro, son adresse, son jeton (session-sure.ts). */
+function cleCoffre(c: Compte): string { return (c.id === undefined ? '' : String(c.id)) + '\n' + c.courriel.trim().toLowerCase() + '\n' + c.session; }
 
+let chargement: Promise<Compte | null> | null = null;
 /** Lit « ap.compte » et le jeton du coffre (appelé une fois par le contexte au démarrage, avant d'afficher quoi que ce soit) et le
- *  propriétaire des données. Migration (23/11/2026) : un jeton encore en clair (version précédente) est rangé dans le coffre puis retiré
- *  d'AsyncStorage ; si le coffre le refuse, rien n'est effacé (la session continue, nouvel essai au lancement suivant). */
-export async function chargerCompte(): Promise<Compte | null> {
+ *  propriétaire des données. Un seul chargement à la fois (deux appels simultanés partagent le même).
+ *  Migration (23/11/2026) : un jeton encore en clair (version précédente) est rangé dans le coffre puis retiré d'AsyncStorage ; si le coffre
+ *  le refuse, rien n'est effacé (la session continue, nouvel essai au lancement suivant).
+ *  Le jeton du coffre n'est rendu qu'au compte auquel il appartient (session-sure.ts memeCompte) : coffre non vide sans compte (Keychain
+ *  d'iOS resté après une désinstallation) ou avec le jeton d'un autre compte (écriture refusée lors d'un changement de compte) = coffre
+ *  vidé, appareil déconnecté ; jamais le compte B affiché avec la session de A. */
+export function chargerCompte(): Promise<Compte | null> {
+  if (!chargement) chargement = lireCompteGarde().finally(() => { chargement = null; });
+  return chargement;
+}
+async function lireCompteGarde(): Promise<Compte | null> {
   try {
     const v = new Map(await AsyncStorage.multiGet([K_COMPTE, K_PROPRIO]));
     const brut = objet(lireJson(v.get(K_COMPTE)));
+    const vide = !Object.keys(brut).length;
     const enClair = typeof brut.session === 'string' ? brut.session : '';
     const sure = await lireSession();
-    actuel = Object.keys(brut).length ? nettoyerCompte({ ...brut, session: enClair || sure || '' }) : null;
+    const duCoffre = sure && !vide && memeCompte(sure, brut.id, brut.courriel) ? sure.jeton : '';
+    actuel = vide ? null : nettoyerCompte({ ...brut, session: enClair || duCoffre });
+    sessionRangee = null; jetonRange = sure ? sure.jeton : null; enClairEnAttente = '';
     if (actuel && enClair) {
-      if (await ecrireSession(enClair)) { sessionRangee = enClair; await AsyncStorage.setItem(K_COMPTE, JSON.stringify(sansJeton(actuel))); }
-    } else if (actuel) sessionRangee = actuel.session;
-    else if (Object.keys(brut).length && sure === null) await AsyncStorage.removeItem(K_COMPTE);   // appareil restauré : le jeton n'a pas suivi
+      if (await ecrireSession(enClair, actuel.id, actuel.courriel)) {
+        sessionRangee = cleCoffre(actuel); jetonRange = enClair;
+        // écriture qui échoue : le jeton en clair sera retiré au lancement suivant, la session continue
+        try { await AsyncStorage.setItem(K_COMPTE, JSON.stringify(sansJeton(actuel))); } catch { /* stockage indisponible */ }
+      } else enClairEnAttente = enClair;
+    } else if (actuel && sure) {
+      const c = actuel;
+      const exact = sure.lie && sure.id === (c.id === undefined ? '' : String(c.id)) && sure.courriel === c.courriel.trim().toLowerCase();
+      // jeton rangé seul (version de travail), ou numéro appris depuis : le coffre est réécrit avec le compte
+      if (exact || (await ecrireSession(c.session, c.id, c.courriel))) sessionRangee = cleCoffre(c);
+    } else if (sure) {
+      // jeton sans compte, ou jeton d'un autre compte : jamais rendu
+      if (await effacerSession()) jetonRange = null;
+      if (!vide) { try { await AsyncStorage.removeItem(K_COMPTE); } catch { /* stockage indisponible */ } }
+    } else if (!vide && sure === null) {
+      try { await AsyncStorage.removeItem(K_COMPTE); } catch { /* stockage indisponible */ }   // appareil restauré : le jeton n'a pas suivi
+    }
     memoriserProprio(proprioDe(lireJson(v.get(K_PROPRIO))));
   } catch { actuel = null; }
   charge = true;
@@ -130,12 +161,22 @@ async function garderCompte(c: Compte | null) {
   actuel = c;
   try {
     if (c) {
-      // jeton dans le coffre seulement (jamais en clair) ; s'il refuse, la session vit en mémoire pour ce lancement
-      if (c.session !== sessionRangee && (await ecrireSession(c.session))) sessionRangee = c.session;
-      await AsyncStorage.setItem(K_COMPTE, JSON.stringify(sansJeton(c)));
+      // jeton dans le coffre seulement (jamais en clair), avec son compte ; s'il refuse, la session vit en mémoire pour ce lancement
+      const cle = cleCoffre(c);
+      let enClair = false;
+      if (cle !== sessionRangee) {
+        if (await ecrireSession(c.session, c.id, c.courriel)) { sessionRangee = cle; jetonRange = c.session; enClairEnAttente = ''; }
+        else if (enClairEnAttente && enClairEnAttente === c.session) enClair = true;   // migration en attente : la copie en clair d'origine reste, rien n'est perdu
+        else if (jetonRange !== c.session) {
+          // le coffre garde peut-être le jeton d'un AUTRE compte : il est vidé (s'il refuse aussi, chargerCompte ne le rendra pas à ce compte)
+          sessionRangee = null;
+          if (await effacerSession()) jetonRange = null;
+        }
+      }
+      await AsyncStorage.setItem(K_COMPTE, JSON.stringify(enClair ? c : sansJeton(c)));
     } else {
-      sessionRangee = null;
-      await effacerSession();
+      sessionRangee = null; enClairEnAttente = '';
+      if (await effacerSession()) jetonRange = null;
       await AsyncStorage.removeItem(K_COMPTE);
     }
   } catch { /* stockage indisponible */ }
@@ -682,16 +723,20 @@ async function ouvrir(j: Reponse) {
   await garderCompte({ ...(id !== undefined ? { id } : {}), courriel, session, sync: null, depuis, mdp, newsletter, admin, ...(abonne ? { abonne: true, sans_pub_jusqu } : {}) });
   // prénom donné par Google (prenom_google) ou par Apple à la première autorisation (prenom_fournisseur, 12/10/2026)
   await recevoir(j, typeof j.prenom_google === 'string' ? j.prenom_google : typeof j.prenom_fournisseur === 'string' ? j.prenom_fournisseur : '');
+  // déconnexion (ou autre connexion) pendant la réception des données : cette session n'est pas réécrite
+  if (!actuel || (actuel as Compte).session !== session) return;
   await garderCompte({ ...(id !== undefined ? { id } : {}), courriel, session, sync: new Date().toISOString(), depuis, mdp, newsletter, admin, ...(abonne ? { abonne: true, sans_pub_jusqu } : {}) });
   signaler('donnees');
-  AsyncStorage.removeItem(K_RECONNEXION).catch(() => undefined);   // connecté : plus de prompt=login forcé (deconnecter)
   noter().then((d) => { if (d) pousserMaintenant(); }).catch(() => undefined);
 }
 
 /** Client de l'appli auprès du service de connexion commun : Keycloak CAPIT (realm capit, 23/11/2026 ; remplace connect.capit.net et
  *  l'émetteur https://affectionplus.com/connexion). Client public `affectionplus-appli`, code + PKCE S256, retour par le schéma de l'appli ;
  *  le jeton d'identité Keycloak est envoyé tel quel à POST /api/compte/oidc, qui en tire le numéro de compte (capit-identite). Les
- *  versions déjà installées gardent l'ancien fournisseur, toujours actif. */
+ *  versions déjà installées gardent l'ancien fournisseur, toujours actif.
+ *  Authentification TOUJOURS fraîche (connexion.ts : prompt=login, ou prompt=create + max_age=0) : le schéma de retour privé peut être
+ *  déclaré par une autre appli, qui obtiendrait sinon un code sans écran grâce à la session web partagée ; le serveur refuse à ce client
+ *  un jeton dont auth_time a plus de 5 minutes (compte_api.js routeOidc). */
 export const OIDC_EMETTEUR = 'https://auth.capit.net/realms/capit';
 export const OIDC = {
   client: 'affectionplus-appli',
@@ -703,11 +748,35 @@ export const OIDC = {
   },
 };
 
-/** Ouvre la session de l'appli avec le jeton d'identité du service commun. Erreurs : jeton (401), trop, reseau. */
-export async function connecterOidc(idToken: string): Promise<Reponse> {
+/** Ouvre la session de l'appli avec le jeton d'identité du service commun. Erreurs : jeton (401), authentification (401 : le serveur
+ *  refuse à l'appli un jeton dont l'authentification a plus de 5 minutes), bloque, adresse (403), compte_deja_relie (409), trop, reseau.
+ *  memeCompte (import du profil depuis un réseau social, profil-photo.tsx : la personne est déjà connectée) : si le réseau mène à un AUTRE
+ *  compte, rien ne change sur l'appareil (ni session, ni données) ; la session que le serveur vient d'ouvrir est refermée ; erreur
+ *  « autre_compte ». */
+export async function connecterOidc(idToken: string, memeCompte = false): Promise<Reponse> {
+  const avant = actuel;
   const j = await api('oidc', { id_token: idToken, client_id: OIDC.client, jeton_local: await jetonLocal(), appareil: 'appli' });
+  if (j.ok && memeCompte && avant && autreCompte(avant, j)) {
+    if (typeof j.session === 'string' && j.session) fermerSession(j.session).catch(() => undefined);
+    return { ok: false, erreur: 'autre_compte', statut: 409 };
+  }
   if (j.ok) await ouvrir(j);
   return j;
+}
+/** La réponse de connexion est-elle celle d'un autre compte que c ? Par le numéro quand les deux sont connus, sinon par l'adresse. */
+function autreCompte(c: Compte, j: Reponse): boolean {
+  const id = idValide(j.id);
+  if (id !== undefined && c.id !== undefined) return String(id) !== String(c.id);
+  return String(j.courriel || '').trim().toLowerCase() !== c.courriel.trim().toLowerCase();
+}
+/** Ferme sur le serveur une session qui n'est pas celle de l'appareil (POST /api/compte/deconnexion avec SON jeton). */
+async function fermerSession(session: string): Promise<void> {
+  const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const minuterie = ctrl ? setTimeout(() => ctrl.abort(), DELAI) : null;
+  try {
+    await fetch(SITE + 'api/compte/deconnexion', { method: 'POST', cache: 'no-store', body: '{}', signal: ctrl ? ctrl.signal : undefined,
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: 'Bearer ' + session } });
+  } catch { /* réseau : la session expirera d'elle-même */ } finally { if (minuterie) clearTimeout(minuterie); }
 }
 
 /** Session refusée par le serveur (401 : expirée, supprimée) : le compte est oublié sur l'appareil s'il s'agit toujours de la même. */
@@ -779,7 +848,9 @@ export async function connecterApple(identityToken: string, nonce: string, code:
 }
 
 /** Déconnexion : ce qui attend encore part d'abord (4 s au plus ; ce qui n'a pas pu partir reste marqué et gagnera à la prochaine
- *  connexion), puis la session est fermée sur le serveur ; les données restent sur l'appareil. */
+ *  connexion), puis la session est fermée sur le serveur (attendu 3 s au plus : fermer l'appli aussitôt ne laisse pas la session ouverte) ;
+ *  les données restent sur l'appareil. La session web d'auth.capit.net n'est pas fermée : l'appli demande de toute façon une authentification
+ *  fraîche à chaque connexion (connexion.ts). */
 export async function deconnecter(): Promise<void> {
   await assurer();
   if (!actuel) return;
@@ -787,17 +858,12 @@ export async function deconnecter(): Promise<void> {
     if (await noter()) await Promise.race([pousserMaintenant(), new Promise<void>((r) => setTimeout(r, 4000))]);
   } catch { /* rien : la déconnexion continue */ }
   if (!actuel) return;
-  api('deconnexion', {}).catch(() => undefined);   // l'en-tête est lu avant l'effacement ci-dessous
+  // l'en-tête est lu au départ de l'appel, avant l'effacement ci-dessous
+  const fermeture = api('deconnexion', {}).then(() => undefined, () => undefined);
+  let minuterie: ReturnType<typeof setTimeout> | null = null;
+  await Promise.race([fermeture, new Promise<void>((r) => { minuterie = setTimeout(r, 3000); })]);
+  if (minuterie) clearTimeout(minuterie);
   await oublierCompteLocal();
-  // session web partagée (auth.capit.net) : la prochaine connexion redemande l'identifiant (prompt=login), sinon la session du navigateur
-  // reconnecterait d'office le même compte ; effacé à la connexion suivante (ouvrir)
-  try { await AsyncStorage.setItem(K_RECONNEXION, '1'); } catch { /* stockage indisponible */ }
-}
-
-const K_RECONNEXION = 'ap.oidc.reconnexion';
-/** Déconnexion explicite depuis la dernière connexion : la connexion suivante doit redemander l'identifiant (connexion.ts). */
-export async function reconnexionDemandee(): Promise<boolean> {
-  try { return (await AsyncStorage.getItem(K_RECONNEXION)) === '1'; } catch { return false; }
 }
 
 /** Suppression du compte sur le serveur (POST /api/compte/supprimer, après la confirmation de « Mon compte ») : tout ce que le compte

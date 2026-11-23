@@ -23,7 +23,7 @@ import { Bouton, F } from '@/components/form';
 import { Banniere } from '@/components/illustration';
 import { MonCompte, texteInfos } from '@/components/mon-compte';
 import { CONF, connecterApple, connecterGoogle } from '@/compte';
-import { AVEC_OIDC, appleDisponible, connexionOidc, googleAutorise, messageConnexion } from '@/connexion';
+import { AVEC_OIDC, appleDisponible, connexionOidc, googleAutorise, issueRefus, messageConnexion } from '@/connexion';
 import conf from '@/compte_conf.json';
 import { type Langue } from '@/i18n';
 import { TEXTES6 } from '@/i18n6';
@@ -119,7 +119,7 @@ export default function CompteEcran() {
     setOccupe(true); setMsg(null);
     const j = await connecterGoogle(jeton, langue, consent);
     setOccupe(false);
-    if (!j.ok) setMsg({ t: j.erreur === 'consentement' ? t.consentKo : j.erreur === 'bloque' ? messageConnexion('bloque', langue) || t.googleKo : j.erreur === 'trop' ? t.trop : j.erreur === 'reseau' ? t.reseau : t.googleKo, ok: false });
+    if (!j.ok) setMsg({ t: j.erreur === 'consentement' ? t.consentKo : messageConnexion(issueRefus(j), langue) || t.googleKo, ok: false });
   };
   const viaApple = async (c: AppleAuthentication.AppleAuthenticationCredential, nonce: string) => {
     const prenom = (c.fullName?.givenName || '').trim();
@@ -128,8 +128,7 @@ export default function CompteEcran() {
     const j = await connecterApple(c.identityToken || '', nonce, c.authorizationCode, prenomApple.current, langue, consent);
     setOccupe(false);
     if (j.ok) { prenomApple.current = ''; return; }
-    setMsg({ t: j.erreur === 'consentement' ? t.consentKo : j.erreur === 'bloque' ? messageConnexion('bloque', langue) || t6.appleKo : j.erreur === 'courriel' ? t6.appleCourriel : j.erreur === 'trop' ? t.trop
-      : j.erreur === 'reseau' ? t.reseau : t6.appleKo, ok: false });
+    setMsg({ t: j.erreur === 'consentement' ? t.consentKo : j.erreur === 'courriel' ? t6.appleCourriel : messageConnexion(issueRefus(j), langue) || t6.appleKo, ok: false });
   };
 
   const [avantLien, apresLien] = (t.consent || '%s').split('%s');

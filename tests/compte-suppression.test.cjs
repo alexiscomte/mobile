@@ -25,10 +25,9 @@ function client(reponse, statut = 200) {
     multiRemove: async (cles) => { cles.forEach((k) => stockage.delete(k)); },
     getAllKeys: async () => [...stockage.keys()],
   };
-  const coffre = new Map();
   const modules = {
     '@react-native-async-storage/async-storage': storage,
-    './session-sure': { lireSession: async () => coffre.get('s') ?? null, ecrireSession: async (v) => { coffre.set('s', v); return true; }, effacerSession: async () => { coffre.delete('s'); } },
+    './session-sure': require('./aide-coffre.cjs').coffreSur().module,
     './site': { SITE: 'https://compte.example/' },
     './compat_tests': { K_CT: 'ap.compat' },
   };
