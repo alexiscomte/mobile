@@ -9,7 +9,7 @@ import { Platform, Pressable, StyleSheet, Switch, Text, useWindowDimensions, Vie
 
 import { annoncerIOS } from '@/accessibilite';
 import { api, compteActuel } from '@/compte';
-import { connexionOidc } from '@/connexion';
+import { connexionOidc, messageConnexion } from '@/connexion';
 import ui from '@/moteur/ui.json';
 import { SITE } from '@/site';
 import { COULEURS } from '@/theme';
@@ -139,7 +139,7 @@ export function ProfilPhoto({ langue, appliquer }: { langue: string; appliquer: 
   const connecter = async (f: string) => {
     dire('');
     const issue = await connexionOidc(langue, f);   // ecran = réseau : kc_idp_hint + prompt=login (connexion.ts), on repasse toujours par le réseau
-    if (issue === 'ok') { relire(); relirePhoto(); } else if (issue === 'echec') dire(T.ko);
+    if (issue === 'ok') { relire(); relirePhoto(); } else { const m = messageConnexion(issue, langue); if (m !== null) dire(m || T.ko); }
   };
 
   if (mineur) return <Text style={styles.message}>{T.mineur}</Text>;

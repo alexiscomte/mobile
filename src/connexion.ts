@@ -18,7 +18,68 @@ import { Platform } from 'react-native';
 
 import { OIDC, connecterOidc, reconnexionDemandee } from './compte';
 
-export type Issue = 'ok' | 'invite' | 'annule' | 'echec';
+// Navigateur système seulement (RFC 8252) : expo-auth-session ouvre ASWebAuthenticationSession sur iOS et un onglet personnalisé (Custom
+// Tabs) sur Android, jamais une vue web de l'appli ; aucun secret client (client public, PKCE S256) ; retour par le schéma privé
+// com.affectionplus.app (Universal Links / App Links pas encore possibles : projets/keycloak/MOBILE_AUTHENTICATION.md du dépôt claude).
+//
+// Refus du serveur (23/11/2026) : POST /api/compte/oidc répond 403 « bloque » (compte suspendu pour AffectionPlus), 403 « adresse » (adresse
+// pas encore vérifiée dans Keycloak), 429 « trop », 503 « indisponible » ; chacun a son message dans les neuf langues (messageConnexion).
+export type Issue = 'ok' | 'invite' | 'annule' | 'echec' | 'bloque' | 'adresse' | 'trop' | 'reseau' | 'indisponible';
+
+/** Issue d'une réponse de connexion refusée par le serveur (oidc, google, apple). */
+export function issueRefus(j: { erreur?: unknown; statut?: unknown }): Issue {
+  const e = String(j.erreur || '');
+  if (e === 'bloque' || e === 'adresse' || e === 'trop' || e === 'indisponible') return e;
+  if (e === 'reseau' || j.statut === 0) return 'reseau';
+  return 'echec';
+}
+
+const MESSAGES: Record<string, Record<'bloque' | 'adresse' | 'trop' | 'reseau' | 'indisponible', string>> = {
+  fr: { bloque: 'Accès suspendu : ce compte ne peut plus se connecter à AffectionPlus. Écrivez à webmaster@affection.org si vous pensez à une erreur.',
+    adresse: 'Confirmez d’abord votre adresse électronique avec le lien reçu par courriel, puis reconnectez-vous.',
+    trop: 'Trop d’essais. Réessayez dans quelques minutes.', reseau: 'Pas de connexion à Internet. Réessayez.',
+    indisponible: 'Le service de connexion est momentanément indisponible. Réessayez dans quelques minutes.' },
+  en: { bloque: 'Access suspended: this account can no longer sign in to AffectionPlus. Write to webmaster@affection.org if you think this is a mistake.',
+    adresse: 'Please confirm your email address first with the link we sent you, then sign in again.',
+    trop: 'Too many attempts. Try again in a few minutes.', reseau: 'No Internet connection. Please try again.',
+    indisponible: 'The sign-in service is temporarily unavailable. Try again in a few minutes.' },
+  de: { bloque: 'Zugang gesperrt: Dieses Konto kann sich nicht mehr bei AffectionPlus anmelden. Schreiben Sie an webmaster@affection.org, wenn Sie einen Irrtum vermuten.',
+    adresse: 'Bestätigen Sie zuerst Ihre E-Mail-Adresse über den Link, den wir Ihnen geschickt haben, und melden Sie sich dann erneut an.',
+    trop: 'Zu viele Versuche. Versuchen Sie es in einigen Minuten erneut.', reseau: 'Keine Internetverbindung. Bitte erneut versuchen.',
+    indisponible: 'Der Anmeldedienst ist vorübergehend nicht verfügbar. Versuchen Sie es in einigen Minuten erneut.' },
+  es: { bloque: 'Acceso suspendido: esta cuenta ya no puede iniciar sesión en AffectionPlus. Escriba a webmaster@affection.org si cree que es un error.',
+    adresse: 'Confirme primero su dirección de correo con el enlace que le enviamos y vuelva a iniciar sesión.',
+    trop: 'Demasiados intentos. Inténtelo de nuevo en unos minutos.', reseau: 'Sin conexión a Internet. Inténtelo de nuevo.',
+    indisponible: 'El servicio de inicio de sesión no está disponible por el momento. Inténtelo de nuevo en unos minutos.' },
+  it: { bloque: 'Accesso sospeso: questo account non può più accedere ad AffectionPlus. Scrivi a webmaster@affection.org se pensi che sia un errore.',
+    adresse: 'Conferma prima il tuo indirizzo e-mail con il link che ti abbiamo inviato, poi accedi di nuovo.',
+    trop: 'Troppi tentativi. Riprova tra qualche minuto.', reseau: 'Nessuna connessione a Internet. Riprova.',
+    indisponible: 'Il servizio di accesso non è al momento disponibile. Riprova tra qualche minuto.' },
+  pt: { bloque: 'Acesso suspenso: esta conta já não pode iniciar sessão no AffectionPlus. Escreva para webmaster@affection.org se achar que é um erro.',
+    adresse: 'Confirme primeiro o seu endereço de e-mail com a ligação que lhe enviámos e volte a iniciar sessão.',
+    trop: 'Demasiadas tentativas. Tente novamente dentro de alguns minutos.', reseau: 'Sem ligação à Internet. Tente novamente.',
+    indisponible: 'O serviço de início de sessão está temporariamente indisponível. Tente novamente dentro de alguns minutos.' },
+  nl: { bloque: 'Toegang opgeschort: dit account kan niet meer inloggen bij AffectionPlus. Schrijf naar webmaster@affection.org als u denkt dat dit een vergissing is.',
+    adresse: 'Bevestig eerst uw e-mailadres via de link die we u stuurden en log daarna opnieuw in.',
+    trop: 'Te veel pogingen. Probeer het over een paar minuten opnieuw.', reseau: 'Geen internetverbinding. Probeer het opnieuw.',
+    indisponible: 'De inlogdienst is tijdelijk niet beschikbaar. Probeer het over een paar minuten opnieuw.' },
+  pl: { bloque: 'Dostęp zawieszony: to konto nie może już logować się do AffectionPlus. Napisz na webmaster@affection.org, jeśli uważasz, że to pomyłka.',
+    adresse: 'Najpierw potwierdź swój adres e-mail za pomocą wysłanego linku, a potem zaloguj się ponownie.',
+    trop: 'Zbyt wiele prób. Spróbuj ponownie za kilka minut.', reseau: 'Brak połączenia z internetem. Spróbuj ponownie.',
+    indisponible: 'Usługa logowania jest chwilowo niedostępna. Spróbuj ponownie za kilka minut.' },
+  tr: { bloque: 'Erişim askıya alındı: bu hesap artık AffectionPlus’a giriş yapamaz. Bir hata olduğunu düşünüyorsanız webmaster@affection.org adresine yazın.',
+    adresse: 'Önce size gönderdiğimiz bağlantıyla e-posta adresinizi doğrulayın, ardından yeniden giriş yapın.',
+    trop: 'Çok fazla deneme. Birkaç dakika sonra yeniden deneyin.', reseau: 'İnternet bağlantısı yok. Yeniden deneyin.',
+    indisponible: 'Giriş hizmeti geçici olarak kullanılamıyor. Birkaç dakika sonra yeniden deneyin.' },
+};
+
+/** Message d'une connexion qui n'a pas abouti : null si rien à dire (ok, invité, annulée par la personne), '' pour un échec sans cause
+ *  connue (l'écran garde son propre texte), sinon le message du refus dans la langue de l'appli. */
+export function messageConnexion(issue: Issue, langue: string): string | null {
+  if (issue === 'ok' || issue === 'invite' || issue === 'annule') return null;
+  if (issue === 'echec') return '';
+  return (MESSAGES[langue] || MESSAGES.fr)[issue];
+}
 /** Pas de service commun dans l'aperçu web (adresse de retour com.affectionplus.app). */
 export const AVEC_OIDC = Platform.OS !== 'web';
 
@@ -81,7 +142,7 @@ export async function connexionOidc(langue: string, ecran?: string): Promise<Iss
         extraParams: { code_verifier: req.codeVerifier || '' } }, OIDC.decouverte);
       if (!tok.idToken) return 'echec';
       const j = await connecterOidc(tok.idToken);
-      if (!j.ok) return 'echec';
+      if (!j.ok) return issueRefus(j);
       invite = false;
       return 'ok';
     }

@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Ligne, Titre } from '@/components/carte';
 import { deconnecter } from '@/compte';
-import { connexionOidc, ecranNatif, marquerInvite } from '@/connexion';
+import { connexionOidc, ecranNatif, marquerInvite, messageConnexion } from '@/connexion';
 import { useTabTopClearance } from '@/hooks/use-tab-top-clearance';
 import { LANGUES, NOMS_LANGUES, TEXTES, fmt, type Langue } from '@/i18n';
 import { TEXTES3 } from '@/i18n3';
@@ -72,7 +72,7 @@ export default function Moi() {
     // réussite : le nom remplace « Se connecter » en tête, pas de message « Vous êtes connecté » en plus (revue du 07/10/2026 nuit)
     if (r === 'ok') setMsg(null);
     else if (r === 'invite') setMsg({ t: TC.invitePasse, ok: true });
-    else if (r === 'echec') setMsg({ t: TC.oidcKo, ok: false });
+    else { const m = messageConnexion(r, langue); if (m !== null) setMsg({ t: m || TC.oidcKo, ok: false }); }
   }, [langue, TC, router]);
   const seDeconnecter = async () => {
     await deconnecter();

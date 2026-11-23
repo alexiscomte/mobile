@@ -4,12 +4,12 @@
 // Tout texte venu d'un utilisateur ou du serveur est affiché tel quel dans un <Text> (jamais interprété).
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, type StyleProp, type TextStyle } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View, type StyleProp, type TextStyle } from 'react-native';
 
 import { Ligne } from '@/components/carte';
 import { Bouton, F } from '@/components/form';
 import { ResumeSignes } from '@/components/resume-signes';
-import { connexionOidc, ecranNatif } from '@/connexion';
+import { connexionOidc, ecranNatif, messageConnexion } from '@/connexion';
 import { fmt, estLangue } from '@/i18n';
 import { CHINOIS, TUILES, VIGNETTES, type Img } from '@/images';
 import type { Connexion } from '@/connexions-api';
@@ -162,7 +162,8 @@ export function Invitation({ texte, lg, apres }: { texte: string; lg: string; ap
   const aller = async (ecran?: string) => {
     // aperçu web (pas de service commun), ou iPhone avec Se connecter avec Apple (règle 4.8, 12/10/2026) : l'écran natif du compte
     if (await ecranNatif()) { router.push('/compte'); return; }
-    connexionOidc(lg, ecran).then(() => { if (apres) apres(); }).catch(() => undefined);
+    // refus du serveur (compte suspendu, adresse à confirmer…) : dit tout de suite ; un échec sans cause connue reste silencieux, comme avant
+    connexionOidc(lg, ecran).then((r) => { const m = messageConnexion(r, lg); if (m) Alert.alert('AffectionPlus', m); if (apres) apres(); }).catch(() => undefined);
   };
   return (
     <View style={styles.avert} accessibilityRole="summary">

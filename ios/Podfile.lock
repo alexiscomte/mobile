@@ -123,6 +123,8 @@ PODS:
   - ExpoRouter (57.0.24):
     - ExpoModulesCore
     - RNScreens
+  - ExpoSecureStore (57.0.4):
+    - ExpoModulesCore
   - ExpoSplashScreen (57.0.9):
     - ExpoModulesCore
   - ExpoSymbols (57.0.3):
@@ -3255,6 +3257,7 @@ DEPENDENCIES:
   - ExpoModulesWorklets (from `../node_modules/expo-modules-core`)
   - ExpoModulesWorkletsAdapter (from `../node_modules/expo-modules-core`)
   - ExpoRouter (from `../node_modules/expo-router/ios`)
+  - ExpoSecureStore (from `../node_modules/expo-secure-store/ios`)
   - ExpoSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - ExpoSymbols (from `../node_modules/expo-symbols/ios`)
   - ExpoSystemUI (from `../node_modules/expo-system-ui/ios`)
@@ -3419,6 +3422,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-modules-core"
   ExpoRouter:
     :path: "../node_modules/expo-router/ios"
+  ExpoSecureStore:
+    :path: "../node_modules/expo-secure-store/ios"
   ExpoSplashScreen:
     :path: "../node_modules/expo-splash-screen/ios"
   ExpoSymbols:
@@ -3636,6 +3641,7 @@ SPEC CHECKSUMS:
   ExpoModulesWorklets: 40d29262efc034e4357f2713e6037a41a27218d6
   ExpoModulesWorkletsAdapter: ea5b8916e2fdf8647e8543dbcd81a665e070e74a
   ExpoRouter: fa0e119f32bdc83dcccfa2b08859e8e582c233d2
+  ExpoSecureStore: ff1fd5e073957417ba8f9dec0bebcbd55a60e747
   ExpoSplashScreen: e771da4f26d550ea4fd067d8fb942657e47bb846
   ExpoSymbols: 37a3a6e5847edb08b83a5ee04d3b46525e205f00
   ExpoSystemUI: 05ee8d4aaba1b6af330f3621e19b39ff9f21e718

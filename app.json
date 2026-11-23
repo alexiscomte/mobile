@@ -128,7 +128,8 @@
         }
       ],
       "./plugins/withSceneLifecycle",
-      "expo-iap"
+      "expo-iap",
+      ["expo-secure-store", { "configureAndroidBackup": false }]
     ],
     "experiments": {
       "typedRoutes": true,

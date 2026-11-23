@@ -72,12 +72,13 @@ function appareil(t, { stockage = {}, brut = {}, routes = {} } = {}) {
     if (!r) throw new Error('appel réseau imprévu : ' + demande.methode + ' ' + chemin);
     return { status: r.statut, json: async () => r.corps };
   };
-  const modules = { '@react-native-async-storage/async-storage': asyncStorage, './site': { SITE: 'https://compte.example/' } };
+  const coffre = new Map();   // stockage sécurisé (Keychain / Keystore) de l'appareil : jeton de session
+  const modules = { '@react-native-async-storage/async-storage': asyncStorage, './site': { SITE: 'https://compte.example/' }, './session-sure': { lireSession: async () => coffre.get('s') ?? null, ecrireSession: async (v) => { coffre.set('s', v); return true; }, effacerSession: async () => { coffre.delete('s'); } } };
   modules['./compat_tests'] = charger(SOURCE_CT, modules);
   const api = charger(SOURCE_COMPTE, modules, { fetch, setTimeout: minuterie, clearTimeout: couper });
   const lu = (k) => { const v = memoire.get(k); return v === undefined ? null : JSON.parse(v); };
   const posts = (session) => appels.filter((a) => a.methode === 'POST' && a.chemin === 'api/compte/donnees' && (!session || a.session === session));
-  return { api, memoire, appels, routes, lu, posts };
+  return { api, memoire, appels, routes, lu, posts, coffre };
 }
 /** Laisse finir ce que la connexion ou l'envoi lance sans l'attendre (noter().then(pousserMaintenant) de ouvrir). */
 async function repos() { for (let i = 0; i < 60; i++) await new Promise((r) => setImmediate(r)); }
@@ -118,7 +119,7 @@ test('lecture à froid : le propriétaire est lu au démarrage sous l’une ou l
 
 // ---------------------------------------------------------------------------------------------------------------- changement d'adresse, même session
 test('adresse changée dans une page du site (session gardée) : session, base et propriétaire suivent, aucune donnée locale n’est remplacée', async (t) => {
-  const { api, lu, appels, posts, routes } = appareil(t, {
+  const { api, lu, appels, posts, routes, coffre } = appareil(t, {
     stockage: { 'ap.compte': sessionAvantLot7(ANCIENNE, 'S1'), 'ap.compte.proprio': { id: FP_ANCIENNE },
       'ap.compte.base': { courriel: ANCIENNE, donnees: BASE }, 'ap.compte.empreinte': null,
       'ap.profil': { prenom: 'Camille', nom: 'Pas-Encore-Envoyé' }, 'ap.favoris': [FAV_A, FAV_B] },
@@ -129,7 +130,8 @@ test('adresse changée dans une page du site (session gardée) : session, base e
   await repos();
   assert.equal(appels.length, 0, 'aucun appel : ni lecture ni envoi, même compte');
   assert.deepEqual([api.compteActuel().id, api.compteActuel().courriel, api.compteActuel().session], [42, NOUVELLE, 'S1']);
-  assert.deepEqual([lu('ap.compte').id, lu('ap.compte').courriel, lu('ap.compte').session], [42, NOUVELLE, 'S1']);
+  // jeton de session dans le coffre (Keychain / Keystore), plus jamais en clair dans « ap.compte » (23/11/2026)
+  assert.deepEqual([lu('ap.compte').id, lu('ap.compte').courriel, lu('ap.compte').session, coffre.get('s')], [42, NOUVELLE, undefined, 'S1']);
   assert.deepEqual(lu('ap.profil'), { prenom: 'Camille', nom: 'Pas-Encore-Envoyé' }, 'profil local intact');
   assert.equal(lu('ap.favoris').length, 2, 'favoris locaux intacts');
   assert.deepEqual(lu('ap.compte.proprio'), { id: 'c:42', a: FP_NOUVELLE }, 'propriétaire = le compte, sans instantané');
@@ -331,7 +333,7 @@ test('migration à la connexion : ancien propriétaire (empreinte) et même adre
   assert.equal(posts().length, 1);
 });
 // empreinte() ne dépend d’aucun état : un client neuf suffit pour calculer les empreintes de champs des instantanés
-function api0() { return charger(SOURCE_COMPTE, { '@react-native-async-storage/async-storage': {}, './site': { SITE: 'x/' }, './compat_tests': { K_CT: 'ap.compat' } }); }
+function api0() { return charger(SOURCE_COMPTE, { '@react-native-async-storage/async-storage': {}, './site': { SITE: 'x/' }, './compat_tests': { K_CT: 'ap.compat' }, './session-sure': {} }); }
 
 // ---------------------------------------------------------------------------------------------------------------- un autre compte reste un autre compte
 const SCORE_CAMILLE = { s: 80, d: '2026-11-01' };

@@ -45,7 +45,8 @@ function appli(stockage) {
     multiRemove: async (cles) => { cles.forEach((k) => memoire.delete(k)); }, getAllKeys: async () => [...memoire.keys()],
   };
   const appels = [];
-  const modules = { '@react-native-async-storage/async-storage': asyncStorage, './site': { SITE: 'https://compte.example/' }, './catalogue.json': { langues: [], site: '', pages: {} } };
+  const coffre = new Map();
+  const modules = { '@react-native-async-storage/async-storage': asyncStorage, './site': { SITE: 'https://compte.example/' }, './catalogue.json': { langues: [], site: '', pages: {} }, './session-sure': { lireSession: async () => coffre.get('s') ?? null, ecrireSession: async (v) => { coffre.set('s', v); return true; }, effacerSession: async () => { coffre.delete('s'); } } };
   modules['./compat_tests'] = charger(transpiler('compat_tests.ts'), modules);
   const api = charger(transpiler('compte.ts'), modules, { fetch: async (u) => { appels.push(String(u)); throw new Error('appel réseau imprévu de l’appli : ' + u); } });
   const site = charger(transpiler('site.ts'), modules);

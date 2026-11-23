@@ -11,7 +11,7 @@ import { AccessibilityInfo, Platform, Pressable, StyleSheet, Text, View } from '
 
 import { F } from '@/components/form';
 import { ECHEC_DURABLE, echecsSynchro, supprimer, surCompte } from '@/compte';
-import { connexionOidc, ecranNatif } from '@/connexion';
+import { connexionOidc, ecranNatif, messageConnexion } from '@/connexion';
 import { TEXTES4 } from '@/i18n4';
 import ui from '@/moteur/ui.json';
 import { useProfil } from '@/profil';
@@ -107,7 +107,7 @@ export function MonCompte() {
     // réussite : l'encadré « Mon compte » et le texte « enregistrées dans votre compte » le montrent ; pas de « Vous êtes connecté »
     // (revue du 07/10/2026 nuit : l'information « connecté » est dans l'onglet Moi)
     if (r === 'invite') setMsg({ t: t.invitePasse, ok: true });
-    else if (r === 'echec') setMsg({ t: t.oidcKo, ok: false });
+    else { const m = messageConnexion(r, langue); if (m !== null) setMsg({ t: m || t.oidcKo, ok: false }); }
   };
 
   const message = msg ? (

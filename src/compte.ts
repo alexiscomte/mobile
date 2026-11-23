@@ -3,8 +3,9 @@
 // vérifié par api/compte/oidc), ou par Google (api/compte/google). À la connexion, les données du compte
 // remplissent l'appareil (profil, favoris, réponses aux sondages, scores des quiz) ; ensuite chaque changement local est renvoyé
 // au compte (pousser(), appelé par profil.tsx, moteur/quiz.ts, sondages.tsx, qdj.tsx, jeu2.tsx, compat.tsx, mes-compat.tsx). Sans
-// compte, rien ne change : tout reste sur l'appareil. Clé AsyncStorage « ap.compte » = { courriel, session, sync, depuis, mdp, newsletter,
-// admin } (même forme que le localStorage du site).
+// compte, rien ne change : tout reste sur l'appareil. Clé AsyncStorage « ap.compte » = { courriel, sync, depuis, mdp, newsletter, admin } ;
+// le jeton de session est dans le stockage sécurisé (session-sure.ts : Keychain / Keystore, 23/11/2026), jamais en clair. Une session
+// gardée en clair par une version précédente y passe au premier lancement, sans déconnecter personne (chargerCompte).
 // Synchronisation entièrement automatique depuis le 07/10/2026 (nuit, cahier specs/espace-membre-retouches-0710.md, décisions 3 et 7 :
 // plus de bouton « Synchroniser maintenant ») ; « le local gagne » depuis la même nuit (cahier specs/synchro-local-0710.md) : toute
 // modification faite sur l'appareil gagne, même hors ligne, même après une fermeture de l'appli, jusqu'à ce qu'elle soit envoyée ; une
@@ -36,6 +37,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SITE } from './site';
 import { fusionnerCompat, K_CT } from './compat_tests';
+import { ecrireSession, effacerSession, lireSession } from './session-sure';
 
 export type Compte = { id?: number | string;   // numéro du compte (lot 7) : le propriétaire des données de l'appareil ; absent d'une session ouverte avant le lot 7 ou avec un serveur plus ancien
   courriel: string; session: string;
@@ -98,11 +100,24 @@ function lireJson(v: string | null | undefined): unknown {
   try { return JSON.parse(v); } catch { return null; }
 }
 
-/** Lit « ap.compte » (appelé une fois par le contexte au démarrage, avant d'afficher quoi que ce soit) et le propriétaire des données. */
+let sessionRangee: string | null = null;   // jeton déjà dans le coffre (pas d'écriture du Keychain / Keystore à chaque synchro)
+/** « ap.compte » tel qu'il est écrit dans AsyncStorage : tout sauf le jeton (rangé dans le coffre). */
+function sansJeton(c: Compte): Record<string, unknown> { const o: Record<string, unknown> = { ...c }; delete o.session; return o; }
+
+/** Lit « ap.compte » et le jeton du coffre (appelé une fois par le contexte au démarrage, avant d'afficher quoi que ce soit) et le
+ *  propriétaire des données. Migration (23/11/2026) : un jeton encore en clair (version précédente) est rangé dans le coffre puis retiré
+ *  d'AsyncStorage ; si le coffre le refuse, rien n'est effacé (la session continue, nouvel essai au lancement suivant). */
 export async function chargerCompte(): Promise<Compte | null> {
   try {
     const v = new Map(await AsyncStorage.multiGet([K_COMPTE, K_PROPRIO]));
-    actuel = nettoyerCompte(lireJson(v.get(K_COMPTE)));
+    const brut = objet(lireJson(v.get(K_COMPTE)));
+    const enClair = typeof brut.session === 'string' ? brut.session : '';
+    const sure = await lireSession();
+    actuel = Object.keys(brut).length ? nettoyerCompte({ ...brut, session: enClair || sure || '' }) : null;
+    if (actuel && enClair) {
+      if (await ecrireSession(enClair)) { sessionRangee = enClair; await AsyncStorage.setItem(K_COMPTE, JSON.stringify(sansJeton(actuel))); }
+    } else if (actuel) sessionRangee = actuel.session;
+    else if (Object.keys(brut).length && sure === null) await AsyncStorage.removeItem(K_COMPTE);   // appareil restauré : le jeton n'a pas suivi
     memoriserProprio(proprioDe(lireJson(v.get(K_PROPRIO))));
   } catch { actuel = null; }
   charge = true;
@@ -113,7 +128,17 @@ export function compteActuel(): Compte | null { return actuel; }
 
 async function garderCompte(c: Compte | null) {
   actuel = c;
-  try { if (c) await AsyncStorage.setItem(K_COMPTE, JSON.stringify(c)); else await AsyncStorage.removeItem(K_COMPTE); } catch { /* stockage indisponible */ }
+  try {
+    if (c) {
+      // jeton dans le coffre seulement (jamais en clair) ; s'il refuse, la session vit en mémoire pour ce lancement
+      if (c.session !== sessionRangee && (await ecrireSession(c.session))) sessionRangee = c.session;
+      await AsyncStorage.setItem(K_COMPTE, JSON.stringify(sansJeton(c)));
+    } else {
+      sessionRangee = null;
+      await effacerSession();
+      await AsyncStorage.removeItem(K_COMPTE);
+    }
+  } catch { /* stockage indisponible */ }
   signaler('compte');
 }
 

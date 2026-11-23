@@ -14,7 +14,7 @@ import { PAGES_ESPACE } from '@/components/espace';
 import { F, Label } from '@/components/form';
 import { focaliser } from '@/components/mon-compte';
 import { changerMdp, noterMdp, oublierSession } from '@/compte';
-import { AVEC_OIDC, connexionOidc } from '@/connexion';
+import { AVEC_OIDC, connexionOidc, messageConnexion } from '@/connexion';
 import ui from '@/moteur/ui.json';
 import { useProfil } from '@/profil';
 import { COULEURS } from '@/theme';
@@ -75,7 +75,8 @@ export default function MotDePasse() {
   const seConnecter = async () => {
     if (!AVEC_OIDC) { router.push('/compte'); return; }   // aperçu web : pas de service commun, l'écran du compte
     const r = await connexionOidc(langue);
-    if (r === 'echec') setMsg({ t: t.oidcKo, ok: false });
+    const m = messageConnexion(r, langue);
+    if (m !== null) setMsg({ t: m || t.oidcKo, ok: false });
   };
 
   const champ = (c: Champ, label: string, valeur: string, changer: (v: string) => void, auto: 'current-password' | 'new-password', aide?: string) => (
