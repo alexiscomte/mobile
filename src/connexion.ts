@@ -1,14 +1,17 @@
-// Connexion par le service commun (connexion_oidc.js) depuis n'importe quel écran (espace membre, 07/10/2026) : écran web de
-// connect.capit.net (code + PKCE), échange du code, session de l'appli (compte.ts connecterOidc).
+// Connexion par le service commun (Keycloak CAPIT, auth.capit.net, realm capit, depuis le 23/11/2026 ; avant : connect.capit.net) depuis
+// n'importe quel écran (espace membre, 07/10/2026) : écran web Keycloak (code + PKCE S256), échange du code sur le point de jeton de
+// Keycloak, session de l'appli (compte.ts connecterOidc, qui envoie le jeton d'identité à POST /api/compte/oidc).
 // Session web PARTAGÉE avec Safari / Chrome (17/11/2026, une seule session pour tous les sites et applis) : ASWebAuthenticationSession
 // non éphémère sur iOS, Custom Tabs sur Android ; un membre connecté sur le web est reconnu sans ressaisie. prompt=login quand l'écran
-// demandé l'exige (créer un compte, lancement direct d'un réseau social, import de profil) ou après une déconnexion dans l'appli.
-// « Continuer en invité » : le service renvoie error=access_denied&error_description=invite ; ce choix vaut pour ce lancement de
-// l'appli (comme une visite sur le site), et l'onglet Moi ne repropose pas la connexion d'office.
+// demandé l'exige (lancement direct d'un réseau social, import de profil) ou après une déconnexion dans l'appli ; prompt=create pour
+// « Créer un compte » (formulaire d'inscription de Keycloak).
+// Les réseaux sociaux passent par les fournisseurs d'identité du realm (kc_idp_hint) : facebook, linkedin-openid-connect, google.
+// Snapchat n'existe pas dans Keycloak : bouton retiré (23/11/2026).
 //
-// Se connecter avec Apple (12/10/2026, règle App Store 4.8 : une appli qui propose Google doit proposer Apple) : sur iPhone, l'écran web
-// du service commun ne montre plus Google (fournisseurs=sans-google) ; Apple et Google sont proposés en natif sur l'écran Mon compte
-// (app/compte.tsx), où mènent « Se connecter » / « Créer un compte » dès que Se connecter avec Apple est disponible (ecranNatif).
+// Se connecter avec Apple (12/10/2026, règle App Store 4.8 : une appli qui propose Google doit proposer Apple) : Apple et Google sont
+// proposés en natif sur l'écran Mon compte (app/compte.tsx), où mènent « Se connecter » / « Créer un compte » dès que Se connecter avec
+// Apple est disponible (ecranNatif). L'écran web de Keycloak montre Apple à côté de Google : la règle 4.8 y est respectée aussi (l'ancien
+// paramètre fournisseurs=sans-google est sans objet).
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as AuthSession from 'expo-auth-session';
 import { Platform } from 'react-native';
@@ -47,19 +50,30 @@ export function dejaPropose(): boolean { return propose; }
 /** Après une déconnexion : on ne repropose pas la connexion d'office pendant ce lancement. */
 export function marquerInvite(): void { invite = true; }
 
-/** Ouvre l'écran de connexion (ecran = 'inscription' pour « Créer un compte », 'facebook', 'linkedin' ou 'snapchat' pour le lancement OAuth direct). */
+/** Fournisseurs d'identité du realm capit (kc_idp_hint) pour un lancement direct depuis l'appli. */
+const IDP: Record<string, string> = { facebook: 'facebook', linkedin: 'linkedin-openid-connect', google: 'google' };
+
+/** Paramètres Keycloak d'un écran demandé (remplacent l'ancien ecran=… de connect.capit.net) : 'inscription' → prompt=create ; réseau
+ *  connu → kc_idp_hint + prompt=login ; écran inconnu (ancien Snapchat) → connexion simple. reconnexion : déconnexion faite dans l'appli. */
+export function parametresKeycloak(ecran: string | undefined, reconnexion: boolean): { extra: Record<string, string>; prompt?: string } {
+  if (ecran === 'inscription') return { extra: {}, prompt: 'create' };
+  const idp = ecran ? IDP[ecran] : undefined;
+  if (idp) return { extra: { kc_idp_hint: idp }, prompt: 'login' };
+  return { extra: {}, ...(reconnexion ? { prompt: 'login' } : {}) };
+}
+
+/** Ouvre l'écran de connexion (ecran = 'inscription' pour « Créer un compte », 'facebook', 'linkedin' ou 'google' pour le lancement direct
+ *  par ce réseau). */
 export async function connexionOidc(langue: string, ecran?: string): Promise<Issue> {
   if (!AVEC_OIDC || enCours) return 'annule';
   enCours = true; propose = true;
   try {
-    const extra: Record<string, string> = { ui_locales: langue };
-    if (ecran) extra.ecran = ecran;
-    if (Platform.OS === 'ios') extra.fournisseurs = 'sans-google';   // règle 4.8 : Google seulement en natif, à côté d'Apple
-    // session web partagée : sans prompt=login, une session ouverte sur connect.capit.net rendrait le code d'office, sans l'écran demandé
-    const forcer = !!ecran || (await reconnexionDemandee());
+    // session web partagée : sans prompt=login, une session ouverte sur auth.capit.net rendrait le code d'office, sans l'écran demandé
+    const p = parametresKeycloak(ecran, await reconnexionDemandee());
     const req = new AuthSession.AuthRequest({
       clientId: OIDC.client, redirectUri: OIDC.retour, scopes: ['openid', 'email', 'profile'], usePKCE: true,
-      responseType: AuthSession.ResponseType.Code, extraParams: extra, ...(forcer ? { prompt: AuthSession.Prompt.Login } : {}),
+      codeChallengeMethod: AuthSession.CodeChallengeMethod.S256, responseType: AuthSession.ResponseType.Code,
+      extraParams: { ui_locales: langue, ...p.extra }, ...(p.prompt ? { prompt: p.prompt as AuthSession.Prompt } : {}),
     });
     const r = await req.promptAsync(OIDC.decouverte, { preferEphemeralSession: false });
     if (r.type === 'success' && r.params.code) {

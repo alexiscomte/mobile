@@ -19,7 +19,8 @@ const UI_P = (ui as unknown as { profilPhoto: Record<string, TX> }).profilPhoto;
 const NOMS: Record<string, string> = { google: 'Google', facebook: 'Facebook', linkedin: 'LinkedIn', snapchat: 'Snapchat' };
 const COTE = 256, TAILLE_MAX = 180 * 1024;
 // Sur iOS, Google passe seulement par le bouton natif de l'écran de connexion (règle 4.8, connexion.ts) : pas de raccourci ici.
-const RESEAUX = Platform.OS === 'ios' ? ['facebook', 'linkedin', 'snapchat'] : ['google', 'facebook', 'linkedin', 'snapchat'];
+// Snapchat retiré le 23/11/2026 (pas de fournisseur Snapchat dans Keycloak) ; son nom reste pour une proposition déjà enregistrée.
+const RESEAUX = Platform.OS === 'ios' ? ['facebook', 'linkedin'] : ['google', 'facebook', 'linkedin'];
 
 type Proposition = { fournisseur: string; prenom: string; nom: string; photo: boolean };
 
@@ -137,7 +138,7 @@ export function ProfilPhoto({ langue, appliquer }: { langue: string; appliquer: 
   };
   const connecter = async (f: string) => {
     dire('');
-    const issue = await connexionOidc(langue, f === 'google' ? undefined : f);   // ecran = réseau : prompt=login (connexion.ts), on repasse toujours par le réseau
+    const issue = await connexionOidc(langue, f);   // ecran = réseau : kc_idp_hint + prompt=login (connexion.ts), on repasse toujours par le réseau
     if (issue === 'ok') { relire(); relirePhoto(); } else if (issue === 'echec') dire(T.ko);
   };
 

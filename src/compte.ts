@@ -663,13 +663,19 @@ async function ouvrir(j: Reponse) {
   noter().then((d) => { if (d) pousserMaintenant(); }).catch(() => undefined);
 }
 
-/** Client de l'appli auprès du service de connexion commun (connexion_oidc.js) : public, code + PKCE, retour par le schéma de l'appli.
- *  Écran de connexion = connect.capit.net (décision d'Alexis du 17/11/2026 : une seule boîte, une seule session pour tous les sites et
- *  applis) ; l'émetteur signé reste https://affectionplus.com/connexion, d'où l'échange du code sur l'émetteur (appel direct, sans cookie). */
+/** Client de l'appli auprès du service de connexion commun : Keycloak CAPIT (realm capit, 23/11/2026 ; remplace connect.capit.net et
+ *  l'émetteur https://affectionplus.com/connexion). Client public `affectionplus-appli`, code + PKCE S256, retour par le schéma de l'appli ;
+ *  le jeton d'identité Keycloak est envoyé tel quel à POST /api/compte/oidc, qui en tire le numéro de compte (capit-identite). Les
+ *  versions déjà installées gardent l'ancien fournisseur, toujours actif. */
+export const OIDC_EMETTEUR = 'https://auth.capit.net/realms/capit';
 export const OIDC = {
   client: 'affectionplus-appli',
   retour: 'com.affectionplus.app:/connexion',
-  decouverte: { authorizationEndpoint: 'https://connect.capit.net/connexion/auth', tokenEndpoint: SITE + 'connexion/token' },
+  decouverte: {
+    authorizationEndpoint: OIDC_EMETTEUR + '/protocol/openid-connect/auth',
+    tokenEndpoint: OIDC_EMETTEUR + '/protocol/openid-connect/token',
+    endSessionEndpoint: OIDC_EMETTEUR + '/protocol/openid-connect/logout',
+  },
 };
 
 /** Ouvre la session de l'appli avec le jeton d'identité du service commun. Erreurs : jeton (401), trop, reseau. */
@@ -758,7 +764,7 @@ export async function deconnecter(): Promise<void> {
   if (!actuel) return;
   api('deconnexion', {}).catch(() => undefined);   // l'en-tête est lu avant l'effacement ci-dessous
   await oublierCompteLocal();
-  // session web partagée (connect.capit.net) : la prochaine connexion redemande l'identifiant (prompt=login), sinon la session du navigateur
+  // session web partagée (auth.capit.net) : la prochaine connexion redemande l'identifiant (prompt=login), sinon la session du navigateur
   // reconnecterait d'office le même compte ; effacé à la connexion suivante (ouvrir)
   try { await AsyncStorage.setItem(K_RECONNEXION, '1'); } catch { /* stockage indisponible */ }
 }
