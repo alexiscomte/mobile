@@ -606,7 +606,6 @@ export const REGISTRE: Record<string, number> = {
   "i/comptes/55fc1aae0d58.jpg": require("../assets/embarque/i/comptes/55fc1aae0d58.jpg"),
   "i/comptes/56e9fa588811.jpg": require("../assets/embarque/i/comptes/56e9fa588811.jpg"),
   "i/comptes/5724c68a727f.jpg": require("../assets/embarque/i/comptes/5724c68a727f.jpg"),
-  "i/comptes/57a5c3c68f36.jpg": require("../assets/embarque/i/comptes/57a5c3c68f36.jpg"),
   "i/comptes/5888fee25363.jpg": require("../assets/embarque/i/comptes/5888fee25363.jpg"),
   "i/comptes/59f01e604b2a.jpg": require("../assets/embarque/i/comptes/59f01e604b2a.jpg"),
   "i/comptes/5a3964fd6507.jpg": require("../assets/embarque/i/comptes/5a3964fd6507.jpg"),
@@ -713,7 +712,6 @@ export const REGISTRE: Record<string, number> = {
   "i/comptes/8ee08f35da92.jpg": require("../assets/embarque/i/comptes/8ee08f35da92.jpg"),
   "i/comptes/8f2a3a56eddb.jpg": require("../assets/embarque/i/comptes/8f2a3a56eddb.jpg"),
   "i/comptes/8f558ee4f452.jpg": require("../assets/embarque/i/comptes/8f558ee4f452.jpg"),
-  "i/comptes/8f8b2424f22f.jpg": require("../assets/embarque/i/comptes/8f8b2424f22f.jpg"),
   "i/comptes/912538e1c156.jpg": require("../assets/embarque/i/comptes/912538e1c156.jpg"),
   "i/comptes/91afcdf6993b.jpg": require("../assets/embarque/i/comptes/91afcdf6993b.jpg"),
   "i/comptes/91bd84617e2d.jpg": require("../assets/embarque/i/comptes/91bd84617e2d.jpg"),
@@ -3066,4 +3064,4 @@ export const REGISTRE: Record<string, number> = {
   "v/zm.js": require("../assets/embarque/v/zm.dat"),
   "v/zw.js": require("../assets/embarque/v/zw.dat"),
 };
-export const VERSION_EMBARQUEE = "2026-11-26T15:59:29Z";
+export const VERSION_EMBARQUEE = "2026-11-27T19:20:34Z";
