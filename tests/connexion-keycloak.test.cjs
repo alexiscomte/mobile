@@ -81,7 +81,7 @@ test('« Créer un compte » : prompt=create et max_age=0 (retour vers la connex
 });
 
 test('réseau social : kc_idp_hint du realm et prompt=login', async () => {
-  const attendu = { facebook: 'facebook', linkedin: 'linkedin-openid-connect', google: 'google' };
+  const attendu = { facebook: 'facebook', linkedin: 'linkedin-openid-connect', google: 'google', snapchat: 'snapchat' };
   for (const [ecran, idp] of Object.entries(attendu)) {
     const { exp, appels } = charger();
     await exp.connexionOidc('fr', ecran);
@@ -90,9 +90,9 @@ test('réseau social : kc_idp_hint du realm et prompt=login', async () => {
   }
 });
 
-test('écran inconnu (ancien Snapchat) : connexion simple, fraîche', async () => {
+test('écran inconnu : connexion simple, fraîche', async () => {
   const { exp, appels } = charger();
-  await exp.connexionOidc('fr', 'snapchat');
+  await exp.connexionOidc('fr', 'nimporte');
   assert.equal(appels[0].cfg.prompt, 'login');
   assert.deepEqual(appels[0].cfg.extraParams, { ui_locales: 'fr' });
 });
@@ -121,9 +121,10 @@ test('pannes et abandons : Keycloak en panne à l\'échange, pas de jeton d\'ide
   assert.match(fs.readFileSync(path.join(SRC, 'components', 'espace.tsx'), 'utf8'), /m !== null\) Alert\.alert\('AffectionPlus', m \|\| \(UI_C\[lg\] \|\| UI_C\.fr\)\.oidcKo\)/);
 });
 
-test('plus de bouton Snapchat', () => {
-  assert.doesNotMatch(fs.readFileSync(path.join(SRC, 'app', 'compte.tsx'), 'utf8'), /snapchat/i);
-  assert.doesNotMatch(fs.readFileSync(path.join(SRC, 'components', 'profil-photo.tsx'), 'utf8'), /RESEAUX = .*snapchat/);
+test('bouton Snapchat actif sur Mon compte et l\'import de profil (approuvé par Snap le 28/11/2026)', () => {
+  assert.match(fs.readFileSync(path.join(SRC, 'app', 'compte.tsx'), 'utf8'), /viaOidc\('snapchat'\)/);
+  assert.match(fs.readFileSync(path.join(SRC, 'components', 'profil-photo.tsx'), 'utf8'), /RESEAUX = .*snapchat/);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(SRC, 'compte_conf.json'), 'utf8')).snapchat, true);
 });
 
 test('retour de la connexion : route neutre « /connexion » (pas d\'écran « Unmatched Route » sur Android), qui ne lit ni code ni état', () => {

@@ -19,8 +19,8 @@ const UI_P = (ui as unknown as { profilPhoto: Record<string, TX> }).profilPhoto;
 const NOMS: Record<string, string> = { google: 'Google', facebook: 'Facebook', linkedin: 'LinkedIn', snapchat: 'Snapchat' };
 const COTE = 256, TAILLE_MAX = 180 * 1024;
 // Sur iOS, Google passe seulement par le bouton natif de l'écran de connexion (règle 4.8, connexion.ts) : pas de raccourci ici.
-// Snapchat retiré le 23/11/2026 (pas de fournisseur Snapchat dans Keycloak) ; son nom reste pour une proposition déjà enregistrée.
-const RESEAUX = Platform.OS === 'ios' ? ['facebook', 'linkedin'] : ['google', 'facebook', 'linkedin'];
+// Snapchat réactivé le 28/11/2026 (application approuvée par Snap, fournisseur snapchat dans Keycloak).
+const RESEAUX = Platform.OS === 'ios' ? ['facebook', 'linkedin', 'snapchat'] : ['google', 'facebook', 'linkedin', 'snapchat'];
 
 type Proposition = { fournisseur: string; prenom: string; nom: string; photo: boolean };
 

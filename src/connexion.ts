@@ -8,8 +8,8 @@
 // (com.affectionplus.app), qu'une autre appli peut déclarer ; avec un client public, elle obtiendrait sinon un code et un jeton sans que
 // la personne voie rien. Le serveur refuse donc à ce client un jeton dont l'authentification a plus de 5 minutes (compte_api.js routeOidc),
 // et l'appli n'en demande jamais d'autre. Plus de drapeau « reconnexion » après une déconnexion : c'est toujours le cas.
-// Les réseaux sociaux passent par les fournisseurs d'identité du realm (kc_idp_hint) : facebook, linkedin-openid-connect, google.
-// Snapchat n'existe pas dans Keycloak : bouton retiré (23/11/2026).
+// Les réseaux sociaux passent par les fournisseurs d'identité du realm (kc_idp_hint) : facebook, linkedin-openid-connect, google, snapchat
+// (pont OIDC approuvé par Snap le 28/11/2026).
 //
 // Se connecter avec Apple (12/10/2026, règle App Store 4.8 : une appli qui propose Google doit proposer Apple) : Apple et Google sont
 // proposés en natif sur l'écran Mon compte (app/compte.tsx), où mènent « Se connecter » / « Créer un compte » dès que Se connecter avec
@@ -140,19 +140,20 @@ export function dejaPropose(): boolean { return propose; }
 export function marquerInvite(): void { invite = true; }
 
 /** Fournisseurs d'identité du realm capit (kc_idp_hint) pour un lancement direct depuis l'appli. */
-const IDP: Record<string, string> = { facebook: 'facebook', linkedin: 'linkedin-openid-connect', google: 'google' };
+const IDP: Record<string, string> = { facebook: 'facebook', linkedin: 'linkedin-openid-connect', google: 'google', snapchat: 'snapchat' };
 
 /** Paramètres Keycloak d'un écran demandé (remplacent l'ancien ecran=… de connect.capit.net), authentification toujours fraîche :
- *  'inscription' → prompt=create + max_age=0 ; réseau connu → kc_idp_hint + prompt=login ; sinon (connexion simple, écran inconnu comme
- *  l'ancien Snapchat) → prompt=login. */
+ *  'inscription' → prompt=create + max_age=0 ; réseau connu → kc_idp_hint + prompt=login ; sinon (connexion simple, écran inconnu) →
+ *  prompt=login. */
 export function parametresKeycloak(ecran: string | undefined): { extra: Record<string, string>; prompt: string } {
   if (ecran === 'inscription') return { extra: { max_age: '0' }, prompt: 'create' };
   const idp = ecran ? IDP[ecran] : undefined;
   return { extra: idp ? { kc_idp_hint: idp } : {}, prompt: 'login' };
 }
 
-/** Ouvre l'écran de connexion (ecran = 'inscription' pour « Créer un compte », 'facebook', 'linkedin' ou 'google' pour le lancement direct
- *  par ce réseau). memeCompte : import du profil d'une personne déjà connectée ; un réseau relié à un autre compte ne change rien (« autre »). */
+/** Ouvre l'écran de connexion (ecran = 'inscription' pour « Créer un compte », 'facebook', 'linkedin', 'google' ou 'snapchat' pour le
+ *  lancement direct par ce réseau). memeCompte : import du profil d'une personne déjà connectée ; un réseau relié à un autre compte ne
+ *  change rien (« autre »). */
 export async function connexionOidc(langue: string, ecran?: string, memeCompte = false): Promise<Issue> {
   if (!AVEC_OIDC || enCours) return 'annule';
   enCours = true; propose = true;
